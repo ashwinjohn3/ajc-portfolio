@@ -1,0 +1,5 @@
+
+    const cmd = require("/Users/ashwinjc/Desktop/ajc-portfolio/node_modules/gatsby/dist/commands/develop-process.js");
+    const args = {"_":["develop"],"verbose":false,"no-color":false,"no-colors":false,"noColors":false,"noColor":false,"json":false,"H":"localhost","host":"localhost","p":"8000","port":8001,"c":"","cert-file":"","certFile":"","k":"","key-file":"","keyFile":"","ca-file":"","caFile":"","graphql-tracing":false,"graphqlTracing":false,"$0":"gatsby","directory":"/Users/ashwinjc/Desktop/ajc-portfolio","browserslist":[">0.25%","not dead"],"sitePackageJson":{"name":"ajc-portfolio","version":"1.0.0","private":true,"description":"ajc-portfolio","keywords":["gatsby"],"scripts":{"develop":"gatsby develop","start":"gatsby develop","build":"gatsby build","serve":"gatsby serve","clean":"gatsby clean","typecheck":"tsc --noEmit"},"dependencies":{"gatsby":"^5.13.7","react":"^18.2.0","react-dom":"^18.2.0"},"devDependencies":{"@types/node":"^20.11.19","@types/react":"^18.2.55","@types/react-dom":"^18.2.19","typescript":"^5.3.3"}},"report":{"errorMap":{}},"useYarn":false,"proxyPort":8001,"debugInfo":null};
+    cmd(args);
+  
