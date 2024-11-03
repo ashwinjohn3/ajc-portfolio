@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Besley } from 'next/font/google'
+
+
+const besley = Besley({
+  weight: '400',
+  subsets: ['latin']
+})
+
+const besleySemiBold = Besley({
+  weight: '600',
+  subsets: ['latin']
+})
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${besleySemiBold.className} antialiased`}
       >
         {children}
       </body>
