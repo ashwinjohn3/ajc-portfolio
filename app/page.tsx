@@ -16,7 +16,7 @@ export default function Home() {
           >
             sde 2 at aws ram
             <span className="hidden group-hover:inline absolute"> 🐏</span>
-            <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 bg-[length:200%_100%] animate-gradient"></span>
+            {/* <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 bg-[length:200%_100%] animate-gradient"></span> */}
           </a>
         </h3>
         <h3 className="flex gap-4 justify-center mt-4">
