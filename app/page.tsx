@@ -26,7 +26,7 @@ export default function Home() {
           <a href="https://vsco.co/thelegendashw1n/gallery" target="_blank" rel="noopener noreferrer">
             <FaCameraRetro size={fontSize} />
           </a>
-          <a href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/ashwinjohn3" target="_blank" rel="noopener noreferrer">
             <FaGithub size={fontSize} />
           </a>
         </h3>
