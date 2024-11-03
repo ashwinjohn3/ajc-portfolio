@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <main>
-        <h1 className="font-semibold text-4xl">ashwin john chempolil</h1>
+        <h1 className="font-semibold text-4xl justify-center">ashwin john chempolil</h1>
         <h3 className='flex gap-4 justify-center mt-4 text-lg'>
           <a 
             href="https://aws.amazon.com/ram/" 
