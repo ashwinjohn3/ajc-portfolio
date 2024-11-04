@@ -4,9 +4,9 @@ import { FaGithub, FaLinkedin, FaCameraRetro } from 'react-icons/fa6';
 export default function Home() {
   const fontSize = 24;
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center text-center">
       <main>
-        <h1 className="font-semibold text-4xl justify-center">ashwin john chempolil</h1>
+        <h1 className="font-semibold text-4xl">ashwin john chempolil</h1>
         <h3 className='flex gap-4 justify-center mt-4 text-lg'>
           <a 
             href="https://aws.amazon.com/ram/" 
