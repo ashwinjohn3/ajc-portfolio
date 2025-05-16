@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Besley } from 'next/font/google'
+import { ThemeProvider } from "next-themes";
 
 
 const besley = Besley({
@@ -15,33 +16,24 @@ const besleySemiBold = Besley({
   subsets: ['latin']
 })
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+const gambarino = localFont({
+  src: "./fonts/Gambarino-Regular.ttf",
+  variable: "--font-gambarino-regular",
   weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+})
 
 export const metadata: Metadata = {
   title: "Ashwin John Chempolil",
   description: "Ashwin's Portfolio",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${besleySemiBold.className} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${gambarino.className} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
