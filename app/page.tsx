@@ -1,36 +1,174 @@
-import { FaGithub, FaLinkedin, FaCameraRetro } from 'react-icons/fa6';
+// app/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
+import { Github, Linkedin, Mail, Sun, Moon } from 'lucide-react';
+import { PERSONAL_INFO } from '../utils/constants';
+
+const Portfolio = () => {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
 
-export default function Home() {
-  const fontSize = 24;
+  const experiences = [
+    {
+      company: 'Amazon Web Services',
+      role: 'Software Dev Engineer II',
+      dates: 'Jul 2024 - Present',
+    },
+    {
+      company: 'Amazon Web Services',
+      role: 'Software Dev Engineer',
+      dates: 'Mar 2022 - Jul 2024',
+    },
+    {
+      company: 'Active.ai',
+      role: 'Data Scientist Intern',
+      dates: 'Jan 2021 - Jul 2021',
+    },
+    {
+      company: 'Northeastern University',
+      role: 'Graduate Course Assistant',
+      dates: 'Sep 2021 - Dec 2021',
+    }
+  ];
+
+  const education = [
+    {
+      institution: 'Northeastern University',
+      degree: 'Master of Science in Data Analytics Engineering',
+      dates: 'Sep 2019 - Dec 2021'
+    },
+    {
+      institution: 'University of Kerala',
+      degree: 'Bachelor of Technology in Production Engineering',
+      dates: 'Aug 2014 - May 2018'
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center text-center">
-      <main>
-        <h1 className="font-semibold text-5xl">Ashwin John Chempolil</h1>
-        <h3 className='flex gap-4 justify-center mt-4 text-xl'>
-          <a 
-            href="https://aws.amazon.com/ram/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="relative inline-block group"
-          >
-            Making everything shareable at AWS RAM
-            <span className="hidden group-hover:inline absolute">🐏</span>
-            {/* <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 bg-[length:200%_100%] animate-gradient"></span> */}
-          </a>
-        </h3>
-        <h3 className="flex gap-4 justify-center mt-4">
-          <a href="https://www.linkedin.com/in/ashwinjohn3/" target="_blank" rel="noopener noreferrer" >
-            <FaLinkedin size={fontSize} />
-          </a>
-          <a href="https://vsco.co/thelegendashw1n/gallery" target="_blank" rel="noopener noreferrer">
-            <FaCameraRetro size={fontSize} />
-          </a>
-          <a href="https://github.com/ashwinjohn3" target="_blank" rel="noopener noreferrer">
-            <FaGithub size={fontSize} />
-          </a>
-        </h3>
-      </main>
+    <div className="portfolio-container">
+      {/* Animated Background */}
+      <div className="background">
+        <div className="dots-layer main-dots"></div>
+      </div>
+
+      {/* Theme Toggle */}
+      <button 
+        onClick={toggleTheme}
+        className="theme-toggle-fixed"
+        aria-label="Toggle theme"
+      >
+        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+      </button>
+
+      {/* Main Content Container */}
+      <div className="content-box">
+        {/* Hero Section */}
+        <section className="hero">
+          <div className="hero-content">
+            <h1 className="hero-name">{PERSONAL_INFO.name}</h1>
+          </div>
+        </section>
+
+        <div className="hero-info">
+          <p className="hero-role">{PERSONAL_INFO.role}</p>
+          <p className="hero-company">{PERSONAL_INFO.company}</p>
+          <div className="hero-social">
+            <a href={PERSONAL_INFO.github} aria-label="GitHub" className="hero-social-link">
+              <Github size={20} />
+            </a>
+            <a href={PERSONAL_INFO.linkedin} aria-label="LinkedIn" className="hero-social-link">
+              <Linkedin size={20} />
+            </a>
+            <a href={`mailto:${PERSONAL_INFO.email}`} aria-label="Email" className="hero-social-link">
+              <Mail size={20} />
+            </a>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <main className="main-content">
+          {/* Experience Section */}
+          <section className="section">
+            <h2 className="section-title">Experience</h2>
+            <div className="timeline">
+              {experiences.map((exp, index) => (
+                <div key={index} className="timeline-item">
+                  <div className="timeline-line"></div>
+                  <div className="timeline-content">
+                    <div className="timeline-header">
+                      <h3 className="timeline-title">{exp.role}</h3>
+                      <span className="timeline-dates">{exp.dates}</span>
+                    </div>
+                    <h4 className="timeline-subtitle">{exp.company}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Education Section */}
+          <section className="section">
+            <h2 className="section-title">Education</h2>
+            <div className="timeline">
+              {education.map((edu, index) => (
+                <div key={index} className="timeline-item">
+                  <div className="timeline-line"></div>
+                  <div className="timeline-content">
+                    <div className="timeline-header">
+                      <h3 className="timeline-title">{edu.degree}</h3>
+                      <span className="timeline-dates">{edu.dates}</span>
+                    </div>
+                    <h4 className="timeline-subtitle">{edu.institution}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          
+          {/* Contact Section */}
+          <section className="section contact-section">
+              <h2 className="section-title">Let&apos;s Connect</h2>
+              <p className="contact-description">
+                I&apos;m always interested in new opportunities and interesting projects.
+              </p>
+              <div className="contact-buttons">
+                <a href={`mailto:${PERSONAL_INFO.email}`} className="contact-button">
+                  <Mail size={18} />
+                  Get in Touch
+                </a>
+                <a href={PERSONAL_INFO.linkedin} className="contact-button secondary">
+                  <Linkedin size={18} />
+                  LinkedIn
+                </a>
+                <a href={PERSONAL_INFO.github} className="contact-button secondary">
+                  <Github size={18} />
+                  GitHub
+                </a>
+              </div>
+            </section>
+        </main>
+      </div>
+
+
+
     </div>
   );
-}
+};
+
+export default Portfolio;
