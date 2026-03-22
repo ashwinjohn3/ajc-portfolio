@@ -1,7 +1,15 @@
 // app/components/Footer.tsx  (server component — no 'use client')
 
+import { Github, Linkedin } from 'lucide-react'
 import { PERSONAL_INFO } from '../../utils/constants'
 import ObfuscatedEmail from './ObfuscatedEmail'
+
+const iconStyle: React.CSSProperties = {
+  color: 'var(--ink-mid)',
+  display: 'flex',
+  alignItems: 'center',
+  transition: 'color 0.15s',
+}
 
 export default function Footer() {
   return (
@@ -30,29 +38,16 @@ export default function Footer() {
         Say hi
       </h2>
 
-      {/* Email — obfuscated client component, never in server-rendered HTML */}
-      <ObfuscatedEmail
-        style={{
-          display: 'block',
-          fontFamily: 'var(--font-dm-sans)',
-          fontSize: '1rem',
-          color: 'var(--ink)',
-          marginBottom: '0.75rem',
-        }}
-      />
-
-      {/* Social links */}
-      <p
-        style={{
-          fontFamily: 'var(--font-dm-sans)',
-          fontSize: '0.75rem',
-          color: 'var(--ink-mid)',
-        }}
-      >
-        <a href={PERSONAL_INFO.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-        {' · '}
-        <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      </p>
+      {/* Icon row — email obfuscated, never in server HTML */}
+      <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+        <ObfuscatedEmail style={iconStyle} />
+        <a href={PERSONAL_INFO.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" style={iconStyle}>
+          <Github size={18} />
+        </a>
+        <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style={iconStyle}>
+          <Linkedin size={18} />
+        </a>
+      </div>
 
       {/* Copyright rule */}
       <div style={{ height: '1px', background: 'var(--rule)', margin: '2rem 0 1rem' }} />
