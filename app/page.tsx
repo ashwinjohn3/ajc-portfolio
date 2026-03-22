@@ -9,6 +9,7 @@ import Nav from './components/Nav';
 import Hero from './components/Hero';
 import SectionTable from './components/SectionTable';
 import Shelf from './components/Shelf';
+import Footer from './components/Footer';
 
 const Portfolio = () => {
   const { theme, setTheme } = useTheme();
@@ -172,6 +173,7 @@ const Portfolio = () => {
               </div>
             </section>
         </main>
+        <Footer />
       </div>
 
 
