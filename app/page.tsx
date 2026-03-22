@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import { Github, Linkedin, Mail, Sun, Moon } from 'lucide-react';
 import { PERSONAL_INFO } from '../utils/constants';
 import Nav from './components/Nav';
+import Hero from './components/Hero';
 
 const Portfolio = () => {
   const { theme, setTheme } = useTheme();
@@ -64,6 +65,7 @@ const Portfolio = () => {
   return (
     <div className="portfolio-container">
       <Nav />
+      <Hero />
       {/* Animated Background */}
       <div className="background">
         <div className="dots-layer main-dots"></div>
