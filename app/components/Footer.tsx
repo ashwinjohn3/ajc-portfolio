@@ -1,6 +1,7 @@
 // app/components/Footer.tsx  (server component — no 'use client')
 
 import { PERSONAL_INFO } from '../../utils/constants'
+import ObfuscatedEmail from './ObfuscatedEmail'
 
 export default function Footer() {
   return (
@@ -18,9 +19,9 @@ export default function Footer() {
       <h2
         style={{
           fontFamily: 'var(--font-dm-sans)',
-          fontSize: '0.5rem',
+          fontSize: 'var(--label-size)',
           fontWeight: 500,
-          letterSpacing: '0.2em',
+          letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: 'var(--ink-faint)',
           marginBottom: '1.25rem',
@@ -29,9 +30,8 @@ export default function Footer() {
         Say hi
       </h2>
 
-      {/* Email */}
-      <a
-        href={`mailto:${PERSONAL_INFO.email}`}
+      {/* Email — obfuscated client component, never in server-rendered HTML */}
+      <ObfuscatedEmail
         style={{
           display: 'block',
           fontFamily: 'var(--font-dm-sans)',
@@ -39,9 +39,7 @@ export default function Footer() {
           color: 'var(--ink)',
           marginBottom: '0.75rem',
         }}
-      >
-        {PERSONAL_INFO.email}
-      </a>
+      />
 
       {/* Social links */}
       <p
@@ -63,7 +61,7 @@ export default function Footer() {
           display: 'flex',
           justifyContent: 'space-between',
           fontFamily: 'var(--font-dm-sans)',
-          fontSize: '0.6rem',
+          fontSize: '0.6875rem',
           letterSpacing: '0.06em',
           color: 'var(--ink-faint)',
         }}
