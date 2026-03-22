@@ -31,19 +31,6 @@ export default function Hero() {
         width: '100%',
       }}
     >
-      {/* Responsive padding via style tag — targets .hero-section on the outer <section> */}
-      <style>{`
-        @media (max-width: 640px) {
-          .hero-section { padding: 2.5rem 1.5rem !important; }
-          .hero-name { font-size: clamp(2.5rem, 12vw, 4rem) !important; }
-          .hero-role-line { flex-direction: column !important; gap: 0.25rem !important; }
-        }
-        @media (min-width: 641px) and (max-width: 1024px) {
-          .hero-section { padding: 3rem 2rem !important; }
-          .hero-name { font-size: clamp(3rem, 7vw, 5.5rem) !important; }
-        }
-      `}</style>
-
       <motion.div
         variants={containerVariants}
         initial="hidden"

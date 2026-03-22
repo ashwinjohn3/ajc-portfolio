@@ -16,7 +16,7 @@ function ShelfRow({ heading, items }: ShelfRowProps) {
   return (
     <div style={{ marginBottom: '2rem' }}>
       {/* Row heading */}
-      <p
+      <h3
         style={{
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.5rem',
@@ -30,13 +30,15 @@ function ShelfRow({ heading, items }: ShelfRowProps) {
         }}
       >
         {heading}
-      </p>
+      </h3>
 
       {/* Covers */}
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', overflowX: 'auto', paddingBottom: '0.5rem' }}>
         {items.map((item) => (
           <div key={item.title} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
             <motion.div
+              role="img"
+              aria-label={item.title}
               whileHover={{ y: prefersReducedMotion ? 0 : -6 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
@@ -47,7 +49,7 @@ function ShelfRow({ heading, items }: ShelfRowProps) {
                 // spineColor used as a tinted bottom shadow to distinguish each title's color
                 boxShadow: `0 4px 14px rgba(0,0,0,0.13), 0 1px 3px rgba(0,0,0,0.08), 0 6px 12px ${item.spineColor}55`,
                 position: 'relative',
-                cursor: 'pointer',
+                cursor: 'default',
               }}
             >
               <Image
@@ -82,7 +84,7 @@ function ShelfRow({ heading, items }: ShelfRowProps) {
       <div
         style={{
           height: '3px',
-          background: `linear-gradient(to right, var(--rule), oklch(80% 0.01 60))`,
+          background: `linear-gradient(to right, var(--rule), var(--rule))`,
           borderRadius: '2px',
           boxShadow: '0 3px 8px rgba(0,0,0,0.08)',
           marginTop: '0.25rem',
@@ -111,12 +113,7 @@ export default function Shelf({ games, movies, tvShows }: Props) {
         borderBottom: '1px solid var(--rule)',
       }}
     >
-      <style>{`
-        @media (max-width: 640px)  { .shelf-section { padding: 2rem 1.5rem !important; } }
-        @media (min-width: 641px) and (max-width: 1024px) { .shelf-section { padding: 2.5rem 2rem !important; } }
-      `}</style>
-
-      <p
+      <h2
         style={{
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.5rem',
@@ -128,7 +125,7 @@ export default function Shelf({ games, movies, tvShows }: Props) {
         }}
       >
         Currently into
-      </p>
+      </h2>
 
       <ShelfRow heading="Games"    items={games} />
       <ShelfRow heading="Movies"   items={movies} />

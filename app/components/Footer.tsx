@@ -14,13 +14,8 @@ export default function Footer() {
         padding: '3rem 4rem 4rem',
       }}
     >
-      <style>{`
-        @media (max-width: 640px)  { .footer-pad { padding: 2rem 1.5rem 3rem !important; } }
-        @media (min-width: 641px) and (max-width: 1024px) { .footer-pad { padding: 2.5rem 2rem 3rem !important; } }
-      `}</style>
-
       {/* Section heading */}
-      <p
+      <h2
         style={{
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.5rem',
@@ -32,7 +27,7 @@ export default function Footer() {
         }}
       >
         Say hi
-      </p>
+      </h2>
 
       {/* Email */}
       <a
@@ -56,9 +51,9 @@ export default function Footer() {
           color: 'var(--ink-mid)',
         }}
       >
-        <a href={PERSONAL_INFO.github}>GitHub</a>
+        <a href={PERSONAL_INFO.github} target="_blank" rel="noopener noreferrer">GitHub</a>
         {' · '}
-        <a href={PERSONAL_INFO.linkedin}>LinkedIn</a>
+        <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
 
       {/* Copyright rule */}

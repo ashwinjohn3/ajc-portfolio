@@ -92,15 +92,6 @@ export default function Nav() {
         )}
       </div>
 
-      {/* Responsive padding */}
-      <style>{`
-        @media (max-width: 640px) {
-          nav { padding: 0.5rem 1rem !important; }
-        }
-        @media (min-width: 641px) and (max-width: 1024px) {
-          nav { padding: 0.625rem 2rem !important; }
-        }
-      `}</style>
     </nav>
   )
 }

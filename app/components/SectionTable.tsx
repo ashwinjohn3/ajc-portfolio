@@ -38,13 +38,8 @@ export default function SectionTable({ heading, rows, id }: Props) {
         borderBottom: '1px solid var(--rule)',
       }}
     >
-      <style>{`
-        @media (max-width: 640px)  { .section-pad { padding: 2rem 1.5rem !important; } }
-        @media (min-width: 641px) and (max-width: 1024px) { .section-pad { padding: 2.5rem 2rem !important; } }
-      `}</style>
-
       {/* Section heading */}
-      <p
+      <h2
         style={{
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.5rem',
@@ -56,7 +51,7 @@ export default function SectionTable({ heading, rows, id }: Props) {
         }}
       >
         {heading}
-      </p>
+      </h2>
 
       {/* Rows */}
       <motion.div

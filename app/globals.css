@@ -49,12 +49,12 @@ body {
 }
 
 /* ── Anchor scroll offset (accounts for sticky nav height) ── */
-section[id] {
+[id] {
   scroll-margin-top: 44px;
 }
 
 @media (max-width: 640px) {
-  section[id] {
+  [id] {
     scroll-margin-top: 40px;
   }
 }
@@ -91,4 +91,23 @@ a:hover {
 ::selection {
   background: var(--ink);
   color: var(--bg);
+}
+
+/* ── Component responsive overrides ── */
+@media (max-width: 640px) {
+  nav { padding: 0.5rem 1rem !important; }
+  .hero-section { padding: 2.5rem 1.5rem !important; }
+  .hero-name { font-size: clamp(2.5rem, 12vw, 4rem) !important; }
+  .hero-role-line { flex-direction: column !important; gap: 0.25rem !important; }
+  .section-pad { padding: 2rem 1.5rem !important; }
+  .shelf-section { padding: 2rem 1.5rem !important; }
+  .footer-pad { padding: 2rem 1.5rem 3rem !important; }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  nav { padding: 0.625rem 2rem !important; }
+  .hero-section { padding: 3rem 2rem !important; }
+  .hero-name { font-size: clamp(3rem, 7vw, 5.5rem) !important; }
+  .section-pad { padding: 2.5rem 2rem !important; }
+  .shelf-section { padding: 2.5rem 2rem !important; }
+  .footer-pad { padding: 2.5rem 2rem 3rem !important; }
 }
