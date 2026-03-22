@@ -4,9 +4,10 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Github, Linkedin, Mail, Sun, Moon } from 'lucide-react';
-import { PERSONAL_INFO } from '../utils/constants';
+import { PERSONAL_INFO, EXPERIENCE, EDUCATION } from '../utils/constants';
 import Nav from './components/Nav';
 import Hero from './components/Hero';
+import SectionTable from './components/SectionTable';
 
 const Portfolio = () => {
   const { theme, setTheme } = useTheme();
@@ -66,6 +67,8 @@ const Portfolio = () => {
     <div className="portfolio-container">
       <Nav />
       <Hero />
+      <SectionTable id="experience" heading="Experience" rows={EXPERIENCE} />
+      <SectionTable id="education" heading="Education" rows={EDUCATION} />
       {/* Animated Background */}
       <div className="background">
         <div className="dots-layer main-dots"></div>
