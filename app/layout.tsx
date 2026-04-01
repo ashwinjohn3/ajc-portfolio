@@ -1,21 +1,12 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
 import './globals.css'
-import { Fraunces, DM_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ThemeProvider } from 'next-themes'
 
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  weight: ['300', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-fraunces',
-  display: 'swap',
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  variable: '--font-dm-sans',
+const geistMono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
   display: 'swap',
 })
 
@@ -27,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fraunces.variable} ${dmSans.variable} antialiased`}>
+      <body className={`${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
         </ThemeProvider>
