@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
 const LINKS = [
-  { label: 'work',        href: '#work'        },
-  { label: 'projects',    href: '#projects'    },
-  { label: 'photography', href: '#photography' },
-  { label: 'contact',     href: '#contact'     },
+  { label: 'work',        href: '/work'        },
+  { label: 'projects',    href: '/projects'    },
+  { label: 'photography', href: '/photography' },
+  { label: 'contact',     href: '/contact'     },
 ]
 
 export default function Nav() {
