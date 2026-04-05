@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageSection from '../components/PageSection.astro'
+import { EXPERIENCE, SITE_NAME } from '../data/site'
+---
+
+<BaseLayout title={`Work — ${SITE_NAME}`}>
+  <PageSection label="work" activePath="/work">
+    <div>
+      {EXPERIENCE.map((row) => (
+        <div class="row">
+          <div>
+            <div>{row.title}</div>
+            <div class="row-sub">{row.sub}</div>
+          </div>
+          <div class="row-year">{row.year}</div>
+        </div>
+      ))}
+    </div>
+  </PageSection>
+</BaseLayout>

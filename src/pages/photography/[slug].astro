@@ -1,0 +1,38 @@
+---
+import { getCollection, render } from 'astro:content'
+import ContentLayout from '../../layouts/ContentLayout.astro'
+import PhotoGrid from '../../components/PhotoGrid.astro'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('photography')
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+---
+
+<ContentLayout title={`${entry.data.title} — Photography`} label="photography" activePath="/photography" entry={entry}>
+  <p class="content-meta">{entry.data.location} · {entry.data.date}</p>
+  <div class="photo-equipment">
+    {entry.data.camera && <span>{entry.data.camera}</span>}
+    {entry.data.filmOrLens && <span>{entry.data.filmOrLens}</span>}
+  </div>
+  <figure class="photo-series-hero">
+    <img
+      src={entry.data.coverImage}
+      alt={entry.data.title}
+      width="1200"
+      height="900"
+      loading="eager"
+      decoding="async"
+    />
+  </figure>
+  <PhotoGrid photos={entry.data.gallery} />
+  <div class="content-body">
+    <Content />
+  </div>
+</ContentLayout>

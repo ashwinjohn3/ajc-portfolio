@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageSection from '../components/PageSection.astro'
+import SocialIcons from '../components/SocialIcons.astro'
+import { EMAIL, SITE_NAME, SOCIAL_LINKS } from '../data/site'
+---
+
+<BaseLayout title={`Contact — ${SITE_NAME}`}>
+  <PageSection label="contact" activePath="/contact">
+    <p class="section-copy">Open to interesting conversations. Say hello.</p>
+    <div style="display: flex; gap: 1.25rem; align-items: center;">
+      <a href={`mailto:${EMAIL}`} aria-label="Email" style="color: var(--ink-mid); display: flex; align-items: center;">
+        <SocialIcons name="mail" size={18} />
+      </a>
+      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" style="color: var(--ink-mid); display: flex; align-items: center;">
+        <SocialIcons name="github" size={15} />
+      </a>
+      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style="color: var(--ink-mid); display: flex; align-items: center;">
+        <SocialIcons name="linkedin" size={15} />
+      </a>
+    </div>
+  </PageSection>
+</BaseLayout>

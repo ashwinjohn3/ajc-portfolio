@@ -1,0 +1,29 @@
+---
+interface Photo {
+  src: string
+  alt: string
+  width: number
+  height: number
+}
+
+interface Props {
+  photos: Photo[]
+}
+
+const { photos } = Astro.props
+---
+
+<div class="photo-grid">
+  {photos.map((photo) => (
+    <figure class="photo-card">
+      <img
+        src={photo.src}
+        alt={photo.alt}
+        width={photo.width}
+        height={photo.height}
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
+  ))}
+</div>

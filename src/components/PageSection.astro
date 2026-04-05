@@ -1,0 +1,18 @@
+---
+import Nav from './Nav.astro'
+
+interface Props {
+  label: string
+  activePath: '/work' | '/projects' | '/photography' | '/contact'
+}
+
+const { label, activePath } = Astro.props
+---
+
+<Nav activePath={activePath} />
+<main>
+  <section class="wrap section">
+    <p class="label">{label}</p>
+    <slot />
+  </section>
+</main>

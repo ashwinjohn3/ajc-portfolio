@@ -1,0 +1,44 @@
+---
+import { NAV_LINKS, SITE_NAME } from '../data/site'
+
+interface Props {
+  activePath: '/' | '/work' | '/projects' | '/photography' | '/contact'
+}
+
+const { activePath } = Astro.props
+---
+
+<nav style="position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 1px solid var(--rule);">
+  <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; padding-bottom: 0.75rem;">
+    <a href="/" style={`color: ${activePath === '/' ? 'var(--ink)' : 'var(--ink-mid)'}`}>{SITE_NAME.toLowerCase()}</a>
+    <div style="display: flex; align-items: center; gap: 0.1rem;">
+      {NAV_LINKS.map(({ label, href }) => (
+        <a href={href} style={`color: ${activePath === href ? 'var(--ink)' : 'var(--ink-faint)'}; padding: 0 0.35rem;`}>
+          [{label}]
+        </a>
+      ))}
+      <button
+        type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-label="Toggle theme"
+        title="Toggle theme"
+      >
+        <svg class="theme-icon theme-icon-moon" data-theme-icon="moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
+        </svg>
+        <svg class="theme-icon theme-icon-sun" data-theme-icon="sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>

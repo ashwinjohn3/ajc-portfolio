@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import BaseLayout from './BaseLayout.astro'
+import PageSection from '../components/PageSection.astro'
+
+interface Props {
+  title: string
+  label: string
+  activePath: '/projects' | '/photography'
+  entry: CollectionEntry<'projects'> | CollectionEntry<'photography'>
+}
+
+const { title, label, activePath, entry } = Astro.props
+---
+
+<BaseLayout title={title}>
+  <PageSection label={label} activePath={activePath}>
+    <article class="content-entry">
+      <header class="content-header">
+        <h1>{entry.data.title}</h1>
+      </header>
+      <slot />
+    </article>
+  </PageSection>
+</BaseLayout>
