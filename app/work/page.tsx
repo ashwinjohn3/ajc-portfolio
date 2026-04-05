@@ -5,7 +5,7 @@ export const metadata = createPageMetadata('Work')
 
 export default function WorkPage() {
   return (
-    <PageSection label="work">
+    <PageSection label="work" activePath="/work">
       <div>
         {EXPERIENCE.map((row) => (
           <div key={row.title} className="row">

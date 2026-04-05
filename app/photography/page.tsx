@@ -7,7 +7,7 @@ export const metadata = createPageMetadata('Photography')
 
 export default function PhotographyPage() {
   return (
-    <PageSection label="photography">
+    <PageSection label="photography" activePath="/photography">
       <div className="photo-grid">
         {Array.from({ length: PHOTO_PLACEHOLDER_COUNT }, (_, index) => (
           <div key={index} className="photo-tile" />

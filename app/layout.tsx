@@ -2,7 +2,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import localFont from 'next/font/local'
-import { ThemeProvider } from 'next-themes'
 
 const geistMono = localFont({
   src: './fonts/GeistMonoVF.woff',
@@ -17,11 +16,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={`${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   )

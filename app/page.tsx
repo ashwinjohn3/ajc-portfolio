@@ -4,7 +4,7 @@ import Nav from './components/Nav'
 export default function Page() {
   return (
     <>
-      <Nav />
+      <Nav activePath="/" />
       <main>
         <div className="wrap" style={{ paddingTop: '4rem', paddingBottom: '3rem' }}>
           <p style={{ color: 'var(--ink)', marginBottom: '1rem', fontSize: '0.9rem' }}>

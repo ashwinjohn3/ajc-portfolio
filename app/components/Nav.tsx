@@ -1,16 +1,8 @@
-// app/components/Nav.tsx
-'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
-import { Sun, Moon } from 'lucide-react'
 import { NAV_LINKS, SITE_NAME } from '../../utils/site'
 
 const activeLinkStyle: React.CSSProperties = {
   color: 'var(--ink)',
-  opacity: 1,
 }
 
 const inactiveNameStyle: React.CSSProperties = {
@@ -22,23 +14,11 @@ const inactiveNavItemStyle: React.CSSProperties = {
   padding: '0 0.35rem',
 }
 
-const iconButtonStyle: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  color: 'var(--ink-faint)',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '0 0.35rem',
-  marginLeft: '0.25rem',
+interface NavProps {
+  activePath: '/' | '/work' | '/projects' | '/photography' | '/contact'
 }
 
-export default function Nav() {
-  const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-
+export default function Nav({ activePath }: NavProps) {
   return (
     <nav style={{
       position: 'sticky',
@@ -50,7 +30,8 @@ export default function Nav() {
       <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', paddingBottom: '0.75rem' }}>
         <Link
           href="/"
-          style={pathname === '/' ? activeLinkStyle : inactiveNameStyle}
+          prefetch={false}
+          style={activePath === '/' ? activeLinkStyle : inactiveNameStyle}
         >
           {SITE_NAME.toLowerCase()}
         </Link>
@@ -59,20 +40,12 @@ export default function Nav() {
             <Link
               key={href}
               href={href}
-              style={pathname === href ? { ...activeLinkStyle, padding: '0 0.35rem' } : inactiveNavItemStyle}
+              prefetch={false}
+              style={activePath === href ? { ...activeLinkStyle, padding: '0 0.35rem' } : inactiveNavItemStyle}
             >
               [{label}]
             </Link>
           ))}
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="Toggle theme"
-              style={iconButtonStyle}
-            >
-              {theme === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
-            </button>
-          )}
         </div>
       </div>
     </nav>
