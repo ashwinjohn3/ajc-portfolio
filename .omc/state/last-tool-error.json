@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"npx tsc --noEmit 2>&1\",\"timeout\":30000,\"description\":\"Type check\"}",
-  "error": "Exit code 2\n.next/types/app/photography/page.ts(2,24): error TS2307: Cannot find module '../../../../app/photography/page.js' or its corresponding type declarations.\n.next/types/app/photography/page.ts(5,29): error TS2307: Cannot find module '../../../../app/photography/page.js' or its corresponding type declarations.\n.next/types/app/work/page.ts(2,24): error TS2307: Cannot find module '../../../../app/work/page.js' or its corresponding type declarations.\n.next/types/app/work/page.ts(5,29): erro...",
-  "timestamp": "2026-04-01T18:37:16.641Z",
-  "retry_count": 1
-}
