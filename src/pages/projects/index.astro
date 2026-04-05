@@ -2,10 +2,9 @@
 import { getCollection } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import PageSection from '../../components/PageSection.astro'
-import ProjectCard from '../../components/ProjectCard.astro'
 import { SITE_NAME } from '../../data/site'
 
-const projects = await getCollection('projects')
+await getCollection('projects')
 ---
 
 <BaseLayout title={`Projects — ${SITE_NAME}`}>
@@ -13,6 +12,6 @@ const projects = await getCollection('projects')
     <p class="section-copy">
       A small set of work I want to document more thoughtfully over time, with room for process notes, links, and deeper writeups.
     </p>
-    {projects.length > 0 ? projects.map((project) => <ProjectCard project={project} />) : <p style="color: var(--ink-faint);">coming soon.</p>}
+    <p style="color: var(--ink-faint);">coming soon.</p>
   </PageSection>
 </BaseLayout>

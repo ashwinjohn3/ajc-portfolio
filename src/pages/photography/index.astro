@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import PageSection from '../../components/PageSection.astro'
 import { SITE_NAME } from '../../data/site'
 
-const entries = await getCollection('photography')
+await getCollection('photography')
 ---
 
 <BaseLayout title={`Photography — ${SITE_NAME}`}>
@@ -12,23 +12,6 @@ const entries = await getCollection('photography')
     <p class="section-copy">
       Photo series live as Markdown-backed entries with remotely hosted images, so the gallery stays lightweight while each shoot can grow into its own page.
     </p>
-    <div class="photo-index-grid">
-      {entries.map((entry) => (
-        <a class="photo-index-card" href={`/photography/${entry.slug}`}>
-          <img
-            src={entry.data.coverImage}
-            alt={entry.data.title}
-            width="1200"
-            height="900"
-            loading="lazy"
-            decoding="async"
-          />
-          <div class="photo-index-copy">
-            <span>{entry.data.title}</span>
-            <span class="row-sub">{entry.data.location}</span>
-          </div>
-        </a>
-      ))}
-    </div>
+    <p style="color: var(--ink-faint);">coming soon.</p>
   </PageSection>
 </BaseLayout>
