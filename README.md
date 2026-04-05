@@ -126,3 +126,16 @@ The saved Astro migration plan lives in [`docs/superpowers/plans/2026-04-05-astr
 ## Deployment Notes
 
 The site now targets Astro static output. Keep the current route structure intact unless the user explicitly asks for URL changes.
+
+GitHub Pages deployment is defined in:
+
+- [`.github/workflows/astro-pages.yml`](./.github/workflows/astro-pages.yml)
+
+Current deployment behavior on this branch:
+
+- runs on pushes to `codex/astro-migration-plan`
+- installs dependencies with `npm ci`
+- builds the Astro site with `npm run build`
+- uploads `dist/` to GitHub Pages
+
+This branch-scoped trigger is intentional so Astro deployment changes can be validated before any mainline cutover.
