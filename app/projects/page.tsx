@@ -1,18 +1,12 @@
-// app/projects/page.tsx
-import Nav from '../components/Nav'
+import PageSection from '../components/PageSection'
+import { createPageMetadata } from '../../utils/site'
 
-export const metadata = { title: 'Projects — Ashwin John Chempolil' }
+export const metadata = createPageMetadata('Projects')
 
 export default function ProjectsPage() {
   return (
-    <>
-      <Nav />
-      <main>
-        <section className="wrap section">
-          <p className="label">projects</p>
-          <p style={{ color: 'var(--ink-faint)' }}>coming soon.</p>
-        </section>
-      </main>
-    </>
+    <PageSection label="projects">
+      <p style={{ color: 'var(--ink-faint)' }}>coming soon.</p>
+    </PageSection>
   )
 }

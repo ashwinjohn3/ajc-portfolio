@@ -1,26 +1,18 @@
-// app/photography/page.tsx
-import Nav from '../components/Nav'
+import PageSection from '../components/PageSection'
+import { createPageMetadata } from '../../utils/site'
 
-const PHOTOS = Array.from({ length: 9 }, (_, i) => ({ src: '', alt: `Photo ${i + 1}` }))
+const PHOTO_PLACEHOLDER_COUNT = 9
 
-export const metadata = { title: 'Photography — Ashwin John Chempolil' }
+export const metadata = createPageMetadata('Photography')
 
 export default function PhotographyPage() {
   return (
-    <>
-      <Nav />
-      <main>
-        <section className="wrap section">
-          <p className="label">photography</p>
-          <div className="photo-grid">
-            {PHOTOS.map((photo, i) => (
-              <div key={i} className="photo-tile">
-                {photo.src && <img src={photo.src} alt={photo.alt} />}
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
-    </>
+    <PageSection label="photography">
+      <div className="photo-grid">
+        {Array.from({ length: PHOTO_PLACEHOLDER_COUNT }, (_, index) => (
+          <div key={index} className="photo-tile" />
+        ))}
+      </div>
+    </PageSection>
   )
 }
