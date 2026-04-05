@@ -11,10 +11,10 @@ export default function Page() {
             Hi, I&apos;m Ashwin.
           </p>
           <p style={{ color: 'var(--ink-mid)', maxWidth: '480px' }}>
-            Software engineer at Amazon Web Services, where I build infrastructure
-            tooling and data systems. Based in Washington DC, originally from Kerala.
-            I care about clean systems, good food, and things that work quietly in
-            the background.
+            I&apos;m a software engineer based in Washington DC 🌸. I love exploring and tinkering with AI 🤖.
+          </p>
+          <p style={{ color: 'var(--ink-mid)', maxWidth: '480px', marginTop: '0.9rem' }}>
+            Currently working at AWS ☁️.
           </p>
         </div>
       </main>
