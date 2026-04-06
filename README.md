@@ -1,4 +1,4 @@
-This repo is now an [Astro](https://astro.build) portfolio site built around static pages, Markdown-backed content, and a lightweight client footprint.
+This repo is now an [Astro](https://astro.build) portfolio site built around static pages, Markdown-backed content, and a Tailwind-driven editorial design system.
 
 ## Getting Started
 
@@ -29,13 +29,14 @@ The site is organized as a content-first static app:
 - [`src/layouts/`](./src/layouts) contains shared page shells
 - [`src/components/`](./src/components) contains reusable UI pieces
 - [`src/content/`](./src/content) contains Markdown-backed collections
-- [`src/styles/global.css`](./src/styles/global.css) contains the shared visual system
+- [`src/styles/tailwind.css`](./src/styles/tailwind.css) contains the Tailwind entrypoint, theme tokens, and base layers
 - [`src/data/site.ts`](./src/data/site.ts) contains shared site constants
 
 Important Astro architecture decisions:
 
 - pages are static by default
 - Markdown is the default authoring format
+- Tailwind CSS is the primary styling system
 - project and photography detail pages are content-driven
 - remote photography images stay external in v1
 - dark mode is handled with a lightweight header toggle and no heavy theming package
@@ -57,7 +58,6 @@ Example existing file:
 
 Each project entry becomes:
 
-- a card in `/projects`
 - a generated detail page at `/projects/<slug>`
 
 ### Photography entries
@@ -72,7 +72,6 @@ Example existing file:
 
 Each photography entry becomes:
 
-- a card in `/photography`
 - a generated detail page at `/photography/<slug>`
 
 Photography notes:
@@ -120,8 +119,6 @@ The built output is intentionally small because the site ships mostly static HTM
 To learn more about the frameworks in this repo:
 
 - [Astro Documentation](https://docs.astro.build) - learn about Astro pages, content collections, and islands.
-
-The saved Astro migration plan lives in [`docs/superpowers/plans/2026-04-05-astro-migration-plan.md`](./docs/superpowers/plans/2026-04-05-astro-migration-plan.md).
 
 ## Deployment Notes
 

@@ -5,15 +5,48 @@ import Nav from '../components/Nav.astro'
 
 <BaseLayout>
   <Nav activePath="/" />
-  <main>
-    <div class="wrap home-intro">
-      <p style="color: var(--ink); margin-bottom: 1rem; font-size: 0.9rem;">Hi, I&apos;m Ashwin.</p>
-      <p class="lede">
-        I&apos;m a software engineer based in Washington DC 🌸. I love exploring and tinkering with AI 🤖.
-      </p>
-      <p class="lede">
-        Currently working at AWS ☁️.
-      </p>
-    </div>
+  <main class="page-shell pb-20 pt-14 md:pb-28 md:pt-20">
+    <section class="grid gap-14 md:grid-cols-[minmax(0,2.8fr)_minmax(14rem,1fr)] md:gap-16">
+      <div>
+        <p class="kicker mb-5">washington dc / software / ai / photography</p>
+        <h1 class="max-w-4xl font-editorial text-[clamp(3.2rem,8vw,7rem)] leading-[0.9] tracking-[-0.04em] text-ink dark:text-night-ink">
+          Building with taste, documenting with curiosity.
+        </h1>
+        <div class="mt-8 max-w-2xl space-y-5">
+          <p class="body-copy">
+            I&apos;m Ashwin, a software engineer based in Washington DC. I like thoughtful systems, sharp interfaces, and the
+            strange edges where engineering meets intuition.
+          </p>
+          <p class="body-copy">
+            Right now I work at AWS. Outside of that, I keep notes on tools, tinker with AI, and pay attention to how ideas
+            look and feel when they finally leave the notebook.
+          </p>
+        </div>
+        <div class="mt-10 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-ink-muted dark:text-night-muted">
+          <a class="hover:text-ink dark:hover:text-night-ink" href="/work">work</a>
+          <a class="hover:text-ink dark:hover:text-night-ink" href="/projects">projects</a>
+          <a class="hover:text-ink dark:hover:text-night-ink" href="/photography">photography</a>
+          <a class="hover:text-ink dark:hover:text-night-ink" href="/contact">contact</a>
+        </div>
+      </div>
+
+      <aside class="border-t border-rule pt-5 dark:border-night-rule md:mt-6">
+        <p class="kicker">field notes</p>
+        <div class="mt-5 space-y-8">
+          <div>
+            <p class="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint dark:text-night-faint">currently</p>
+            <p class="mt-2 text-[0.96rem] leading-7 text-ink-muted dark:text-night-muted">
+              Thinking about AI tooling, product taste, and how simple software can still feel distinctive.
+            </p>
+          </div>
+          <div>
+            <p class="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint dark:text-night-faint">later</p>
+            <p class="mt-2 text-[0.96rem] leading-7 text-ink-muted dark:text-night-muted">
+              This space will also hold notes on how I work, what I use, and the systems behind the output.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </section>
   </main>
 </BaseLayout>

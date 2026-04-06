@@ -9,9 +9,17 @@ await getCollection('projects')
 
 <BaseLayout title={`Projects — ${SITE_NAME}`}>
   <PageSection label="projects" activePath="/projects">
-    <p class="section-copy">
+    <p class="max-w-2xl text-[1.02rem] leading-8 text-ink-muted dark:text-night-muted">
       A small set of work I want to document more thoughtfully over time, with room for process notes, links, and deeper writeups.
     </p>
-    <p style="color: var(--ink-faint);">coming soon.</p>
+    <div class="mt-12 max-w-2xl border-t border-rule pt-8 dark:border-night-rule">
+      <p class="kicker">curating</p>
+      <p class="mt-4 font-editorial text-[clamp(1.9rem,4vw,3.2rem)] leading-[1.02] tracking-[-0.03em] text-ink dark:text-night-ink">
+        A more considered selection is on the way.
+      </p>
+      <p class="mt-4 text-[0.98rem] leading-8 text-ink-muted dark:text-night-muted">
+        I&apos;m keeping this public index intentionally spare until the writeups feel complete enough to be worth reading.
+      </p>
+    </div>
   </PageSection>
 </BaseLayout>

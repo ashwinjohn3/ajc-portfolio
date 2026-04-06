@@ -1,6 +1,6 @@
 ---
 import { SITE_DESCRIPTION, SITE_NAME } from '../data/site'
-import '../styles/global.css'
+import '../styles/tailwind.css'
 
 interface Props {
   title?: string
@@ -23,10 +23,11 @@ const { title = SITE_NAME, description = SITE_DESCRIPTION } = Astro.props
         const stored = localStorage.getItem('theme')
         const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
         document.documentElement.dataset.theme = theme
+        document.documentElement.classList.toggle('dark', theme === 'dark')
       })()
     </script>
   </head>
-  <body>
+  <body class="min-h-screen">
     <slot />
     <script is:inline>
       (() => {
@@ -35,6 +36,8 @@ const { title = SITE_NAME, description = SITE_DESCRIPTION } = Astro.props
 
         const applyTheme = (theme) => {
           root.dataset.theme = theme
+          root.classList.toggle('dark', theme === 'dark')
+          root.style.colorScheme = theme
           document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
             button.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')
             button.setAttribute('title', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')

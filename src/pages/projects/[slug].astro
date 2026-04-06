@@ -15,16 +15,28 @@ const { Content } = await render(project)
 ---
 
 <ContentLayout title={`${project.data.title} — Projects`} label="projects" activePath="/projects" entry={project}>
-  <p class="content-meta">{project.data.year}</p>
-  <p class="content-summary">{project.data.summary}</p>
-  <div class="project-tags">
-    {project.data.tags.map((tag) => <span>{tag}</span>)}
+  <p class="mt-6 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-ink-faint dark:text-night-faint">{project.data.year}</p>
+  <p class="mt-4 max-w-2xl text-[1rem] leading-8 text-ink-muted dark:text-night-muted">{project.data.summary}</p>
+  <div class="mt-5 flex flex-wrap gap-2">
+    {project.data.tags.map((tag) => (
+      <span class="border border-rule px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-[0.14em] text-ink-muted dark:border-night-rule dark:text-night-muted">
+        {tag}
+      </span>
+    ))}
   </div>
-  <div class="content-links">
-    {project.data.externalUrl && <a href={project.data.externalUrl} target="_blank" rel="noopener noreferrer">Visit project</a>}
-    {project.data.repoUrl && <a href={project.data.repoUrl} target="_blank" rel="noopener noreferrer">View source</a>}
+  <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-ink-muted dark:text-night-muted">
+    {project.data.externalUrl && (
+      <a href={project.data.externalUrl} target="_blank" rel="noopener noreferrer" class="hover:text-ink dark:hover:text-night-ink">
+        Visit project
+      </a>
+    )}
+    {project.data.repoUrl && (
+      <a href={project.data.repoUrl} target="_blank" rel="noopener noreferrer" class="hover:text-ink dark:hover:text-night-ink">
+        View source
+      </a>
+    )}
   </div>
-  <div class="content-body">
+  <div class="detail-prose mt-10 max-w-[42rem]">
     <Content />
   </div>
 </ContentLayout>

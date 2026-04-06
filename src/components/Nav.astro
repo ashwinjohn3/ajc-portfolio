@@ -6,28 +6,58 @@ interface Props {
 }
 
 const { activePath } = Astro.props
+const titleClass =
+  activePath === '/'
+    ? 'text-ink dark:text-night-ink'
+    : 'text-ink-muted hover:text-ink dark:text-night-muted dark:hover:text-night-ink'
 ---
 
-<nav style="position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 1px solid var(--rule);">
-  <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; padding-bottom: 0.75rem;">
-    <a href="/" style={`color: ${activePath === '/' ? 'var(--ink)' : 'var(--ink-mid)'}`}>{SITE_NAME.toLowerCase()}</a>
-    <div style="display: flex; align-items: center; gap: 0.1rem;">
+<nav class="sticky top-0 z-50 border-b border-rule/80 bg-paper/90 backdrop-blur-sm dark:border-night-rule dark:bg-night/85">
+  <div class="page-shell flex items-center justify-between gap-4 py-4">
+    <a
+      href="/"
+      class:list={[
+        'font-editorial text-[1.18rem] leading-none tracking-[-0.03em] transition-colors sm:text-[1.35rem]',
+        titleClass,
+      ]}
+    >
+      {SITE_NAME.toLowerCase()}
+    </a>
+    <div class="flex items-center gap-2 sm:gap-4">
       {NAV_LINKS.map(({ label, href }) => (
-        <a href={href} style={`color: ${activePath === href ? 'var(--ink)' : 'var(--ink-faint)'}; padding: 0 0.35rem;`}>
-          [{label}]
+        <a
+          href={href}
+          class:list={[
+            'border-b border-transparent px-1 py-1 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition-colors sm:text-[0.68rem]',
+            activePath === href
+              ? 'border-ink/70 text-ink dark:border-night-ink/70 dark:text-night-ink'
+              : 'text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink',
+          ]}
+        >
+          {label}
         </a>
       ))}
       <button
         type="button"
-        class="theme-toggle"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink"
         data-theme-toggle
         aria-label="Toggle theme"
         title="Toggle theme"
       >
-        <svg class="theme-icon theme-icon-moon" data-theme-icon="moon" viewBox="0 0 24 24" aria-hidden="true">
+        <svg
+          class="hidden h-3.5 w-3.5 fill-none stroke-current [html[data-theme='light']_&]:block dark:hidden"
+          data-theme-icon="moon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
           <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
         </svg>
-        <svg class="theme-icon theme-icon-sun" data-theme-icon="sun" viewBox="0 0 24 24" aria-hidden="true">
+        <svg
+          class="hidden h-3.5 w-3.5 fill-none stroke-current [html[data-theme='dark']_&]:block"
+          data-theme-icon="sun"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
           <circle cx="12" cy="12" r="4"></circle>
           <path d="M12 2v2"></path>
           <path d="M12 20v2"></path>

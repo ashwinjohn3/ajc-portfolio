@@ -10,9 +10,14 @@ const { label, activePath } = Astro.props
 ---
 
 <Nav activePath={activePath} />
-<main>
-  <section class="wrap section">
-    <p class="label">{label}</p>
-    <slot />
+<main class="pb-16 md:pb-24">
+  <section class="page-shell border-t border-rule py-14 dark:border-night-rule md:py-20">
+    <div class="mb-8 flex items-center gap-4">
+      <p class="kicker whitespace-nowrap">{label}</p>
+      <div class="h-px flex-1 bg-rule dark:bg-night-rule"></div>
+    </div>
+    <div class="max-w-4xl">
+      <slot />
+    </div>
   </section>
 </main>

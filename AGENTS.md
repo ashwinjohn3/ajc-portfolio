@@ -5,7 +5,8 @@
 - Astro static site
 - TypeScript
 - Markdown-first content collections in `src/content/`
-- Custom CSS in `src/styles/global.css`
+- Tailwind CSS v4 via `@tailwindcss/vite`
+- Tailwind entry stylesheet in `src/styles/tailwind.css`
 - Local font asset served from `public/fonts/`
 
 ## Architecture
@@ -35,9 +36,10 @@ Important:
 
 ## Styling
 
-- Global styles live in `src/styles/global.css`
-- Keep the visual language minimal and consistent with the current editorial monospace direction
-- Prefer shared class-based styling over scattering many one-off inline styles
+- Tailwind is the primary styling system
+- Global base styling lives in `src/styles/tailwind.css`
+- Keep the visual language editorial, sharp, minimal, and slightly experimental
+- Prefer shared Tailwind patterns and theme tokens over ad hoc inline styles
 - The theme toggle exists in the header and should remain lightweight, no heavy theming framework
 
 ## Routes
