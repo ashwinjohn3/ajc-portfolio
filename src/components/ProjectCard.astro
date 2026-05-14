@@ -9,23 +9,23 @@ const { project } = Astro.props
 ---
 
 <article>
-  <div class="grid gap-4 border-b border-rule py-5 dark:border-night-rule md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
-    <div class="space-y-3">
+  <div class="simple-list-row">
+    <div>
       <a
         href={`/projects/${project.slug}`}
-        class="inline-block font-editorial text-[1.35rem] leading-tight tracking-[-0.03em] text-ink hover:text-accent dark:text-night-ink dark:hover:text-paper"
+        class="inline-block text-ink hover:text-accent dark:text-night-ink dark:hover:text-night-ink"
       >
         {project.data.title}
       </a>
-      <div class="text-[0.98rem] leading-8 text-ink-muted dark:text-night-muted">{project.data.summary}</div>
-      <div class="flex flex-wrap gap-2">
+      <div class="simple-list-sub">{project.data.summary}</div>
+      <div class="detail-group mt-2">
         {project.data.tags.map((tag) => (
-          <span class="border border-rule px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-[0.14em] text-ink-muted dark:border-night-rule dark:text-night-muted">
+          <span class="detail-chip">
             {tag}
           </span>
         ))}
       </div>
     </div>
-    <div class="pt-1 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-ink-faint dark:text-night-faint">{project.data.year}</div>
+    <div class="simple-list-meta">{project.data.year}</div>
   </div>
 </article>

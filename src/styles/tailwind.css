@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -10,29 +9,29 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Fraunces", Georgia, serif;
-  --font-editorial: "Fraunces", Georgia, serif;
+  --font-sans: "Geist Mono", "Courier New", monospace;
+  --font-editorial: "Geist Mono", "Courier New", monospace;
   --font-mono: "Geist Mono", "Courier New", monospace;
 
-  --color-paper: oklch(0.972 0.008 78);
-  --color-paper-soft: oklch(0.952 0.01 74);
-  --color-paper-accent: oklch(0.915 0.015 55);
-  --color-ink: oklch(0.23 0.02 35);
-  --color-ink-muted: oklch(0.47 0.015 38);
-  --color-ink-faint: oklch(0.64 0.012 40);
-  --color-rule: oklch(0.89 0.012 70);
-  --color-accent: oklch(0.47 0.065 24);
-  --color-accent-soft: oklch(0.88 0.03 24);
+  --color-paper: #fafaf9;
+  --color-paper-soft: #f5f5f3;
+  --color-paper-accent: #f5f5f3;
+  --color-ink: #111111;
+  --color-ink-muted: #555555;
+  --color-ink-faint: #999999;
+  --color-rule: #e8e8e6;
+  --color-accent: #111111;
+  --color-accent-soft: #f5f5f3;
 
-  --color-night: oklch(0.19 0.012 38);
-  --color-night-soft: oklch(0.235 0.014 38);
-  --color-night-accent: oklch(0.31 0.02 28);
-  --color-night-ink: oklch(0.91 0.008 80);
-  --color-night-muted: oklch(0.72 0.012 78);
-  --color-night-faint: oklch(0.58 0.012 70);
-  --color-night-rule: oklch(0.34 0.014 45);
+  --color-night: #0a0a0a;
+  --color-night-soft: #121212;
+  --color-night-accent: #121212;
+  --color-night-ink: #e5e5e5;
+  --color-night-muted: #888888;
+  --color-night-faint: #444444;
+  --color-night-rule: #1f1f1f;
 
-  --tracking-kicker: 0.22em;
+  --tracking-kicker: 0.04em;
 }
 
 @layer base {
@@ -41,7 +40,7 @@
   }
 
   body {
-    @apply bg-paper text-ink font-sans antialiased transition-colors duration-300 dark:bg-night dark:text-night-ink;
+    @apply bg-paper text-ink font-sans text-[0.875rem] leading-7 antialiased transition-colors duration-300 dark:bg-night dark:text-night-ink;
   }
 
   a {
@@ -59,30 +58,122 @@
   ::selection {
     @apply bg-ink text-paper dark:bg-night-ink dark:text-night;
   }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-sm bg-rule dark:bg-night-rule;
+  }
 }
 
 @layer components {
-  .page-shell {
-    @apply mx-auto w-full max-w-[78rem] px-5 sm:px-7 lg:px-10;
+.page-shell {
+  @apply mx-auto w-full max-w-[680px] px-6 sm:px-8;
+}
+
+.page-body {
+  @apply mx-auto w-full max-w-[680px] px-6 sm:px-8 py-16;
+}
+
+.section-shell {
+  @apply mx-auto w-full max-w-[680px] border-t border-rule px-6 sm:px-8 py-12 dark:border-night-rule;
+}
+
+  .section-label {
+    @apply mb-5 text-[0.7rem] tracking-[0.04em] text-ink-faint dark:text-night-muted;
+  }
+
+  .section-copy {
+    @apply mb-5 max-w-[58ch] text-ink-muted dark:text-night-muted;
   }
 
   .kicker {
-    @apply font-mono text-[0.62rem] uppercase tracking-kicker text-ink-faint dark:text-night-muted;
+    @apply font-mono text-[0.7rem] tracking-kicker text-ink-faint dark:text-night-muted;
+  }
+
+  .page-intro {
+    @apply mb-4 text-[0.9rem] text-ink dark:text-night-ink;
   }
 
   .body-copy {
-    @apply text-[0.98rem] leading-8 text-ink-muted dark:text-night-muted;
+    @apply max-w-[480px] text-[0.78rem] leading-7 text-ink-muted dark:text-night-muted;
+  }
+
+  .content-title {
+    @apply text-[1rem] font-medium;
+  }
+
+  .content-meta {
+    @apply mt-3 max-w-[60ch] text-ink-muted dark:text-night-muted;
+  }
+
+  .detail-group {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+
+  .detail-chip {
+    @apply border border-rule px-1.5 py-0.5 text-ink-faint dark:border-night-rule dark:text-night-faint;
+  }
+
+  .quiet-links {
+    @apply mt-3 flex flex-wrap gap-2 text-ink-muted dark:text-night-muted;
+  }
+
+  .quiet-link {
+    @apply hover:text-ink dark:hover:text-night-ink;
   }
 
   .detail-prose {
-    @apply max-w-none text-[1rem] leading-8 text-ink-muted dark:text-night-muted;
+    @apply max-w-[62ch] text-[0.78rem] leading-7 text-ink-muted dark:text-night-muted;
   }
 
   .detail-prose p {
-    @apply mb-5;
+    @apply mb-4;
   }
 
   .detail-prose a {
-    @apply text-ink decoration-1 underline-offset-4 hover:text-accent dark:text-night-ink dark:hover:text-paper;
+    @apply text-ink-muted hover:text-ink dark:text-night-muted dark:hover:text-night-ink;
+  }
+
+  .simple-list-row {
+    @apply grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-rule py-2 first:border-t dark:border-night-rule;
+  }
+
+  .simple-list-sub {
+    @apply text-[0.72rem] text-ink-muted dark:text-night-muted;
+  }
+
+  .simple-list-meta {
+    @apply whitespace-nowrap text-[0.72rem] text-ink-faint dark:text-night-faint;
+  }
+
+  .icon-links {
+    @apply flex items-center gap-5;
+  }
+
+  .icon-link {
+    @apply inline-flex items-center text-ink-muted hover:text-ink dark:text-night-muted dark:hover:text-night-ink;
+  }
+
+  .empty-note {
+    @apply text-ink-faint dark:text-night-faint;
+  }
+
+  .photo-frame {
+    @apply mt-5 overflow-hidden bg-rule dark:bg-night-rule;
+  }
+
+.photo-grid-simple {
+  @apply mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2;
+}
+
+  .photo-cell {
+    @apply aspect-[4/3] overflow-hidden bg-rule dark:bg-night-rule;
   }
 }

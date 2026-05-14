@@ -9,17 +9,9 @@ gallery:
     alt: "Pathway framed by blooming trees"
     width: 1200
     height: 900
-  - src: "https://picsum.photos/id/1025/1200/900"
-    alt: "Soft portrait-style scene with spring light"
-    width: 1200
-    height: 900
-  - src: "https://picsum.photos/id/1035/1200/900"
-    alt: "Quiet architectural view in soft daylight"
-    width: 1200
-    height: 900
 camera: "Fujifilm X-T30"
 filmOrLens: "35mm equivalent prime"
-featured: true
+featured: false
 ---
 
 An early placeholder set for the future photography section.

@@ -16,22 +16,20 @@ const { Content } = await render(entry)
 ---
 
 <ContentLayout title={`${entry.data.title} — Photography`} label="photography" activePath="/photography" entry={entry}>
-  <p class="mt-6 font-mono text-[0.72rem] uppercase tracking-[0.16em] text-ink-faint dark:text-night-faint">
-    {entry.data.location} · {entry.data.date}
-  </p>
-  <div class="mt-5 flex flex-wrap gap-2">
+  <p class="content-meta">{entry.data.location} · {entry.data.date}</p>
+  <div class="detail-group">
     {entry.data.camera && (
-      <span class="border border-rule px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-[0.14em] text-ink-muted dark:border-night-rule dark:text-night-muted">
+      <span class="detail-chip">
         {entry.data.camera}
       </span>
     )}
     {entry.data.filmOrLens && (
-      <span class="border border-rule px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-[0.14em] text-ink-muted dark:border-night-rule dark:text-night-muted">
+      <span class="detail-chip">
         {entry.data.filmOrLens}
       </span>
     )}
   </div>
-  <figure class="mt-10 overflow-hidden bg-paper-soft dark:bg-night-soft">
+  <figure class="photo-frame">
     <img
       src={entry.data.coverImage}
       alt={entry.data.title}
@@ -39,11 +37,11 @@ const { Content } = await render(entry)
       height="900"
       loading="eager"
       decoding="async"
-      class="aspect-[5/3] h-full w-full object-cover"
+      class="h-full w-full object-cover"
     />
   </figure>
   <PhotoGrid photos={entry.data.gallery} />
-  <div class="detail-prose mt-10 max-w-[42rem]">
+  <div class="detail-prose mt-5">
     <Content />
   </div>
 </ContentLayout>

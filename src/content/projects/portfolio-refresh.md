@@ -9,7 +9,7 @@ tags:
   - "Design Systems"
 externalUrl: "https://ashwinchempolil.me"
 repoUrl: "https://github.com/ashwinjohn3/ajc-portfolio"
-featured: true
+featured: false
 ---
 
 This project is about making the portfolio simpler, faster, and easier to author.

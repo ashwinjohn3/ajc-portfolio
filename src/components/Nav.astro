@@ -6,46 +6,60 @@ interface Props {
 }
 
 const { activePath } = Astro.props
-const titleClass =
-  activePath === '/'
-    ? 'text-ink dark:text-night-ink'
-    : 'text-ink-muted hover:text-ink dark:text-night-muted dark:hover:text-night-ink'
 ---
 
-<nav class="sticky top-0 z-50 border-b border-rule/80 bg-paper/90 backdrop-blur-sm dark:border-night-rule dark:bg-night/85">
-  <div class="page-shell flex items-center justify-between gap-4 py-4">
+<nav class="sticky top-0 z-50 border-b border-rule bg-paper dark:border-night-rule dark:bg-night">
+  <div class="page-shell flex items-center justify-between gap-4 py-3">
     <a
       href="/"
       class:list={[
-        'font-editorial text-[1.18rem] leading-none tracking-[-0.03em] transition-colors sm:text-[1.35rem]',
-        titleClass,
+        'text-[0.78rem] leading-none transition-colors',
+        activePath === '/'
+          ? 'text-ink dark:text-night-ink'
+          : 'text-ink-muted hover:text-ink dark:text-night-muted dark:hover:text-night-ink',
       ]}
     >
       {SITE_NAME.toLowerCase()}
     </a>
-    <div class="flex items-center gap-2 sm:gap-4">
+    <div class="flex items-center gap-px hidden md:flex">
       {NAV_LINKS.map(({ label, href }) => (
         <a
           href={href}
           class:list={[
-            'border-b border-transparent px-1 py-1 font-mono text-[0.62rem] uppercase tracking-[0.18em] transition-colors sm:text-[0.68rem]',
+            'px-[0.35rem] py-0 font-mono text-[0.78rem] transition-colors',
             activePath === href
-              ? 'border-ink/70 text-ink dark:border-night-ink/70 dark:text-night-ink'
+              ? 'text-ink dark:text-night-ink'
               : 'text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink',
           ]}
         >
-          {label}
+          [{label}]
         </a>
       ))}
+    </div>
+    <div class="flex items-center gap-2">
       <button
         type="button"
-        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink"
+        class="md:hidden inline-flex h-6 w-6 items-center justify-center text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink"
+        aria-label="Open menu"
+        id="menu-button"
+      >
+        <svg
+          class="h-[14px] w-[14px] fill-none stroke-current"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="inline-flex h-6 w-6 items-center justify-center pl-2 text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink"
         data-theme-toggle
         aria-label="Toggle theme"
         title="Toggle theme"
       >
         <svg
-          class="hidden h-3.5 w-3.5 fill-none stroke-current [html[data-theme='light']_&]:block dark:hidden"
+          class="hidden h-[14px] w-[14px] fill-none stroke-current [html[data-theme='light']_&]:block dark:hidden"
           data-theme-icon="moon"
           viewBox="0 0 24 24"
           aria-hidden="true"
@@ -53,7 +67,7 @@ const titleClass =
           <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
         </svg>
         <svg
-          class="hidden h-3.5 w-3.5 fill-none stroke-current [html[data-theme='dark']_&]:block"
+          class="hidden h-[14px] w-[14px] fill-none stroke-current [html[data-theme='dark']_&]:block"
           data-theme-icon="sun"
           viewBox="0 0 24 24"
           aria-hidden="true"
@@ -71,4 +85,38 @@ const titleClass =
       </button>
     </div>
   </div>
+  
+  <!-- Mobile menu -->
+  <div class="md:hidden" id="mobile-menu">
+    <div class="page-shell border-t border-rule bg-paper dark:border-night-rule">
+      {NAV_LINKS.map(({ label, href }) => (
+        <a
+          href={href}
+          class:list={[
+            'block px-6 py-3 font-mono text-[0.78rem] transition-colors',
+            activePath === href
+              ? 'text-ink dark:text-night-ink'
+              : 'text-ink-faint hover:text-ink dark:text-night-muted dark:hover:text-night-ink',
+          ]}
+        >
+          [{label}]
+        </a>
+      ))}
+    </div>
+  </div>
+  
+  <script is:inline>
+    (() => {
+      const button = document.getElementById('menu-button')
+      const menu = document.getElementById('mobile-menu')
+      
+      if (!button || !menu) return
+      
+      button.addEventListener('click', () => {
+        menu.classList.toggle('hidden')
+        // Optional: change icon to close (X) when open
+        // We'll leave the icon as is for simplicity, but you could toggle between hamburger and X
+      })
+    })()
+  </script>
 </nav>

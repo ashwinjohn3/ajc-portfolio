@@ -7,43 +7,32 @@ import { EMAIL, SITE_NAME, SOCIAL_LINKS } from '../data/site'
 
 <BaseLayout title={`Contact — ${SITE_NAME}`}>
   <PageSection label="contact" activePath="/contact">
-    <div class="max-w-2xl">
-      <h1 class="font-editorial text-[clamp(2.4rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.04em] text-ink dark:text-night-ink">
-        Open to thoughtful conversations.
-      </h1>
-      <p class="mt-6 body-copy">
-        If you want to talk about engineering, AI, tools, photography, or the early shape of something worth building, reach
-        out.
-      </p>
-    </div>
-    <div class="mt-10 flex flex-wrap items-center gap-6 text-ink-muted dark:text-night-muted">
+    <p class="section-copy">Open to interesting conversations. Say hello.</p>
+    <div class="icon-links">
       <a
         href={`mailto:${EMAIL}`}
         aria-label="Email"
-        class="inline-flex items-center gap-3 border-b border-transparent pb-1 hover:border-ink/40 hover:text-ink dark:hover:border-night-ink/40 dark:hover:text-night-ink"
+        class="icon-link"
       >
-        <SocialIcons name="mail" size={17} className="shrink-0" />
-        <span class="font-mono text-[0.72rem] uppercase tracking-[0.16em]">email</span>
+        <SocialIcons name="mail" size={18} className="shrink-0" />
       </a>
       <a
         href={SOCIAL_LINKS.github}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
-        class="inline-flex items-center gap-3 border-b border-transparent pb-1 hover:border-ink/40 hover:text-ink dark:hover:border-night-ink/40 dark:hover:text-night-ink"
+        class="icon-link"
       >
         <SocialIcons name="github" size={15} className="shrink-0" />
-        <span class="font-mono text-[0.72rem] uppercase tracking-[0.16em]">github</span>
       </a>
       <a
         href={SOCIAL_LINKS.linkedin}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="LinkedIn"
-        class="inline-flex items-center gap-3 border-b border-transparent pb-1 hover:border-ink/40 hover:text-ink dark:hover:border-night-ink/40 dark:hover:text-night-ink"
+        class="icon-link"
       >
         <SocialIcons name="linkedin" size={15} className="shrink-0" />
-        <span class="font-mono text-[0.72rem] uppercase tracking-[0.16em]">linkedin</span>
       </a>
     </div>
   </PageSection>
