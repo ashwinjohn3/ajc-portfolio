@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 export const metadata = createPageMetadata('Projects')
 
 export default function ProjectsPage() {
-  if (!FEATURE_FLAGS.projects) return notFound
+  if (!FEATURE_FLAGS.projects) notFound()
 
   return (
     <PageSection label="projects">
