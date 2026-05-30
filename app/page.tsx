@@ -7,14 +7,11 @@ export default function Page() {
       <Nav />
       <main>
         <div className="wrap" style={{ paddingTop: '4rem', paddingBottom: '3rem' }}>
-          <p style={{ color: 'var(--ink)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--ink)', marginBottom: '1rem', fontSize: '1.5rem', fontWeight: 600 }}>
             Hi, I&apos;m Ashwin.
           </p>
-          <p style={{ color: 'var(--ink-mid)', maxWidth: '480px' }}>
-            I&apos;m a software engineer based in Washington DC 🌸. I love exploring and tinkering with AI 🤖.
-          </p>
-          <p style={{ color: 'var(--ink-mid)', maxWidth: '480px', marginTop: '0.9rem' }}>
-            Currently working at AWS ☁️.
+          <p style={{ color: 'var(--ink-mid)', maxWidth: '520px' }}>
+            I&apos;m a software engineer based in Washington, DC 🌸.
           </p>
         </div>
       </main>

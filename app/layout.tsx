@@ -12,7 +12,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: 'Ashwin John Chempolil',
-  description: 'Software Engineer at Amazon Web Services',
+  description: 'Software Engineer II at Amazon Web Services',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

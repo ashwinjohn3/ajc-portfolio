@@ -29,8 +29,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-geist-mono, 'Courier New', monospace);
-  font-size: 0.78rem;
-  line-height: 1.75;
+  font-size: 1rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -61,9 +61,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .label {
-  color: var(--ink-faint);
+  color: var(--ink-mid);
   margin-bottom: 1.25rem;
-  font-size: 0.7rem;
+  font-size: 1.15rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
 }
 
@@ -73,12 +74,45 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   grid-template-columns: 1fr auto;
   gap: 1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--rule);
   align-items: baseline;
 }
-.row:first-child { border-top: 1px solid var(--rule); }
-.row-sub  { color: var(--ink-mid); font-size: 0.72rem; }
-.row-year { color: var(--ink-faint); font-size: 0.72rem; white-space: nowrap; }
+.row-sub  { color: var(--ink-mid); font-size: 0.85rem; }
+.row-year { color: var(--ink-faint); font-size: 0.85rem; white-space: nowrap; }
+
+/* ── Work experience bullets ── */
+.exp-block {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+.exp-block:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.exp-block:first-child .row {
+  border-top: 1px solid var(--rule);
+}
+.exp-bullets {
+  margin: 0.35rem 0 0;
+  padding: 0 0 0 1rem;
+  list-style: none;
+  color: var(--ink-mid);
+  font-size: 0.95rem;
+}
+.exp-bullets li {
+  position: relative;
+  padding: 0.2rem 0 0.2rem 0.65rem;
+}
+.exp-bullets li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--ink-faint);
+}
+.bullet-team {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+}
 
 /* ── Photo grid ── */
 .photo-grid {

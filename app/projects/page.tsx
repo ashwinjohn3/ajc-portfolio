@@ -1,9 +1,12 @@
 import PageSection from '../components/PageSection'
-import { createPageMetadata } from '../../utils/site'
+import { FEATURE_FLAGS, createPageMetadata } from '../../utils/site'
+import { notFound } from 'next/navigation'
 
 export const metadata = createPageMetadata('Projects')
 
 export default function ProjectsPage() {
+  if (!FEATURE_FLAGS.projects) return notFound
+
   return (
     <PageSection label="projects">
       <p style={{ color: 'var(--ink-faint)' }}>coming soon.</p>

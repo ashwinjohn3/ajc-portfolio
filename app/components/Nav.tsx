@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
-import { NAV_LINKS, SITE_NAME } from '../../utils/site'
+import { visibleNavLinks, SITE_NAME } from '../../utils/site'
 
 const activeLinkStyle: React.CSSProperties = {
   color: 'var(--ink)',
@@ -55,7 +55,7 @@ export default function Nav() {
           {SITE_NAME.toLowerCase()}
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.1rem' }}>
-          {NAV_LINKS.map(({ label, href }) => (
+          {visibleNavLinks().map(({ label, href }) => (
             <Link
               key={href}
               href={href}
