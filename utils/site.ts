@@ -15,6 +15,7 @@ export type NavLink = { label: string; href: string; flag?: FeatureFlag }
 
 export const NAV_LINKS: NavLink[] = [
   { label: 'work', href: '/work' },
+  { label: 'resume', href: '/resume' },
   { label: 'projects', href: '/projects', flag: 'projects' },
   { label: 'photography', href: '/photography', flag: 'photography' },
   { label: 'contact', href: '/contact' },
