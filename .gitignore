@@ -44,9 +44,10 @@ next-env.d.ts
 # resume markdown file
 ChempolilAshwin2026.md
 
-# Astro
-/dist 
+# stale build artifacts (Gatsby/Astro leftovers)
+/dist
 /.astro
-/.omc 
+/.cache
+/.omc
 /.cursor
 
