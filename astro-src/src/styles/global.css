@@ -1,1 +1,134 @@
 @import "tailwindcss";
+
+/* =============================================================
+   DESIGN TOKENS — Amber Warmth + Terracotta Accent
+   Source of truth: .omc/state/final-identity.md (2026-06-12)
+   Do NOT modify token values without updating contrast ratios.
+   ============================================================= */
+
+/* ------------------------------------------------------------------
+   LIGHT MODE — :root
+   bg: warm off-white (#FAF7F2), OKLCH hue ~80° (amber undertone)
+   ------------------------------------------------------------------ */
+:root {
+  /* Backgrounds */
+  --color-bg:            oklch(97.7% 0.007 80.7);   /* #FAF7F2 */
+  --color-surface:       oklch(94.1% 0.014 84.6);   /* #F0EBE1 — cards / panels */
+  --color-border:        oklch(88.8% 0.015 77.0);   /* #E0D9CF — rules / dividers */
+
+  /* Text */
+  --color-text-primary:  oklch(20.3% 0.010 67.2);   /* #1A1612 — 16.83:1 AAA */
+  --color-text-secondary:oklch(49.3% 0.024 67.2);   /* #6B5F53 — 5.80:1 AA  */
+
+  /* Terracotta accent — AA on bg (4.99:1). Use on links, role labels,
+     skill chips, section counts, card hover borders. NEVER as bg fill. */
+  --color-accent:        oklch(54.3% 0.143 34.7);   /* #B34A31 — 4.99:1 AA  */
+  --color-accent-hover:  oklch(45.3% 0.124 34.7);   /* #8E3621 — 7.28:1 AAA */
+
+  /* Fixed brand elements — same in both modes, never replaced by accent */
+  --color-avatar-ring:   #FFBE98;  /* Peach circle behind labrador avatar */
+  --color-ping:          #4ade80;  /* Green availability pulse — 10.40:1 AAA on dark bg */
+}
+
+/* ------------------------------------------------------------------
+   DARK MODE — .dark
+   bg: warm near-black (#1A1510), OKLCH hue ~67° (amber undertone)
+   Prevents the cold blue-black trap common in dev-tool dark modes.
+   ------------------------------------------------------------------ */
+.dark {
+  /* Backgrounds */
+  --color-bg:            oklch(20.0% 0.013 67.0);   /* #1A1510 */
+  --color-surface:       oklch(23.9% 0.013 72.2);   /* #231E18 — subtly lighter than bg */
+  --color-border:        oklch(29.8% 0.017 70.8);   /* #332C24 — low-contrast border */
+
+  /* Text */
+  --color-text-primary:  oklch(92.7% 0.016 79.3);   /* #EDE6DB — 14.62:1 AAA */
+  --color-text-secondary:oklch(65.5% 0.029 71.0);   /* #9C8E7E — 5.68:1 AA  */
+
+  /* Terracotta accent — shifted lighter for dark mode contrast (5.12:1 AA) */
+  --color-accent:        oklch(64.2% 0.141 34.8);   /* #D4694F — 5.12:1 AA  */
+  --color-accent-hover:  oklch(69.3% 0.129 35.6);   /* #E07D63 — 6.29:1 AA  */
+
+  /* Fixed brand elements — unchanged across modes */
+  --color-avatar-ring:   #FFBE98;  /* Peach — always this value */
+  --color-ping:          #4ade80;  /* Green — always this value */
+}
+
+/* =============================================================
+   TAILWIND 4 THEME EXTENSION
+   Maps CSS variables → Tailwind utility classes.
+   No tailwind.config.js — Tailwind 4 uses @theme in CSS.
+   Usage: bg-bg, bg-surface, text-primary, text-accent,
+          border-border, font-display, font-mono, etc.
+   ============================================================= */
+@theme {
+  /* Color utilities */
+  --color-bg:             var(--color-bg);
+  --color-surface:        var(--color-surface);
+  --color-border:         var(--color-border);
+  --color-primary:        var(--color-text-primary);
+  --color-secondary:      var(--color-text-secondary);
+  --color-accent:         var(--color-accent);
+  --color-accent-hover:   var(--color-accent-hover);
+  --color-avatar-ring:    var(--color-avatar-ring);
+  --color-ping:           var(--color-ping);
+
+  /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs */
+  --font-family-display:  var(--font-display), sans-serif;   /* Space Grotesk */
+  --font-family-mono:     var(--font-mono), monospace;       /* Space Mono */
+  --font-family-sans:     var(--font-display), sans-serif;   /* default sans = display */
+}
+
+/* =============================================================
+   BASE STYLES
+   Structural only — component-level styles go in components.
+   ============================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Smooth scroll with anchor offset compensation (set scroll-margin-top per section) */
+  scroll-behavior: smooth;
+}
+
+/* Anchor offset for fixed nav (adjust if nav height changes) */
+[id] {
+  scroll-margin-top: 4rem;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Text selection — terracotta accent highlight */
+::selection {
+  background-color: var(--color-accent);
+  color: oklch(97.7% 0.007 80.7); /* light bg hex as OKLCH for specificity-safety */
+}
+
+/* Focus-visible ring — terracotta for keyboard nav */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Monospace elements inherit Space Mono */
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875em;
+}
