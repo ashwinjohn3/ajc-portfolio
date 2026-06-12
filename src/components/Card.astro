@@ -42,34 +42,37 @@ const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } 
 <Tag
   {...linkProps}
   class:list={[
-    // Layout
-    'relative rounded-2xl border border-border px-5 py-3',
-    // Surface
-    'bg-surface',
-    // Hover — border brightens; shadow appears
+    // Layout — generous padding so the surface reads as a contained object
+    'relative rounded-2xl px-5 py-4',
+    // Surface + always-on definition: full-strength border plus a hairline ring
+    // so the card edge is crisp even though surface≈bg in this palette.
+    'bg-surface border border-border ring-1 ring-border/60',
+    // Hover — border + ring brighten (design DNA: border-brighten, minimal shadow)
     'transition-all duration-200',
-    href && 'hover:border-primary/25 hover:shadow-sm cursor-pointer',
-    // Desktop logo offset: left padding makes room for the absolute-positioned logo
-    'md:pl-4',
+    href && 'hover:border-primary/30 hover:ring-primary/20 hover:shadow-sm cursor-pointer',
     className,
   ]}
 >
-  <!-- Logo slot: stacks on mobile, absolute-offset on desktop -->
-  {Astro.slots.has('logo') && (
-    <div class="mb-3 md:mb-0 md:absolute md:-left-16 md:top-3 flex items-center justify-center">
-      <slot name="logo" />
-    </div>
-  )}
+  <!-- Card header: logo badge sits INSIDE the card, inline with the heading
+       block. (Deviation from reference DNA's negative-offset logo: the
+       md:-left-16 offset orphaned the badge in the gutter and broke the card
+       geometry — keeping it inside makes the card read as one object.) -->
+  <div class="flex items-start gap-3">
+    {Astro.slots.has('logo') && (
+      <div class="shrink-0 flex items-center justify-center pt-0.5">
+        <slot name="logo" />
+      </div>
+    )}
 
-  <!-- Card header -->
-  <div class="flex flex-col gap-0.5">
-    {meta && (
-      <span class="font-mono text-xs text-secondary mb-1">{meta}</span>
-    )}
-    <h3 class="text-base font-medium text-primary leading-snug">{heading}</h3>
-    {subheading && (
-      <p class="text-sm text-accent font-mono">{subheading}</p>
-    )}
+    <div class="flex flex-col gap-0.5 min-w-0">
+      {meta && (
+        <span class="font-mono text-xs text-secondary mb-1">{meta}</span>
+      )}
+      <h3 class="text-base font-medium text-primary leading-snug">{heading}</h3>
+      {subheading && (
+        <p class="text-sm text-accent font-mono">{subheading}</p>
+      )}
+    </div>
   </div>
 
   <!-- Default slot — body content -->
