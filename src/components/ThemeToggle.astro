@@ -36,6 +36,33 @@ import { TINT_IDS, TINT_EMOJI } from '../lib/tints';
   <span id="tint-label" class="tint-label" aria-hidden="true">🎮</span>
 </button>
 
+<style>
+  /*
+   * Normalize the tint emoji into a fixed, vertically-centered box so every
+   * glyph (🎮 wide · 🕹️ VS16 · 🟠🟢🔵 geometric · 📄 tall) occupies an
+   * IDENTICAL footprint — the button width never changes between tints, so
+   * there is no nav-height/width layout shift when cycling.
+   *
+   * Technique: inline-grid 1.25rem square box that ignores the glyph's
+   * intrinsic advance-width/ascent. font-size + line-height:1 pin the glyph's
+   * box height; place-items:center centers it. The emoji font stack keeps
+   * color-emoji rendering consistent across platforms instead of falling back
+   * to the mono UI font's text-presentation metrics.
+   */
+  .tint-label {
+    display: inline-grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 1rem;
+    line-height: 1;
+    /* Keep the glyph centered regardless of its intrinsic side bearings. */
+    text-align: center;
+    overflow: hidden;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', emoji;
+  }
+</style>
+
 <script is:inline define:vars={{ TINTS: TINT_IDS, EMOJI: TINT_EMOJI }}>
   (function () {
     // TINTS (cycle order) + EMOJI (per-tint glyph) are injected at build time
