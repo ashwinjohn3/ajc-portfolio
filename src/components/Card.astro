@@ -1,27 +1,24 @@
 ---
 /**
- * Card — surface card with border-brighten hover and optional logo slot.
+ * Card — duotone surface card with a prominent logo chip (Composition A "DMG").
+ *
+ * Chrome matches the tools grid: bg-surface + border-border, a tight 3px-radius
+ * (no gratuitous rounding — anti-AI-slop), border-brighten hover (no scale/lift).
+ * Colors resolve from the tint engine via the existing utility names; in duotone
+ * "accent" == ink, so headings/company read in text-primary, meta in secondary.
  *
  * Props:
  *   heading      — primary heading (e.g. job title)
- *   subheading   — secondary line (e.g. company name) — rendered in text-accent
- *   meta         — tertiary meta (e.g. date range) — Fragment Mono, text-secondary
+ *   subheading   — secondary line (e.g. company name) — ink, mono
+ *   meta         — tertiary meta (e.g. date range) — Fragment Mono, secondary
  *   href         — if set, the entire card becomes an <a> tag
  *   class        — forwarded to the outer element for overrides
  *
  * Slots:
- *   logo         — optional logo/image; receives the negative-offset treatment on desktop
+ *   logo         — optional logo chip; sits inline-left of the heading block,
+ *                  φ-stepped bigger than the old 40px (now 54px) so the company
+ *                  mark reads as a prominent, deliberate element.
  *   default      — card body content (bullet lists, descriptions, chips…)
- *
- * Hover:
- *   Border brightens (text-primary/25 opacity). No scale/lift — border is the
- *   only feedback (matches design DNA from explore-inspiration.md).
- *
- * Logo offset:
- *   On desktop (md:), the logo slot is absolutely positioned to the left of the
- *   card (-left-16), creating the negative-offset visual treatment from the
- *   reference theme. The card has md:pl-4 to leave room for the logo on the
- *   left when used inside a Section 2/3 column.
  */
 
 interface Props {
@@ -42,35 +39,30 @@ const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } 
 <Tag
   {...linkProps}
   class:list={[
-    // Layout — generous padding so the surface reads as a contained object
-    'relative rounded-2xl px-5 py-4',
-    // Surface + always-on definition: full-strength border plus a hairline ring
-    // so the card edge is crisp even though surface≈bg in this palette.
-    'bg-surface border border-border ring-1 ring-border/60',
-    // Hover — border + ring brighten (design DNA: border-brighten, minimal shadow)
-    'transition-all duration-200',
-    href && 'hover:border-primary/30 hover:ring-primary/20 hover:shadow-sm cursor-pointer',
+    // Tight duotone card — small radius (no gratuitous rounding), crisp edge
+    'relative rounded-[3px] px-5 py-4',
+    'bg-surface border border-border',
+    // Hover — border brightens toward ink (duotone-safe, no hue)
+    'transition-colors duration-200',
+    href && 'hover:border-primary/40 cursor-pointer',
     className,
   ]}
 >
-  <!-- Card header: logo badge sits INSIDE the card, inline with the heading
-       block. (Deviation from reference DNA's negative-offset logo: the
-       md:-left-16 offset orphaned the badge in the gutter and broke the card
-       geometry — keeping it inside makes the card read as one object.) -->
-  <div class="flex items-start gap-3">
+  <!-- Card header: prominent logo chip inline with the heading block. -->
+  <div class="flex items-start gap-3.5">
     {Astro.slots.has('logo') && (
-      <div class="shrink-0 flex items-center justify-center pt-0.5">
+      <div class="shrink-0 flex items-center justify-center">
         <slot name="logo" />
       </div>
     )}
 
     <div class="flex flex-col gap-0.5 min-w-0">
       {meta && (
-        <span class="font-mono text-xs text-secondary mb-1">{meta}</span>
+        <span class="font-mono text-xs text-secondary mb-1 tracking-wide">{meta}</span>
       )}
-      <h3 class="text-base font-medium text-primary leading-snug">{heading}</h3>
+      <h3 class="text-base font-semibold text-primary leading-snug">{heading}</h3>
       {subheading && (
-        <p class="text-sm text-accent font-mono">{subheading}</p>
+        <p class="text-sm text-primary font-mono">{subheading}</p>
       )}
     </div>
   </div>

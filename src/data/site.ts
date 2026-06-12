@@ -51,7 +51,7 @@ export const SOCIAL_LINKS = {
 // ---------------------------------------------------------------------------
 export const BIO = {
   greeting: "Hi, I'm Ashwin.",
-  tagline: "I'm a software engineer based in Washington, DC 🌸.",
+  tagline: "I'm a software engineer based in Washington, DC.",
 } as const;
 
 // ---------------------------------------------------------------------------

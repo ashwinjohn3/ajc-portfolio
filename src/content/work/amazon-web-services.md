@@ -5,7 +5,7 @@ period: "2022–2026"
 order: 0
 bullets:
   - team: "AWS Resource Access Manager"
-    text: "Making cloud shareable 🐏"
+    text: "Making cloud shareable"
     href: "https://aws.amazon.com/ram/"
   - team: "AWS Security Agent"
     text: "Helped build and ship it."

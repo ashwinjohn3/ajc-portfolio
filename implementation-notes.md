@@ -854,3 +854,80 @@ astro-src/
   Verify: build exit 0 (6 pages, 6 font files), check 0 errors, dist has no   
   Space Grotesk/Space Mono, built CSS body font-size 18px. Not committed.     
 
+
+  ## TINT ENGINE (designer) — replaced light/dark with 6 analog-display tints 
+                                                                              
+  **Files (owned):** src/styles/global.css, src/components/ThemeToggle.astro, 
+  src/layouts/BaseLayout.astro. No sibling files touched. Not committed.      
+                                                                              
+  **Decisions not in spec:**                                                  
+                                                                              
+  • Mechanism: .dark class → [data-theme] attribute. Default DMG lives in     
+  :root (no attribute) so absent/unknown stored tint = DMG with zero attr —   
+  keeps no-flash trivial and avoids white flash on dark tints.                
+  • Duotone math: surface = mix(bg→ink 6%), border = 18%, accent = ink, accent-
+  hover = 82%. secondary tuned PER TINT (not a fixed %) to the smallest blend 
+  that clears WCAG AA 4.5:1 on bg — several tints (dmg/pocket/paper) needed   
+  darker secondary than a flat 62% blend would give. Documented hexes + ratios
+  in .omc/handoffs/tint-engine.md.                                            
+  • Retired --brand-avatar-ring / --brand-ping: kept the token NAMES (so      
+  @theme inline + any consumer survives) but set them to the tint's ink       
+  (monochrome), per ballot "ping survives as monochrome ink".                 
+  • @custom-variant dark removed: grep confirmed ZERO dark: Tailwind utilities
+  exist anywhere in src/.                                                     
+                                                                              
+  **Flagged to sibling (Hero.astro, not mine):** hardcodes literal #FFBE98    
+  (avatar ring) + #4ade80 (ping) inside scoped  — the tint engine cannot reach
+  literals. Sibling must swap to var(--brand-accent) or drop, per ballot.     
+  Hero's                                                                      
+  var(--color-accent)/var(--color-accent-hover) usages keep working via @theme
+  inline                                                                      
+  unchanged.                                                                  
+                                                                              
+  **Verified:** build exit 0, astro check 0 errors, all 6 tint blocks in      
+  compiled CSS, utilities still live var(--brand-*), slop hexes               
+  (terracotta/peach/green) = 0 in output, every tint AA-compliant.            
+
+
+  ## Composition A "DMG" re-skin (designer)                                   
+                                                                              
+  Rebuilt visual composition to ballot direction A. Owned files only (Hero,   
+  Nav, Footer,                                                                
+  Card, ExperienceTimeline, pages, site.ts, one content emoji). Sibling owns  
+  the tint                                                                    
+  engine (global.css/ThemeToggle/BaseLayout) — confirmed live during          
+  verification (DMG                                                           
+  olive duotone rendering).                                                   
+                                                                              
+  Decisions / deviations:                                                     
+                                                                              
+  • Token mapping demo→live: --ink→text-primary, --ink-soft→text-secondary, --
+  rule→border-border,                                                         
+  --chip/--surface→bg-surface, --bg→bg-bg. In duotone, "accent" == ink step,  
+  so I used                                                                   
+  text-primary for ink beats (company names, team tags, CTA) rather than text-
+  accent, keeping                                                             
+  the screen strictly two-step.                                               
+  • Kept text-accent in contact/resume/tools page chrome untouched: per brief,
+  text-accent                                                                 
+  remains a VALID utility (= ink step in duotone), and "tools page chrome     
+  stays". Not stripped.                                                       
+  • Hero greeting prop kept in interface for call-site compatibility          
+  (index/variant-b still pass                                                 
+  it) but unused in the title-card composition; the mono kicker carries       
+  role/location instead.                                                      
+  • NEU brand-red logo: forced to duotone via scoped CSS filter (grayscale+   
+  contrast+multiply in                                                        
+  light; invert+screen in dark) rather than swapping the asset — keeps the    
+  asset intact and                                                            
+  monochrome-safe at render. AWS/github/linkedin are currentColor SVGs,       
+  already mono-safe; AWS                                                      
+  sized up to 32px in a 54px chip (φ-step from old 40px/20px).                
+  • φ scale applied verbatim from ballot: Ashwin clamp(3.6rem,11vw,5.29rem)=76.
+  2px dominant,                                                               
+  surname clamp(2.4rem,7vw,3.27rem)=47.1px subordinate, tagline 18px Fragment 
+  Mono.                                                                       
+  • Removed gratuitous rounding: Card rounded-2xl→rounded-[3px], chip rounded-
+  lg→rounded-[4px].                                                           
+  • Anti-slop: dropped 🌸 (site.ts tagline) and 🐏 (AWS RAM bullet content).  
+

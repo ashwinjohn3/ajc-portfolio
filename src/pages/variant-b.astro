@@ -4,7 +4,7 @@
  * U10 — Home Variant B (lean front page, no work timeline)
  *
  * Layout: Hero → "see my work" link
- * The full work timeline lives at /work. Tools & Setup at /uses.
+ * The full work timeline lives at /work. Tools & Setup at /tools.
  * At user review, if this variant wins it is renamed to index.astro.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -24,11 +24,11 @@ import { BIO, createPageTitle } from '../data/site';
     ctaLabel="Get in touch"
   />
 
-  <!-- "See my work" bridge link — terracotta accent, Fragment Mono, leads to /work -->
+  <!-- "See my work" bridge link — monochrome ink, Fragment Mono, leads to /work -->
   <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pb-4">
     <a
       href="/work"
-      class="inline-flex items-center gap-1.5 font-mono text-sm text-accent hover:text-accent-hover transition-colors duration-200"
+      class="inline-flex items-center gap-1.5 font-mono text-sm text-primary border-b border-border hover:border-primary transition-colors duration-200"
     >
       [see my work]
       <svg

@@ -1,25 +1,35 @@
 ---
 /**
- * Hero.astro
- * U6 — Avatar ring + ping badge + name + bio
+ * Hero.astro — Composition A "DMG" (design-v2 ballot, band A)
+ *
+ * Kubrick dead-center one-point axis · monolithic centered title card ·
+ * golden-ratio (φ) type scale · monochrome duotone discipline.
+ *
+ * Layout: a centered title card on a dead-center vertical axis (hairline guide).
+ * Type hierarchy (φ scale, base 18px, ratio 1.618):
+ *   "Ashwin"          → DOMINANT, clamp(3.6rem, 11vw, 5.29rem) = 76.2px  (Instrument Sans 700)
+ *   "John Chempolil"  → subordinate, clamp(2.4rem, 7vw, 3.27rem) = 47.1px (Instrument Serif italic)
+ *   tagline           → 18px Fragment Mono (mono "technical" axis)
+ *
+ * Duotone discipline: no peach ring, no green ping, no terracotta, no avatar.
+ * The availability indicator survives as a MONOCHROME ink blip ("open to
+ * opportunities") — the blip shadow pulses in the live ink color (text-primary),
+ * never a hue.
+ *
+ * Colors resolve entirely from the tint engine via the existing Tailwind utility
+ * names (bg-bg / bg-surface / text-primary / text-secondary / border-border).
+ * In duotone, "accent" == ink step, so ink here is text-primary, not text-accent.
  *
  * Props:
- *   avatarSrc   — remote image URL (plain <img>, no astro:assets optimization — static-mode safe)
- *   avatarAlt   — alt text for the avatar image
- *   greeting    — first line of bio (e.g. "Hi, I'm Ashwin.")
- *   tagline     — second line (e.g. "I'm a software engineer…")
- *   ctaHref     — href for the primary CTA link (terracotta accent, required)
- *   ctaLabel    — visible label for the CTA link
- *   badgeText   — availability badge text (Fragment Mono, green ping) — optional
- *
- * U9/U10 usage:
- *   Pass all props explicitly so both home variants can customise without touching this file.
- *   Default values below cover the standard home page case from src/data/site.ts.
+ *   greeting   — kept in the interface for call-site compatibility (unused in the
+ *                title-card composition; the kicker carries the role/location line)
+ *   tagline    — the mono tagline beneath the title card
+ *   ctaHref    — primary CTA link target
+ *   ctaLabel   — primary CTA visible label
+ *   badgeText  — availability text beside the monochrome blip
  */
 
 interface Props {
-  avatarSrc?: string;
-  avatarAlt?: string;
   greeting?: string;
   tagline?: string;
   ctaHref?: string;
@@ -28,10 +38,7 @@ interface Props {
 }
 
 const {
-  avatarSrc = 'https://placedog.net/400/400',
-  avatarAlt = "Ashwin's labrador",
-  greeting = "Hi, I'm Ashwin.",
-  tagline = "I'm a software engineer based in Washington, DC 🌸.",
+  tagline = "I'm a software engineer based in Washington, DC.",
   ctaHref = '/contact',
   ctaLabel = 'Get in touch',
   badgeText = 'Open to opportunities',
@@ -39,194 +46,166 @@ const {
 ---
 
 <!-- ============================================================
-     Hero section
-     Layout: vertically centered column, generous top padding.
-     On sm+: avatar and text share a row (avatar left, text right).
+     Hero — band A: dead-center axis, monolithic centered title card.
+     The outer <section> owns the responsive padding (project rule).
      ============================================================ -->
 <section
   id="hero"
-  class="w-full px-6 sm:px-10 pt-20 pb-16 sm:pt-28 sm:pb-20"
+  class="hero-dmg relative w-full px-6 sm:px-10 pt-24 pb-16 sm:pt-32 sm:pb-20"
   aria-label="Introduction"
 >
-  <div class="flex flex-col sm:flex-row items-center sm:items-start gap-10 sm:gap-14">
+  <!-- One-point center axis guide (hairline framing device, decorative) -->
+  <div class="hero-axis" aria-hidden="true"></div>
 
-    <!-- ── Avatar column ── -->
-    <div class="flex-shrink-0 flex flex-col items-center gap-4">
+  <div class="relative flex flex-col items-center text-center">
 
-      <!-- Peach ring + labrador photo -->
-      <!-- Ring: fixed #FFBE98 background, rounded-full, padding for breathing room -->
-      <div
-        class="hero-avatar-ring rounded-full flex items-center justify-center"
+    <!-- Kicker — mono role/location line above the title card -->
+    <p class="hero-kicker font-mono text-secondary">
+      Software Engineer · Washington, DC
+    </p>
+
+    <!-- Monolithic title card · φ scale · Ashwin dominant -->
+    <h1 class="hero-title" aria-label="Ashwin John Chempolil">
+      <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
+      <span class="hero-last block font-display italic font-normal text-primary">John Chempolil</span>
+    </h1>
+
+    <!-- Tagline — Fragment Mono, 18px, secondary ink -->
+    <p class="hero-tagline font-mono text-secondary">
+      {tagline}
+    </p>
+
+    <!-- Availability — monochrome ink blip (no green ping, no color) -->
+    <div class="hero-avail font-mono text-secondary" aria-label={badgeText}>
+      <span class="hero-blip" aria-hidden="true"></span>
+      <span>{badgeText}</span>
+    </div>
+
+    <!-- Primary CTA — ink underline, no hue fill -->
+    <a
+      href={ctaHref}
+      class="hero-cta font-mono text-primary inline-flex items-center gap-1.5"
+    >
+      [{ctaLabel}]
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
         aria-hidden="true"
       >
-        <img
-          src={avatarSrc}
-          alt={avatarAlt}
-          width="112"
-          height="112"
-          loading="eager"
-          decoding="async"
-          class="rounded-full object-cover w-28 h-28 block"
-        />
-      </div>
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
 
-      <!-- Green ping availability badge -->
-      <!-- Pure CSS ping animation; reduced-motion disables the pulse -->
-      <!-- Fragment Mono for the "technical" axis per final-identity.md -->
-      <div
-        class="hero-badge flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-surface"
-        aria-label={badgeText}
-      >
-        <!-- Ping dot: outer pulse ring + inner solid dot -->
-        <span class="relative flex h-2.5 w-2.5 flex-shrink-0" aria-hidden="true">
-          <span class="ping-ring absolute inline-flex h-full w-full rounded-full"></span>
-          <span class="ping-dot relative inline-flex rounded-full h-2.5 w-2.5"></span>
-        </span>
-        <span class="hero-badge-text text-secondary font-mono text-xs leading-none whitespace-nowrap">
-          {badgeText}
-        </span>
-      </div>
-
-    </div>
-
-    <!-- ── Text column ── -->
-    <div class="flex flex-col gap-5 text-center sm:text-left">
-
-      <!-- Name: deliberate sans/serif contrast (Pairing 03) -->
-      <!-- "Ashwin": Instrument Sans 700 — honest bold (Instrument Serif ships no 700) -->
-      <!-- "John Chempolil": Instrument Serif italic — the pairing's signature asset -->
-      <h1 class="hero-name leading-[1.1] tracking-tight" aria-label="Ashwin John Chempolil">
-        <span class="hero-name-first block font-body font-bold text-primary">Ashwin</span>
-        <span class="hero-name-last block font-display italic font-normal text-primary">John Chempolil</span>
-      </h1>
-
-      <!-- Bio text: greeting + tagline — Instrument Sans (body), demo scale -->
-      <div class="flex flex-col gap-1.5">
-        <p class="hero-greeting font-body font-semibold text-primary leading-snug">
-          {greeting}
-        </p>
-        <p class="hero-tagline font-body font-normal text-secondary leading-relaxed">
-          {tagline}
-        </p>
-      </div>
-
-      <!-- CTA link — terracotta accent ONLY here per usage rules -->
-      <div class="flex flex-wrap gap-4 justify-center sm:justify-start mt-1">
-        <a
-          href={ctaHref}
-          class="hero-cta font-body font-semibold text-base inline-flex items-center gap-1.5 transition-colors duration-200"
-        >
-          {ctaLabel}
-          <!-- Inline SVG arrow — no icon library needed -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </a>
-      </div>
-
-    </div>
   </div>
 </section>
 
 <style>
   /* ------------------------------------------------------------------
-     Avatar ring — fixed peach color, never driven by theme variables.
-     Padding inside gives the dog photo breathing room inside the circle.
+     Dot-matrix LCD grain — subtle 3px radial dot grid over the hero,
+     scoped here so it never touches the sibling-owned global.css.
+     Uses border-border (the duotone rule step) so the texture tints
+     with the active theme and never introduces a hue.
      ------------------------------------------------------------------ */
-  .hero-avatar-ring {
-    background-color: #FFBE98; /* --color-avatar-ring: fixed brand element */
-    padding: 0.625rem; /* 10px inset padding inside the ring */
-    /* Ring is slightly larger than the image: image 112px + 2×10px padding = 132px */
+  .hero-dmg {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-border) 45%, transparent) 0.5px,
+      transparent 0.5px
+    );
+    background-size: 3px 3px;
   }
 
-  /* ------------------------------------------------------------------
-     Name (Pairing 03): sans/serif contrast at the ballot-demo scale.
-     First name "Ashwin": Instrument Sans 700, ~60px — the bold entry.
-     Last name "John Chempolil": Instrument Serif italic, ~80px — the
-     larger serif italic is the visual anchor / signature flourish.
-     Instrument Serif is a light display face, so it is sized up.
-     ------------------------------------------------------------------ */
-  .hero-name-first {
-    font-size: clamp(2.75rem, 6.5vw, 3.75rem);  /* up to 60px */
-    letter-spacing: -0.02em;
+  /* One-point dead-center vertical axis (hairline, fades downward) */
+  .hero-axis {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(var(--color-border), transparent 60%);
+    opacity: 0.5;
   }
 
-  .hero-name-last {
-    font-size: clamp(3.25rem, 8vw, 5rem);        /* up to 80px */
-    letter-spacing: -0.02em;
+  /* Kicker — mono, wide tracking, uppercase. φ rhythm below it. */
+  .hero-kicker {
+    font-size: 0.6875rem;          /* 11px — Fragment Mono label step */
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    margin-bottom: 1.1rem;
   }
 
-  /* Bio scale from the demo: greeting 21px/600, tagline 18px/400 */
-  .hero-greeting {
-    font-size: 1.3125rem;   /* 21px */
+  /* Title card — φ type scale. line-height tightened for title-card mass. */
+  .hero-title {
+    line-height: 0.9;
   }
 
+  .hero-first {
+    /* φ step UP — 76.2px dominant */
+    font-size: clamp(3.6rem, 11vw, 5.29rem);
+    letter-spacing: -0.025em;
+    line-height: 0.86;
+  }
+
+  .hero-last {
+    /* φ step DOWN — 47.1px subordinate serif tail */
+    font-size: clamp(2.4rem, 7vw, 3.27rem);
+    letter-spacing: -0.01em;
+    margin-top: 0.08em;
+  }
+
+  /* Tagline — 18px body floor, mono technical axis */
   .hero-tagline {
-    font-size: 1.125rem;    /* 18px */
+    font-size: 1.125rem;           /* 18px */
+    margin-top: 1.35rem;
+    max-width: 30rem;
   }
 
-  /* ------------------------------------------------------------------
-     CTA link — terracotta accent (only occurrence per usage rules).
-     ------------------------------------------------------------------ */
+  /* Availability row — φ-derived spacing above */
+  .hero-avail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.5rem;
+    font-size: 0.65625rem;         /* 10.5px */
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Monochrome ink blip — shadow pulses in ink (text-primary), no hue */
+  .hero-blip {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 0 var(--color-primary);
+    animation: hero-blip 2.4s ease-out infinite;
+  }
+
+  @keyframes hero-blip {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 55%, transparent); }
+    70%  { box-shadow: 0 0 0 7px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  /* CTA — ink, underline-on-hover only (no hue) */
   .hero-cta {
-    color: var(--color-accent);
+    margin-top: 1.6rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
   }
-
   .hero-cta:hover {
-    color: var(--color-accent-hover);
+    opacity: 0.7;
   }
 
-  /* ------------------------------------------------------------------
-     Badge text — Fragment Mono, muted secondary color.
-     ------------------------------------------------------------------ */
-  .hero-badge-text {
-    font-family: var(--font-mono), monospace;
-  }
-
-  /* ------------------------------------------------------------------
-     Ping animation — pure CSS, no JS.
-     Two layers: outer ring pulses (opacity + scale), inner dot is solid.
-     Colors: fixed #4ade80 (--color-ping) regardless of mode.
-
-     NOTE: these @keyframes are also declared once in global.css as
-     @keyframes hero-ping so they are available globally if needed.
-     The component-scoped version here ensures zero dependency on
-     load order.
-     ------------------------------------------------------------------ */
-  .ping-ring {
-    background-color: #4ade80; /* --color-ping: fixed brand element */
-    animation: hero-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-    opacity: 0.75;
-  }
-
-  .ping-dot {
-    background-color: #4ade80; /* --color-ping: fixed brand element */
-  }
-
-  @keyframes hero-ping {
-    75%, 100% {
-      transform: scale(2);
-      opacity: 0;
-    }
-  }
-
-  /* ------------------------------------------------------------------
-     Reduced-motion: disable ping pulse for users who prefer it.
-     The dot remains visible (green) but does not animate.
-     ------------------------------------------------------------------ */
   @media (prefers-reduced-motion: reduce) {
-    .ping-ring {
+    .hero-blip {
       animation: none;
     }
   }

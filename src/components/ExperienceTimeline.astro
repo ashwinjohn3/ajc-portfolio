@@ -1,61 +1,45 @@
 ---
 /**
- * ExperienceTimeline — renders all `work` collection entries as a stacked
- * card timeline, sorted by the `order` field (ascending: 0 = most recent).
+ * ExperienceTimeline — work collection rendered as a stacked card timeline,
+ * sorted by `order` (0 = most recent). Composition A "DMG" re-skin.
  *
- * Pattern: Reference theme recreation (timeline-pattern.md)
  * ──────────────────────────────────────────────────────────
- * • No vertical spine, no node/dot markers — pure card stacking.
- * • Company logos (text-based fallback) use the reference's negative-offset
- *   desktop treatment: absolutely positioned at md:-left-16 so they float
- *   into the negative space left of each card.
- * • Layout: Section wrapper 1/3 label + 2/3 content, collapses mobile.
- * • Typography: Instrument Sans for title/body, Fragment Mono for
- *   period/company (font-mono). Logo monogram uses Instrument Serif (font-display).
- *   Terracotta (text-accent) for company names
- *   per final-identity.md usage rules.
- * • No card-level href — cards are <div> elements. Company links are rendered
- *   as inline <a> tags within the card body. This avoids nested <a> elements
- *   (which would be invalid HTML) when bullet links also exist in the card.
- * • Dark mode: all token utilities resolve via var(--brand-*) live references;
- *   no inline OKLCH literals.
+ * • No vertical spine / node dots — pure card stacking.
+ * • Company logos sit in a PROMINENT 54×54 chip (φ-stepped up from the old
+ *   40px), inline-left of each card heading. All logos are monochrome-safe:
+ *     - github / linkedin / aws  → inline currentColor BrandIcon (themes natively)
+ *     - Northeastern             → full-color brand-red <img> forced to duotone
+ *       via a CSS grayscale+contrast filter (`.neu-duotone`) so no full-color
+ *       element breaks the duotone discipline.
+ *     - Active.ai                → typographic wordmark, pure ink.
+ * • Duotone: company names + team tags read in text-primary (in duotone the
+ *   "accent" is the ink step, not a hue) — no terracotta anywhere.
+ * • Cards are <div>; company links render as inline <a> within the body
+ *   (avoids nested <a> when bullets also link).
  *
- * Usage (home Variant A, /work page, or any page):
- *   <ExperienceTimeline />
- *   <!-- No props needed — self-contained, reads from collection. -->
- *
- * Reuse notes for U9/U10:
- *   Drop <ExperienceTimeline /> directly into index.astro (Variant A) or
- *   the /work page. The component renders its own <Section id="experience">
- *   scroll anchor. Do not wrap it in another <section>.
+ * Usage: <ExperienceTimeline /> — self-contained, renders Section id="experience".
  */
 
 import { getCollection } from 'astro:content';
 import Section from './Section.astro';
 import Card from './Card.astro';
 import BrandIcon from './BrandIcon.astro';
-// NEU wordmark lives in public/logos/ and is referenced by URL (not imported);
-// it is a brand-red PD wordmark, kept full-color, so it stays an <img>.
+// NEU wordmark is a brand-red PD wordmark in public/logos/; kept as <img> and
+// forced to duotone via CSS filter so it stays monochrome-safe.
 
 // Sort ascending: order 0 = most recent role, rendered first.
 const entries = (await getCollection('work')).sort(
   (a, b) => a.data.order - b.data.order
 );
 
-// Company link map — used to render an inline company <a> within the card body.
-// Cards are rendered as <div> (no href prop) to avoid nested <a> elements when
-// bullet links also exist in the same card.
+// Company link map — inline company <a> within the card body.
 const COMPANY_HREFS: Record<string, string> = {
   'Amazon Web Services': 'https://aws.amazon.com',
   'Northeastern University': 'https://www.northeastern.edu',
   'Active.ai': 'https://www.active.ai',
 };
 
-// Company → logo descriptor used to render the exact brand mark in the card
-// header logo slot. `kind` selects the render path:
-//   'brand'  → inline BrandIcon glyph (currentColor — themes in light/dark)
-//   'img'    → <img> to a full-color SVG in public/logos/ (NEU brand red)
-//   'word'   → typographic wordmark fallback (asset unobtainable)
+// Company → logo descriptor. `kind` selects the render path.
 type LogoDescriptor =
   | { kind: 'brand'; icon: 'github' | 'linkedin' | 'aws'; label: string }
   | { kind: 'img'; src: string; label: string }
@@ -84,59 +68,54 @@ const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
           heading={entry.data.title}
           meta={entry.data.period}
         >
-          <!-- Logo slot: exact brand mark in a fixed 40x40 chip. All three
-               render paths share the same chip chrome (surface + border + ring)
-               so logos line up uniformly down the timeline regardless of glyph
-               shape. Chip background guarantees the brand-red NEU wordmark and
-               the AWS smile stay legible on both the cream and dark page bg. -->
+          <!-- Logo chip — PROMINENT 54×54, surface + border, tight 4px radius.
+               Shared chrome so logos line up uniformly down the timeline. -->
           <span
             slot="logo"
-            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface border border-border ring-1 ring-border/60 overflow-hidden select-none"
+            class="inline-flex items-center justify-center w-[54px] h-[54px] rounded-[4px] bg-surface border border-border overflow-hidden select-none"
           >
             {logo.kind === 'brand' && (
-              <BrandIcon name={logo.icon} title={logo.label} class="w-5 h-5 text-primary" />
+              <BrandIcon name={logo.icon} title={logo.label} class="w-8 h-8 text-primary" />
             )}
             {logo.kind === 'img' && (
               <img
                 src={logo.src}
                 alt={`${logo.label} logo`}
-                width="40"
-                height="40"
+                width="54"
+                height="54"
                 loading="lazy"
                 decoding="async"
-                class="w-8 h-auto"
+                class="neu-duotone w-11 h-auto"
               />
             )}
             {logo.kind === 'word' && (
-              <span aria-hidden="true" class="font-display text-[0.6rem] font-semibold leading-none tracking-tight text-primary">
-                {logo.primary}<span class="text-accent">{logo.accent}</span>
+              <span aria-hidden="true" class="font-display text-[0.75rem] font-semibold leading-none tracking-tight text-primary text-center px-1">
+                {logo.primary}{logo.accent}
               </span>
             )}
           </span>
 
-          <!-- Company name — rendered as an inline link when a href exists,
-               plain text otherwise. Card is a <div> (no href prop) so this
-               <a> is the only interactive element; no nested <a> conflict. -->
+          <!-- Company name — inline link (ink, mono, ink underline on hover). -->
           {href ? (
             <a
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              class="font-mono text-sm text-accent hover:text-accent-hover transition-colors duration-150"
+              class="font-mono text-sm text-primary border-b border-border hover:border-primary transition-colors duration-150"
             >
               {entry.data.company}
             </a>
           ) : (
-            <p class="font-mono text-sm text-accent">{entry.data.company}</p>
+            <p class="font-mono text-sm text-primary">{entry.data.company}</p>
           )}
 
-          <!-- Bullet body — only rendered when bullets exist -->
+          <!-- Bullet body — only when bullets exist -->
           {bullets.length > 0 && (
-            <ul class="list-disc ml-4 mt-2 space-y-1.5">
+            <ul class="list-none mt-2.5 flex flex-col gap-1.5">
               {bullets.map((bullet) => (
-                <li class="leading-snug">
+                <li class="flex gap-2 leading-snug">
                   {bullet.team && (
-                    <span class="font-mono text-xs text-accent mr-1.5">
+                    <span class="font-mono text-xs text-primary shrink-0 opacity-85">
                       [{bullet.team}]
                     </span>
                   )}
@@ -145,7 +124,7 @@ const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
                       href={bullet.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent transition-colors duration-150"
+                      class="underline decoration-border underline-offset-2 hover:decoration-primary transition-colors duration-150"
                     >
                       {bullet.text}
                     </a>
@@ -168,3 +147,25 @@ const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
     })}
   </div>
 </Section>
+
+<style>
+  /* ------------------------------------------------------------------
+     Northeastern wordmark is a brand-red (#c8102e) full-color SVG. Force
+     it to the duotone ink step so it never breaks the monochrome screen:
+     grayscale removes the hue, contrast/brightness shape it toward ink,
+     and a low opacity lets it read as a tinted mark rather than pure black.
+     Scoped here (component <style>) — does not touch sibling global.css.
+     ------------------------------------------------------------------ */
+  .neu-duotone {
+    filter: grayscale(1) contrast(1.15) brightness(0.55);
+    opacity: 0.92;
+    mix-blend-mode: multiply;
+  }
+  /* In dark mode the multiply blend would crush the mark; invert+screen so
+     the wordmark reads as light ink on the dark panel instead. */
+  :global(.dark) .neu-duotone {
+    filter: grayscale(1) contrast(1.1) brightness(1.8) invert(1);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+</style>
