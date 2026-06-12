@@ -1,9 +1,9 @@
 ---
 /**
- * uses.astro
+ * tools.astro
  * USER-FIX-1 — Dedicated Tools & Setup page
  *
- * Layout: Space Mono page header + UsesSection component.
+ * Layout: Fragment Mono page header + UsesSection component.
  * Pattern mirrors work.astro exactly.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -12,14 +12,14 @@ import { createPageTitle } from '../data/site';
 ---
 
 <BaseLayout
-  title={createPageTitle('Uses')}
+  title={createPageTitle('Tools')}
   description="Tools, hardware, and software setup — the gear and software Ashwin uses daily."
 >
-  <!-- Page header: Space Mono label style, consistent with Section label treatment -->
+  <!-- Page header: Fragment Mono label style, consistent with Section label treatment -->
   <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-2 sm:pt-28">
     <p class="font-mono text-xs uppercase tracking-widest text-secondary">tools &amp; setup</p>
   </div>
 
-  <!-- Full uses section — self-contained, reads from uses content collection -->
+  <!-- Full tools section — self-contained, reads from uses content collection -->
   <UsesSection />
 </BaseLayout>
