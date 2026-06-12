@@ -91,10 +91,14 @@
   --color-avatar-ring:    var(--brand-avatar-ring);
   --color-ping:           var(--brand-ping);
 
-  /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs */
-  --font-family-display:  var(--font-display), sans-serif;   /* Space Grotesk */
-  --font-family-mono:     var(--font-mono), monospace;       /* Space Mono */
-  --font-family-sans:     var(--font-display), sans-serif;   /* default sans = display */
+  /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs
+     Pairing 03: display = Instrument Serif (serif), body = Instrument Sans,
+     mono = Fragment Mono. Display is a SERIF now, so the default sans (reset
+     fallthrough + running text) must point at the body sans, not display. */
+  --font-family-display:  var(--font-display), serif;            /* Instrument Serif */
+  --font-family-body:     var(--font-body), sans-serif;          /* Instrument Sans */
+  --font-family-mono:     var(--font-mono), monospace;           /* Fragment Mono */
+  --font-family-sans:     var(--font-body), sans-serif;          /* default sans = body */
 }
 
 /* =============================================================
@@ -121,9 +125,11 @@ html {
 body {
   background-color: var(--brand-bg);
   color: var(--brand-text-primary);
-  font-family: var(--font-display), sans-serif;
+  /* Body text = Instrument Sans (Pairing 03). Display serif is opt-in via font-display. */
+  font-family: var(--font-body), sans-serif;
   font-weight: 400;
-  font-size: 1rem;
+  /* Generous scale from the ballot demo: 18px body / 1.6 line-height. */
+  font-size: 1.125rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -143,7 +149,7 @@ body {
   border-radius: 2px;
 }
 
-/* Monospace elements inherit Space Mono */
+/* Monospace elements inherit Fragment Mono */
 code,
 kbd,
 pre,

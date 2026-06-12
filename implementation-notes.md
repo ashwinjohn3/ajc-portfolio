@@ -778,3 +778,79 @@ astro-src/
   • Did NOT commit. Did NOT touch visual-fix files. Handoff: .omc/handoffs/fix-
   structure.md                                                                
 
+
+  ## USER-FIX-4 — rename uses → tools (user-visible)                          
+                                                                              
+  • git mv src/pages/uses.astro src/pages/tools.astro; updated page title     
+  (Tools) + file/inline comments. Page header <p>tools & setup</p> was already
+  correct, left as-is.                                                        
+  • src/data/site.ts NAV_LINKS: /uses/uses → /tools/tools.                    
+  • Decisions: kept UsesSection component name + src/content/uses/ collection 
+  (internal/invisible, designer-owned). Left description prose "...uses daily"
+  (natural English verb).                                                     
+  • FLAG (not my file): src/pages/variant-b.astro:7 comment still says "Tools 
+  & Setup at /uses." — invisible code comment; owner should fix.              
+  • Verified: build exit 0, dist/tools present + no dist/uses, no href="/uses"
+  in dist, npm run check clean (0/0/0). Not committed.                        
+
+
+  ## USER-FIX-3 retry — logos + tools layout verification (offline-first)     
+                                                                              
+  • Confirmed prior pass had already landed all logo wiring + tools grid; this
+  retry                                                                       
+  verified state with ZERO web fetches (earlier hang traced to the Active.ai  
+  asset                                                                       
+  fetch — not retried; honest typographic wordmark fallback kept).            
+  • simple-icons NOT npm-installed; glyph path data already inlined in        
+  BrandIcon.astro                                                             
+  (github/linkedin/aws, CC0). Did not run npm install simple-icons — would    
+  have been                                                                   
+  a redundant network op for data already embedded.                           
+  • Logos: GitHub/LinkedIn/AWS = inline currentColor glyphs (theme both modes);
+  Northeastern = full-color SVG wordmark img in surface chip; Active.ai =     
+  typographic                                                                 
+  wordmark (asset unobtainable offline — OPEN, non-blocking).                 
+  • Tools page: UsesSection 3 category cards, md:grid-cols-2 symmetric grid,  
+  max-w-[60rem]                                                               
+  container matching Nav/Hero/Footer, /work card chrome, mono-label lists. No 
+  visible                                                                     
+  "uses" heading leak (only id="uses" anchor + tools.astro meta desc; tools.  
+  astro untouched).                                                           
+  • Verify: build exit 0 (6 pages), check 0/0/0. Email-leak grep = only social
+  profile                                                                     
+  handles, no @gmail plaintext. Live 375/768/1280 screenshots skipped — no    
+  headless                                                                    
+  browser in env, install avoided to prevent the network hang this retry      
+  guarded against.                                                            
+  • Not committed.                                                            
+
+
+                                                                              
+  --------                                                                    
+                                                                              
+  ## USER-FIX-5 — Typography swap to Pairing 03 (2026-06-12)                  
+                                                                              
+  Replaced Space Grotesk/Space Mono with **Instrument Serif (display) +****   
+  Instrument                                                                  
+  ****Sans (body) + Fragment Mono (mono/labels)** at the ballot demo's        
+  generous scale.                                                             
+                                                                              
+  Decisions:                                                                  
+                                                                              
+  • Added a third font CSS variable --font-body (Instrument Sans). Display is 
+  now                                                                         
+  a serif, so --font-family-sans and the body element repoint to the body sans,
+  not display — otherwise all running text would render serif.                
+  • Body scaled to 18px / line-height 1.6 (demo spec).                        
+  • Hero "Ashwin" bold achieved honestly: Instrument Serif has no 700, so     
+  "Ashwin"                                                                    
+  uses Instrument Sans 700 and "John Chempolil" uses Instrument Serif italic  
+  (the                                                                        
+  pairing's signature). The larger serif italic last name is the visual anchor.
+  • Nav brand hardcoded to "ajc"; dropped unused SITE_NAME import.            
+  • Typography-only edits + the two micro-edits; colors and component         
+  structure untouched.                                                        
+                                                                              
+  Verify: build exit 0 (6 pages, 6 font files), check 0 errors, dist has no   
+  Space Grotesk/Space Mono, built CSS body font-size 18px. Not committed.     
+

@@ -8,19 +8,32 @@ export default defineConfig({
   output: 'static',
 
   // Fonts API — top-level in Astro 6 (not under experimental)
-  // Space Grotesk: display/body; Space Mono: labels/nav/meta
+  // Pairing 03: Instrument Serif (display) + Instrument Sans (body) + Fragment Mono (labels)
   fonts: [
     {
+      // Display — Instrument Serif ships ONLY 400, normal + italic.
+      // Italic is the signature (hero last name). Display sizing is built
+      // around the single 400 weight (sized up large; see global.css/Hero).
       provider: fontProviders.google(),
-      name: 'Space Grotesk',
+      name: 'Instrument Serif',
       cssVariable: '--font-display',
-      weights: [300, 400, 500, 600, 700],
+      weights: [400],
+      styles: ['normal', 'italic'],
     },
     {
+      // Body — Instrument Sans, variable weights. Default running text +
+      // honest "Ashwin" bold (700) against the serif italic last name.
       provider: fontProviders.google(),
-      name: 'Space Mono',
+      name: 'Instrument Sans',
+      cssVariable: '--font-body',
+      weights: [400, 500, 600, 700],
+    },
+    {
+      // Labels / nav / meta — Fragment Mono, single 400 weight.
+      provider: fontProviders.google(),
+      name: 'Fragment Mono',
       cssVariable: '--font-mono',
-      weights: [400, 700],
+      weights: [400],
       styles: ['normal', 'italic'],
     },
   ],

@@ -4,7 +4,7 @@
  * U5 — Sticky top navigation bar.
  *
  * Layout: site name left · nav links center-right · ThemeToggle far right.
- * Typography: Space Mono for all nav labels (technical axis per identity spec).
+ * Typography: Fragment Mono for all nav labels (technical axis per identity spec).
  * Hover: border-brighten (border-color transition only, no scale/lift).
  * Feature flags: links gated by PUBLIC_SHOW_PROJECTS / PUBLIC_SHOW_PHOTOGRAPHY
  *   are hidden when flags are false (default).
@@ -13,7 +13,7 @@
  *   viewports. No JS framework, no mobile hamburger (links are few, wrap is fine).
  */
 
-import { SITE_NAME, visibleNavLinks } from '../data/site';
+import { visibleNavLinks } from '../data/site';
 import ThemeToggle from './ThemeToggle.astro';
 
 const links = visibleNavLinks();
@@ -23,13 +23,13 @@ const currentPath = Astro.url.pathname;
 <header class="nav-header sticky top-0 z-50 w-full border-b border-border bg-bg/95 backdrop-blur-sm">
   <div class="nav-inner max-w-[60rem] mx-auto px-6 sm:px-10 h-14 flex items-center gap-6">
 
-    <!-- Site name — left anchor -->
+    <!-- Site name — left anchor (lowercase monogram brand) -->
     <a
       href="/"
       class="nav-site-name font-mono text-sm font-bold text-primary shrink-0 transition-colors duration-200 hover:text-accent"
       transition:name="site-name"
     >
-      {SITE_NAME.split(' ')[0]}
+      ajc
     </a>
 
     <!-- Spacer — pushes links + toggle to the right -->
