@@ -1,0 +1,136 @@
+---
+/**
+ * ExperienceTimeline — renders all `work` collection entries as a stacked
+ * card timeline, sorted by the `order` field (ascending: 0 = most recent).
+ *
+ * Pattern: Reference theme recreation (timeline-pattern.md)
+ * ──────────────────────────────────────────────────────────
+ * • No vertical spine, no node/dot markers — pure card stacking.
+ * • Company logos (text-based fallback) use the reference's negative-offset
+ *   desktop treatment: absolutely positioned at md:-left-16 so they float
+ *   into the negative space left of each card.
+ * • Layout: Section wrapper 1/3 label + 2/3 content, collapses mobile.
+ * • Typography: Space Grotesk for title/body (font-display), Space Mono for
+ *   period/company (font-mono). Terracotta (text-accent) for company names
+ *   per final-identity.md usage rules.
+ * • No card-level href — cards are <div> elements. Company links are rendered
+ *   as inline <a> tags within the card body. This avoids nested <a> elements
+ *   (which would be invalid HTML) when bullet links also exist in the card.
+ * • Dark mode: all token utilities resolve via var(--brand-*) live references;
+ *   no inline OKLCH literals.
+ *
+ * Usage (home Variant A, /work page, or any page):
+ *   <ExperienceTimeline />
+ *   <!-- No props needed — self-contained, reads from collection. -->
+ *
+ * Reuse notes for U9/U10:
+ *   Drop <ExperienceTimeline /> directly into index.astro (Variant A) or
+ *   the /work page. The component renders its own <Section id="experience">
+ *   scroll anchor. Do not wrap it in another <section>.
+ */
+
+import { getCollection } from 'astro:content';
+import Section from './Section.astro';
+import Card from './Card.astro';
+
+// Sort ascending: order 0 = most recent role, rendered first.
+const entries = (await getCollection('work')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+// Company link map — used to render an inline company <a> within the card body.
+// Cards are rendered as <div> (no href prop) to avoid nested <a> elements when
+// bullet links also exist in the same card.
+const COMPANY_HREFS: Record<string, string> = {
+  'Amazon Web Services': 'https://aws.amazon.com',
+  'Northeastern University': 'https://www.northeastern.edu',
+  'Active.ai': 'https://www.active.ai',
+};
+
+// Company abbreviation labels used in the logo slot when no image is available.
+// These render as the negative-offset element on desktop — styled in Space Mono,
+// small caps, terracotta. They occupy the same visual slot as a logo would.
+const COMPANY_ABBR: Record<string, string> = {
+  'Amazon Web Services': 'AWS',
+  'Northeastern University': 'NEU',
+  'Active.ai': 'AI',
+};
+---
+
+<Section id="experience" label="experience">
+  <div class="flex flex-col gap-y-4">
+    {entries.map((entry) => {
+      const href = COMPANY_HREFS[entry.data.company];
+      const abbr = COMPANY_ABBR[entry.data.company] ?? entry.data.company.slice(0, 3).toUpperCase();
+      const bullets = entry.data.bullets ?? [];
+
+      return (
+        <Card
+          heading={entry.data.title}
+          meta={entry.data.period}
+        >
+          <!-- Logo slot: text abbreviation badge. On desktop this is absolutely
+               positioned at md:-left-16 (handled inside Card.astro). On mobile
+               it renders above the card header with mb-3. -->
+          <span
+            slot="logo"
+            aria-hidden="true"
+            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface border border-border font-mono text-xs font-medium text-accent tracking-wider select-none"
+          >
+            {abbr}
+          </span>
+
+          <!-- Company name — rendered as an inline link when a href exists,
+               plain text otherwise. Card is a <div> (no href prop) so this
+               <a> is the only interactive element; no nested <a> conflict. -->
+          {href ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-mono text-sm text-accent hover:text-accent-hover transition-colors duration-150"
+            >
+              {entry.data.company}
+            </a>
+          ) : (
+            <p class="font-mono text-sm text-accent">{entry.data.company}</p>
+          )}
+
+          <!-- Bullet body — only rendered when bullets exist -->
+          {bullets.length > 0 && (
+            <ul class="list-disc ml-4 mt-2 space-y-1.5">
+              {bullets.map((bullet) => (
+                <li class="leading-snug">
+                  {bullet.team && (
+                    <span class="font-mono text-xs text-accent mr-1.5">
+                      [{bullet.team}]
+                    </span>
+                  )}
+                  {bullet.href ? (
+                    <a
+                      href={bullet.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent transition-colors duration-150"
+                    >
+                      {bullet.text}
+                    </a>
+                  ) : (
+                    <span>{bullet.text}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <!-- Optional subtitle (e.g. course name for teaching roles) -->
+          {entry.data.subtitle && (
+            <p class="mt-2 font-mono text-xs text-secondary italic">
+              {entry.data.subtitle}
+            </p>
+          )}
+        </Card>
+      );
+    })}
+  </div>
+</Section>
