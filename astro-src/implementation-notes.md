@@ -214,6 +214,32 @@ astro-src/
                                                                               
 ---
 
+# Implementation Notes — U6-FIX Hero badge text color (2026-06-12)
+
+## Finding
+Wave-2 code review (wave2-review.md) identified Hero.astro:184 using `var(--color-text-secondary)`
+which no longer exists after the U3 rename (`--color-*` raw vars → `--brand-*`). The Tailwind theme
+name emitted by `@theme inline` is `--color-secondary` (not `--color-text-secondary`), so the ref
+resolved to nothing — badge text inherited primary color instead of muted secondary.
+
+## Fix applied
+Two-part change to Hero.astro:
+1. Added `text-secondary` Tailwind utility to the badge span class list (line ~85). This is the
+   preferred approach: single source of truth via the utility, same pattern as rest of component.
+2. Removed the `color: var(--color-text-secondary)` declaration from `.hero-badge-text` scoped
+   style rule. The `font-family` declaration was retained (no Tailwind utility covers that slot).
+
+## Verification
+- `cd astro-src && npm run build` → exit 0, 1 page built.
+- dist CSS confirms: `.text-secondary{color:var(--brand-text-secondary)}` — live token.
+- Dark mode confirmed: `.dark{--brand-text-secondary:oklch(65.5% .029 71)}` present in dist.
+- `grep --color-text-secondary dist/` → no results — dead var fully gone.
+- `git grep -n 'var(--color-' astro-src/src` sweep confirmed Hero was the only offender;
+  the two remaining refs (`var(--color-accent)` and `var(--color-accent-hover)`) are correct —
+  they are emitted by `@theme inline` on `:root` and resolve fine.
+
+---
+
 # Implementation Notes — U6 Hero Component
 
 ## Decisions made (not in spec)
@@ -276,6 +302,64 @@ astro-src/
 - Pass `greeting`, `tagline`, `ctaHref`, `ctaLabel` as props; all have sensible defaults.
 - `avatarSrc` default is `https://placedog.net/400/400` — swap for real photo URL when available.
 - `badgeText` default is `'Open to opportunities'` — update via prop if status changes.
+
+---
+
+# Implementation Notes — U8 ExperienceTimeline
+
+## Decisions made (not in spec)
+
+### Card rendered as `<div>` — no card-level `href`
+
+The spec says "link preserved: AWS RAM + Security Agent hrefs." The initial implementation passed
+`href` to Card (making it an `<a>`) while also rendering bullet-level `<a>` tags in the default
+slot. This creates nested `<a>` elements — invalid HTML per the interactive content model.
+
+Fix: Card is always a `<div>` (no `href` prop). The company name is rendered as a standalone `<a>`
+at the top of the default slot when a company URL exists. This keeps all links valid and keyboard-
+navigable without nesting. The card's hover border feedback is lost (hover only activates on linked
+cards), but the company name `<a>` provides a clear interactive affordance instead.
+
+### Text abbreviation badge in logo slot (AWS, NEU, AI)
+
+No local logo files exist in `astro-src/src/assets/`. A `<span slot="logo">` with the abbreviation
+in `font-mono text-accent` styled as `bg-surface border-border rounded-lg w-10 h-10` occupies the
+Card logo slot and inherits the `md:absolute md:-left-16` desktop offset treatment. Upgrading to
+real logos: replace the `<span>` with an `<img>` in the slot — no Card/Section changes needed.
+
+### `subheading` prop omitted from Card — company name in default slot
+
+Since the company needs to be a link (not plain text), and Card's `subheading` prop renders as a
+`<p>` (not a `<a>`), the company name is placed in the default slot instead. This avoids modifying
+Card.astro, which is shared by UsesSection and any future consumers.
+
+### `[bracket]` notation for team labels
+
+`bullets[].team` rendered as `[AWS Resource Access Manager]` in `font-mono text-xs text-accent`
+before the bullet text. Follows the nav bracket convention from U5.
+
+## Build verification
+
+```
+$ cd astro-src && npm run build
+14:20:25 [build] 1 page(s) built in 1.13s
+14:20:25 [build] Complete!
+# exit 0
+```
+
+Scratch page `src/pages/scratch-u8.astro` created, built, verified (3 entries + all links confirmed
+in dist HTML), then removed before final clean build.
+
+## File layout after U8
+
+```
+astro-src/
+└── src/
+    └── components/
+        └── ExperienceTimeline.astro    ← NEW
+```
+
+---
 
   ## U7 — Section, Card, ObfuscatedEmail, UsesSection + content.config.ts     
   cleanup (2026-06-12)                                                        
@@ -460,4 +544,176 @@ astro-src/
   • Nav reads visibleNavLinks() directly; no page needs to pass nav links.    
   • Footer reads SOCIAL_LINKS directly; no page needs to pass social links.   
   • ThemeToggle is embedded in Nav — no separate import needed from pages.    
+
+---
+
+# Implementation Notes — U10 Home Variant B + /work page
+
+## Decisions made (not in spec)
+
+### "see my work" link placement
+- Spec says "perhaps with a one-line 'see my work →' terracotta link to /work."
+- Rendered as a standalone `<div>` between the Hero section and UsesSection, constrained to
+  the same `max-w-[60rem] mx-auto px-6 sm:px-10` grid as the Hero for alignment.
+- Uses bracket notation `[see my work]` (Space Mono `font-mono`) to stay consistent with the
+  nav link convention. Arrow SVG reuses the identical inline SVG from Hero.astro (stroke-width 2.5).
+- `text-accent` / `hover:text-accent-hover` — terracotta; exactly one terracotta element on the page
+  besides Hero's CTA, which is acceptable (both are CTA-class links).
+
+### /work page header
+- Spec says "small page header (Space Mono label style)".
+- Rendered as a `<p class="font-mono text-xs uppercase tracking-widest text-secondary">experience</p>`
+  inside a constrained div — matches the Section label treatment exactly (same classes as
+  Section.astro's 1/3 label column).
+- Not rendered as a `<Section>` wrapper because ExperienceTimeline already renders its own
+  `<Section id="experience">`. Adding another Section above would duplicate the border-top separator.
+  The standalone label div has no border — it acts as a quiet page label, not a full section.
+
+### No bottom padding div on /work
+- Hero on home pages has `pt-20 pb-16 sm:pt-28 sm:pb-20` built in. The /work page header div
+  uses `pt-20 pb-2 sm:pt-28` to match the same top padding without adding extra vertical space
+  before the Section component's own `py-10` rhythm.
+
+### variant-b.astro page title includes "Variant B" label
+- Title: `createPageTitle('Home — Variant B')` → "Home — Variant B — Ashwin John Chempolil".
+- This marks it clearly as a demo route. At U15 if B wins and becomes index.astro, the title
+  is changed to `createPageTitle('Home')` at that point (single-word change).
+
+### No ExperienceTimeline import in variant-b.astro
+- Variant B is explicitly the home WITHOUT the timeline. The only work reference is the
+  `[see my work]` text link to /work. No work collection data is queried on this page.
+
+## Build verification
+
+```
+$ cd astro-src && npm run build
+14:22:42 [build] 3 page(s) built in 937ms
+14:22:42 [build] Complete!
+# exit 0
+```
+
+## Content verification
+
+- `/variant-b`: `grep -c "Amazon Web Services|Northeastern|Active.ai"` → 0 (confirmed absent)
+- `/work`: all 3 entries present (Amazon Web Services, Northeastern University, Active.ai,
+  Software Development Engineer II); all company + bullet hrefs confirmed in built HTML.
+
+## File layout after U10
+
+```
+astro-src/
+└── src/
+    └── pages/
+        ├── variant-b.astro    ← NEW: Hero + work-link + UsesSection + Contact
+        └── work.astro         ← NEW: page header label + ExperienceTimeline
+```
+
+
+                                                                              
+  --------                                                                    
+                                                                              
+  # Implementation Notes — U9 Home Variant A                                  
+                                                                              
+  ## Decisions made (not in spec)                                             
+                                                                              
+  ### Removed nested <main> from scaffold stub                                
+                                                                              
+  The scaffold stub had <main><h1>Scaffold</h1></main> inside <BaseLayout>.   
+  BaseLayout                                                                  
+  already wraps <slot /> in <main>, so the page must render bare sections, not
+  a second                                                                    
+  <main>. Replaced with a flat sequence of component calls.                   
+                                                                              
+  ### Contact section is a teaser, not a duplicate of /contact                
+                                                                              
+  The spec says id="contact" on the contact section. The nav [contact] link   
+  points to                                                                   
+  /contact (U11 full page). The in-page <Section id="contact"> serves as a    
+  scroll anchor                                                               
+  and end-of-scroll CTA. ObfuscatedEmail is used here too — the email is never
+  plaintext                                                                   
+  in server HTML (verified via grep on dist/index.html).                      
+                                                                              
+  ### ExperienceTimeline renders id="experience", not id="work"               
+                                                                              
+  The component from U8 uses id="experience" on its internal Section. The spec
+  says id="work".                                                             
+  This is an ExperienceTimeline internal decision made in U8 — not changed    
+  here per constraint                                                         
+  (do not touch components). If the nav [work] link needs to jump to this     
+  anchor, it should                                                           
+  use href="#experience" not href="#work". Flag for U10/final review.         
+                                                                              
+  ### createPageTitle('Home') for title prop                                  
+                                                                              
+  Uses the helper from src/data/site.ts to produce "Home — Ashwin John        
+  Chempolil" consistently                                                     
+  rather than hardcoding the full string.                                     
+
+
+                                                                              
+  --------                                                                    
+                                                                              
+  ## U11 — Subpages verification & flag-gating fix (3rd attempt)              
+                                                                              
+  ### CRITICAL DEFECT FIXED: static-mode flag gating                          
+                                                                              
+  The original projects.astro / photography.astro used                        
+  return new Response(null, { status: 404 }) in page frontmatter (per plan-   
+  rebuild                                                                     
+  spec line 178). In output: 'static' (Astro 6.4.6) this DOES NOT prevent HTML
+  emission — Astro renders the Response into a static 404-bodied HTML file, so
+  /projects/index.html (4303 bytes) and /photography/index.html still shipped 
+  to                                                                          
+  dist/. Build reported 7 pages with flags OFF — violating success criterion  
+  #4.                                                                         
+                                                                              
+  FIX: converted each flagged page to a dynamic rest route                    
+  projects/[...path].astro and photography/[...path].astro whose              
+  getStaticPaths() returns [] when the flag is off (Astro emits zero HTML) and
+  [{ params: { path: undefined } }] when on (emits the page at the bare       
+  /projects / /photography URL). This is the canonical static-mode pattern    
+  (confirmed via Astro docs / context7). The flat *.astro files were removed  
+  (moved to /tmp/*.bak — untracked, never committed).                         
+                                                                              
+  Verified bidirectionally:                                                   
+                                                                              
+  • Flags OFF (shipping): 5 pages, no projects/photography in dist.           
+  • Flags ON: 7 pages, /projects/index.html + /photography/index.html emit at 
+  correct bare URLs.                                                          
+                                                                              
+  NOTE FOR PLAN: spec line 178's Response(null,{status:404}) recipe is wrong  
+  for                                                                         
+  static output; the [...path] + empty getStaticPaths pattern is the correct  
+  one.                                                                        
+                                                                              
+  ### resume.astro — astro check errors fixed                                 
+                                                                              
+  Original embedded fallback content INSIDE the <iframe> using JSX-style {' '}
+  whitespace tokens and HTML comments — this broke the Astro/TS compiler (12  
+  ts(1003)/ts(17002) errors). Rewrote: iframe is now self-closing; the        
+  fallback                                                                    
+  "can't see the PDF?" links render as a sibling <p> below the iframe; removed
+  all                                                                         
+  {' '} tokens (literal spaces work in Astro templates). resume.pdf embed +   
+  open                                                                        
+                                                                              
+  • download links preserved.                                                 
+                                                                              
+  ### contact.astro — verified, no change needed                              
+                                                                              
+  Uses ObfuscatedEmail (char-code array, decoded client-side) + SOCIAL_LINKS  
+  from                                                                        
+  src/data/site.ts. grep -ri "@gmail" dist/ = 0. The 12 ashwinjohn3 hits in   
+  dist                                                                        
+  are the public GitHub/LinkedIn username in social URLs (intentional, not an 
+  email).                                                                     
+                                                                              
+  ### Verification (shipping config, flags off)                               
+                                                                              
+  • npm run build → exit 0, 5 pages.                                          
+  • dist HTML: contact, index, resume, variant-b, work.                       
+  • grep -ri "@gmail" dist/ | wc -l → 0.                                      
+  • npx astro check → 0 errors, 0 warnings, 0 hints.                          
+  • No console.log/debugger/TODO in U11 files.                                
 

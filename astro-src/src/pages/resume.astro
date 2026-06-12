@@ -1,0 +1,78 @@
+---
+/**
+ * resume.astro
+ * U11 — /resume page
+ *
+ * Embeds resume.pdf (from public/) in an <iframe> at 85vh.
+ * Provides Open-in-new-tab + Download links in Space Mono style.
+ * A fallback paragraph (rendered below the iframe) covers browsers that cannot
+ * display PDFs inline — it always shows the direct open/download links.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createPageTitle } from '../data/site';
+
+const RESUME_PATH = '/resume.pdf';
+const DOWNLOAD_NAME = 'ChempolilAshwinJohn2026.pdf';
+---
+
+<BaseLayout
+  title={createPageTitle('Resume')}
+  description="One-page resume for Ashwin John Chempolil — software engineer."
+>
+  <!-- Page header: Space Mono label, consistent with Section label treatment -->
+  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-4 sm:pt-28">
+    <p class="font-mono text-xs uppercase tracking-widest text-secondary mb-4">resume</p>
+    <p class="text-secondary mb-2">
+      The one-page version.
+      <a
+        href={RESUME_PATH}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-mono text-accent hover:text-accent-hover underline underline-offset-4 transition-colors duration-200"
+      >
+        [open ↗]
+      </a>
+      ·
+      <a
+        href={RESUME_PATH}
+        download={DOWNLOAD_NAME}
+        class="font-mono text-accent hover:text-accent-hover underline underline-offset-4 transition-colors duration-200"
+      >
+        [download ↓]
+      </a>
+    </p>
+  </div>
+
+  <!-- PDF embed -->
+  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pb-4">
+    <iframe
+      src={RESUME_PATH}
+      title="Ashwin John Chempolil — Résumé"
+      class="w-full border border-border rounded-sm bg-surface"
+      style="height: 85vh;"
+    ></iframe>
+  </div>
+
+  <!-- Fallback for browsers that cannot display PDFs inline -->
+  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pb-16">
+    <p class="font-mono text-secondary text-sm">
+      Can't see the PDF above?
+      <a
+        href={RESUME_PATH}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-accent hover:text-accent-hover underline underline-offset-4"
+      >
+        Open it directly ↗
+      </a>
+      or
+      <a
+        href={RESUME_PATH}
+        download={DOWNLOAD_NAME}
+        class="text-accent hover:text-accent-hover underline underline-offset-4"
+      >
+        download it ↓
+      </a>.
+    </p>
+  </div>
+</BaseLayout>
