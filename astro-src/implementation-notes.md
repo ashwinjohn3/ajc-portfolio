@@ -208,3 +208,256 @@ astro-src/
     ├── favicon.ico
     └── favicon.svg
 ```
+
+                                                                              
+  --------                                                                    
+                                                                              
+---
+
+# Implementation Notes — U6 Hero Component
+
+## Decisions made (not in spec)
+
+### Dual-weight name treatment (not specified in U6 spec)
+- Spec says "play with weight/size — minimal but with one playful touch."
+- Decision: split the name across two lines. "Ashwin" at font-normal (400) and a smaller clamp size;
+  "John Chempolil" at font-bold (700) and a larger clamp size. Same family (Space Grotesk) throughout —
+  no weight switching mid-word, just a line break that lets the weight contrast land cleanly.
+- `clamp(2.5rem, 6vw, 3.75rem)` / `clamp(2.75rem, 7vw, 4.5rem)` for fluid sizing without breakpoints.
+- Letter-spacing: -0.02em / -0.03em — tight tracking at display sizes, matches Space Grotesk character.
+
+### Fixed brand colors hardcoded in `<style>`, not via CSS variables
+- `#FFBE98` (avatar ring) and `#4ade80` (ping) declared as `background-color: #FFBE98` directly.
+- Rationale: fixed elements that must never adapt to theme. Hardcoding makes that contract visible to
+  any future editor without requiring them to trace CSS variable chains.
+- Global CSS variables still exist as documentation; component does not consume them.
+
+### Two-layer ping pattern
+- Outer `.ping-ring` div: animates scale 1→2 and fades. Inner `.ping-dot` div: solid, never animates.
+- Single-element ping goes fully transparent at scale(2) — the indicator disappears briefly (bad UX).
+- Two-layer keeps the dot always visible; only the pulse ring animates.
+
+### `@keyframes hero-ping` added to global.css (append-only)
+- Added at end of global.css under a clearly labelled comment block.
+- No existing token rules touched — pure append per U6 constraint.
+- Same keyframes also declared inside Hero.astro scoped `<style>` as self-contained fallback.
+
+### CTA arrow: inline SVG, not lucide-react
+- lucide-react is installed in the Next.js app but not in astro-src.
+- Inline SVG arrow (24×24 viewBox, stroke-width 2.5). Zero dependency.
+
+### Bug fixed: apostrophe in single-quoted string default
+- `avatarAlt = 'Ashwin's labrador'` caused esbuild parse error ("Expected } but found s").
+- Fix: use double quotes for strings containing apostrophes.
+
+## Build verification
+
+```
+$ cd astro-src && npm run build
+14:06:33 [build] 1 page(s) built in 758ms
+14:06:33 [build] Complete!
+exit 0
+```
+
+## File layout after U6
+
+```
+astro-src/
+└── src/
+    ├── components/
+    │   └── Hero.astro          ← NEW: avatar ring, ping badge, name, bio, CTA
+    └── styles/
+        └── global.css          ← APPENDED: @keyframes hero-ping block
+```
+
+## U9/U10 starting point
+- `import Hero from '../components/Hero.astro'`
+- `import { BIO } from '../data/site'`
+- Pass `greeting`, `tagline`, `ctaHref`, `ctaLabel` as props; all have sensible defaults.
+- `avatarSrc` default is `https://placedog.net/400/400` — swap for real photo URL when available.
+- `badgeText` default is `'Open to opportunities'` — update via prop if status changes.
+
+  ## U7 — Section, Card, ObfuscatedEmail, UsesSection + content.config.ts     
+  cleanup (2026-06-12)                                                        
+                                                                              
+  ### content.config.ts: z.string().url() → z.url()                           
+                                                                              
+  • Two occurrences: bullets[].href in work schema and items[].url in uses    
+  schema.                                                                     
+  • z.url() is the non-deprecated Zod 4 form; z.string().url() produces TS    
+  deprecation 6385.                                                           
+  • astro check confirms 0 warnings after this change.                        
+                                                                              
+  ### Section.astro design decisions                                          
+                                                                              
+  • Renders its own <section id={...}> — never wrap in another <section> from 
+  page.tsx.                                                                   
+  • 1/3 label / 2/3 content via flex flex-col gap-6 md:flex-row md:gap-10 —   
+  collapses on mobile.                                                        
+  • Label: font-mono text-xs uppercase tracking-widest text-secondary — Space 
+  Mono technical axis.                                                        
+  • Border-top border-t border-border separates sections visually; py-10      
+  vertical rhythm.                                                            
+  • class prop forwarded to outer <section> for responsive overrides from page
+  level.                                                                      
+                                                                              
+  ### Card.astro design decisions                                             
+                                                                              
+  • Polymorphic: renders <a> when href is set, <div> otherwise — avoids nested
+  interactive elements.                                                       
+  • External links get target="_blank" rel="noopener noreferrer" automatically.
+  • Logo slot: mb-3 md:mb-0 md:absolute md:-left-16 md:top-3 — negative offset
+  treatment on desktop,                                                       
+  stacked on mobile. Only rendered when Astro.slots.has('logo') is true.      
+  • Hover: transition-all duration-200 + hover:border-primary/25 hover:shadow-
+  sm only when href                                                           
+  present (non-linked cards don't fake interactivity). Matches design DNA     
+  (border-only feedback, no lift).                                            
+  • bg-surface applied so cards distinguish from page bg-bg background.       
+  • subheading rendered in text-accent font-mono — terracotta for company/role
+  labels per usage rules.                                                     
+  • meta (date range) rendered above heading in font-mono text-xs text-       
+  secondary.                                                                  
+                                                                              
+  ### ObfuscatedEmail.astro design decisions                                  
+                                                                              
+  • Zero framework JS: no React, no Svelte — pure is:inline script.           
+  • Char-code array CODES passed via define:vars so it is inlined without     
+  exposing the address as a                                                   
+  string literal. The define:vars value appears as [97,115,...] in emitted    
+  HTML — never @gmail.                                                        
+  • id="obfuscated-email" used for querySelector; page may only have one      
+  instance at a time (contact page                                            
+  use-case). If multiple instances are needed in future, refactor to use a    
+  data attribute + NodeList.                                                  
+  • Fallback label [email] shown before JS runs (e.g. no-JS environments or   
+  slow connections). Considered                                               
+  "click to reveal" pattern but decided against: showing the address          
+  immediately on load is friendlier.                                          
+  • astro:after-swap listener re-decodes after ClientRouter navigations (SPA- 
+  style nav swaps the DOM).                                                   
+  • Verified: grep -r "ashwinjohn3" dist/ → no results. grep -r "@gmail" dist/
+  → no results.                                                               
+                                                                              
+  ### UsesSection.astro design decisions                                      
+                                                                              
+  • Composes Section + Card directly — no new abstractions introduced.        
+  • TODO items detected by description?.startsWith('TODO') — rendered with    
+  text-secondary/50 italic                                                    
+  so the section looks complete while content is pending.                     
+  • Item names rendered as font-mono text-xs to maintain the technical/mono   
+  axis for tool labels.                                                       
+  • Item URLs open in a new tab with rel="noopener noreferrer".               
+                                                                              
+  ### Hero.astro smartquote fix (incidental)                                  
+                                                                              
+  • Build failed with "Expected } but found s" at Hero.astro:32 — a right     
+  single quotation mark (')                                                   
+  inside a single-quoted JS string broke the esbuild parser.                  
+  • This was a concurrent U6 agent's file. The agent self-corrected before my 
+  edit could apply.                                                           
+  Recorded here for the audit trail.                                          
+
+
+                                                                              
+  --------                                                                    
+                                                                              
+  # Implementation Notes — U5 Nav + Footer + ThemeToggle                      
+                                                                              
+  ## Decisions made (not in spec)                                             
+                                                                              
+  ### ThemeToggle: is:inline script with removeEventListener before re-bind   
+                                                                              
+  • ClientRouter replaces the DOM on navigation, creating a new #theme-toggle 
+  button element each time.                                                   
+  • astro:after-swap fires after the new DOM is in place. Re-binding requires 
+  removing the old listener                                                   
+  first (on the new element there is no old listener, but the pattern is safe 
+  regardless).                                                                
+  • The toggle does NOT call BaseLayout's applyTheme() — it only flips .dark  
+  and updates localStorage.                                                   
+  This avoids double-applying on load and keeps the two scripts decoupled.    
+                                                                              
+  ### ThemeToggle: CSS :global(.dark) for icon visibility                     
+                                                                              
+  • Astro scopes <style> blocks. To target <html class="dark"> (a parent      
+  element) from inside a                                                      
+  component's scoped style, use :global(.dark) .selector.                     
+  • Moon icon visible by default (light mode); sun icon hidden. When .dark is 
+  on <html>, rules swap.                                                      
+  • No JS class toggling on the button itself — pure CSS driven by the <html> 
+  class.                                                                      
+                                                                              
+  ### Nav: transition:name="site-name" on first name only                     
+                                                                              
+  • Renders only the first token of SITE_NAME ("Ashwin") in the nav to keep it
+  compact.                                                                    
+  • Full name is in the Hero; abbreviated name in nav is the convention.      
+                                                                              
+  ### Nav: active link detection via Astro.url.pathname                       
+                                                                              
+  • Active state: solid border-primary + text-primary. Inactive: border-      
+  transparent with hover.                                                     
+  • The / home link is NOT in NAV_LINKS so no risk of it always matching via  
+  startsWith.                                                                 
+                                                                              
+  ### Nav: bg-bg/95 with backdrop-blur-sm                                     
+                                                                              
+  • Tailwind 4 opacity modifier /95 works on custom tokens declared in @theme.
+  • Slight transparency + blur gives the sticky nav depth without a harsh     
+  solid color.                                                                
+                                                                              
+  ### Footer: copyright year computed server-side                             
+                                                                              
+  • new Date().getFullYear() runs in Astro frontmatter (server-side at static 
+  build time).                                                                
+  • Result is a static number in the built HTML — no client JS needed.        
+                                                                              
+  ### BaseLayout: <main> wrapper around slot                                  
+                                                                              
+  • Added <main> landmark between Nav and Footer wrapping <slot />.           
+  • Provides correct landmark semantics for screen readers.                   
+  • Current pages render <section> elements (not <main>), so no nested        
+  landmark conflict.                                                          
+                                                                              
+  ### scroll-margin-top: 4rem matches nav height                              
+                                                                              
+  • Nav height is h-14 = 3.5rem. The 4rem placeholder from U3 provides        
+  comfortable buffer.                                                         
+  • No change to global.css needed.                                           
+                                                                              
+  ## Build verification                                                       
+                                                                              
+    $ cd astro-src && npm run build                                           
+    14:11:02 [build] 1 page(s) built in 737ms                                 
+    14:11:02 [build] Complete!                                                
+    exit 0                                                                    
+                                                                              
+    $ npx astro check                                                         
+    Result (15 files):                                                        
+    - 0 errors                                                                
+    - 0 warnings                                                              
+    - 0 hints                                                                 
+                                                                              
+  ## File layout after U5                                                     
+                                                                              
+    astro-src/                                                                
+    └── src/                                                                  
+        ├── components/                                                       
+        │   ├── Nav.astro            <- NEW: sticky top nav, feature-flagged  
+  links, ThemeToggle                                                          
+        │   ├── ThemeToggle.astro    <- NEW: zero-framework dark/light toggle,
+  ClientRouter-safe                                                           
+        │   └── Footer.astro         <- NEW: social links + copyright metadata
+        └── layouts/                                                          
+            └── BaseLayout.astro     <- MODIFIED: imports + renders Nav, main,
+  Footer                                                                      
+                                                                              
+  ## U9/U10 starting point                                                    
+                                                                              
+  • <BaseLayout> now renders Nav + Footer automatically — pages just need the 
+  wrapper.                                                                    
+  • Nav reads visibleNavLinks() directly; no page needs to pass nav links.    
+  • Footer reads SOCIAL_LINKS directly; no page needs to pass social links.   
+  • ThemeToggle is embedded in Nav — no separate import needed from pages.    
+

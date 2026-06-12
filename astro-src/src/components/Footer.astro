@@ -1,0 +1,54 @@
+---
+/**
+ * Footer.astro
+ * U5 — Site footer with social links and metadata line.
+ *
+ * id="footer" enables scroll-anchor targeting from nav links (e.g. href="#footer").
+ * Space Mono for all footer text (technical axis per identity spec).
+ * Social links from SOCIAL_LINKS in src/data/site.ts.
+ */
+
+import { SOCIAL_LINKS, SITE_NAME } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer
+  id="footer"
+  class="w-full border-t border-border mt-20"
+>
+  <div class="max-w-[60rem] mx-auto px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+    <!-- Social links -->
+    <nav aria-label="Social links">
+      <ul class="flex items-center gap-4 list-none m-0 p-0" role="list">
+        <li>
+          <a
+            href={SOCIAL_LINKS.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link font-mono text-xs text-secondary transition-colors duration-200 hover:text-primary"
+          >
+            [github]
+          </a>
+        </li>
+        <li>
+          <a
+            href={SOCIAL_LINKS.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link font-mono text-xs text-secondary transition-colors duration-200 hover:text-primary"
+          >
+            [linkedin]
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Metadata line -->
+    <p class="font-mono text-xs text-secondary">
+      &copy; {year} {SITE_NAME}
+    </p>
+
+  </div>
+</footer>

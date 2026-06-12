@@ -1,0 +1,106 @@
+---
+/**
+ * ThemeToggle.astro
+ * U5 — Zero-framework theme toggle button.
+ *
+ * Reads current theme from <html> classList, toggles .dark, and persists
+ * to localStorage. Survives ClientRouter navigation via astro:after-swap
+ * event delegation (bound once per document lifecycle, not per component
+ * mount) — no flash, no mismatch.
+ *
+ * Contract with BaseLayout:
+ *   BaseLayout's is:inline script sets/removes .dark on <html> and re-runs
+ *   on astro:after-swap before paint. This toggle only needs to flip the
+ *   class and update localStorage; BaseLayout's applyTheme() is NOT called
+ *   here to avoid double-applying on page load.
+ */
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label="Toggle dark mode"
+  class="theme-toggle font-mono text-xs text-secondary border border-border rounded px-2 py-1 transition-colors duration-200 hover:border-primary hover:text-primary cursor-pointer"
+>
+  <!-- Moon icon (shown in light mode — clicking switches to dark) -->
+  <svg
+    class="theme-icon-moon"
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+  <!-- Sun icon (shown in dark mode — clicking switches to light) -->
+  <svg
+    class="theme-icon-sun"
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+</button>
+
+<style>
+  /* Show/hide the correct icon based on current theme.
+     .dark class on <html> drives visibility — no JS class toggling needed. */
+  .theme-icon-moon { display: block; }
+  .theme-icon-sun  { display: none;  }
+
+  :global(.dark) .theme-icon-moon { display: none;  }
+  :global(.dark) .theme-icon-sun  { display: block; }
+</style>
+
+<script is:inline>
+  (function () {
+    function toggleTheme() {
+      var html = document.documentElement;
+      var isDark = html.classList.contains('dark');
+      var next = isDark ? 'light' : 'dark';
+      if (next === 'dark') {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+      localStorage.setItem('theme', next);
+    }
+
+    function bindToggle() {
+      var btn = document.getElementById('theme-toggle');
+      if (btn) {
+        // Remove any stale listener before adding fresh one (ClientRouter reuses DOM)
+        btn.removeEventListener('click', toggleTheme);
+        btn.addEventListener('click', toggleTheme);
+      }
+    }
+
+    // Bind on initial load
+    bindToggle();
+
+    // Re-bind after every ClientRouter navigation (new DOM, new button element)
+    document.addEventListener('astro:after-swap', bindToggle);
+  })();
+</script>
