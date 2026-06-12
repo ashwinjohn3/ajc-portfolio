@@ -1,0 +1,64 @@
+# Astro site deploy to GitHub Pages
+#
+# SCOPE: Runs ONLY on redesign/personal-brand branch (+ workflow_dispatch).
+# This intentionally does NOT trigger on main so that nextjs.yml continues
+# to own the live Pages deployment until the redesign branch is merged.
+#
+# U13 CUTOVER CHECKLIST (must be done at merge time):
+#   1. Change the `branches` trigger below from [redesign/personal-brand] to [main].
+#   2. Delete (or disable) .github/workflows/nextjs.yml — keeping both active
+#      would cause two concurrent deploys racing for the same Pages environment.
+#   3. Remove the workflow_dispatch trigger if undesired after cutover (optional).
+#
+# See .omc/handoffs/u12-workflow.md for full cutover documentation.
+#
+name: Deploy Astro site to Pages
+
+on:
+  push:
+    branches: ["redesign/personal-brand"]
+  workflow_dispatch:
+
+# Required permissions for GitHub Pages OIDC deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Use a distinct concurrency group from nextjs.yml ("pages") to avoid
+# canceling in-flight Next.js deploys while both workflows coexist.
+# At cutover (U13), this group can be renamed to "pages" to match convention.
+concurrency:
+  group: "pages-astro"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and upload artifact
+        uses: withastro/action@v3
+        with:
+          # Astro app lives in astro-src/ (not repo root) until U13 cutover.
+          # At cutover: remove this line (astro-src/ contents move to root).
+          path: astro-src
+          node-version: 20
+        env:
+          # Feature flags — projects and photography are hidden by default.
+          # Flip to 'true' in a future unit when those pages are ready.
+          PUBLIC_SHOW_PROJECTS: 'false'
+          PUBLIC_SHOW_PHOTOGRAPHY: 'false'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
