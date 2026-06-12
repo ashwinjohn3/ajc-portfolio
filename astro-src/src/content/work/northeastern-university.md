@@ -1,0 +1,11 @@
+---
+title: "Graduate Course Assistant"
+company: "Northeastern University"
+period: "2021"
+subtitle: "Engineering Probability and Statistics"
+order: 1
+bullets:
+  - text: "Helped a class of grad students get through a hard course."
+---
+
+Graduate Course Assistant for Engineering Probability and Statistics at Northeastern University.

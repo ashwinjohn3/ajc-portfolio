@@ -59,6 +59,90 @@ ajc-portfolio/
 
 ---
 
+# Implementation Notes — U4 Content Collections + Migration
+
+## Decisions made (not in spec)
+
+### `z` imported from `astro/zod` (not `zod` directly)
+- Official Astro docs recommend `import { z } from 'astro/zod'` in `content.config.ts`.
+- Both work at runtime; `astro/zod` avoids any version-mismatch risk if Astro ships its own Zod.
+
+### `order` field added to both collections (not in spec)
+- The spec did not specify a sort key for work entries or uses categories. Without a stable sort,
+  `getCollection()` returns entries in filesystem order (non-deterministic across platforms).
+- Added `order: z.number().int().nonnegative()` to both `work` and `uses` schemas.
+- Work entries: 0 = AWS (most recent), 1 = Northeastern, 2 = Active.ai.
+- Uses categories: 0 = Editor & Terminal, 1 = Hardware, 2 = Software & Services.
+- Page builders should sort with `.sort((a, b) => a.data.order - b.data.order)`.
+
+### `src/data/site.ts` as a plain TS module (not a collection)
+- The plan mentions both "file() loader JSON" and "a site.ts config module" as options.
+- Decision: plain TypeScript module. Nav links, social links, and bio are code-controlled config,
+  not markdown content. A plain module is simpler and avoids a JSON-to-TS impedance mismatch.
+- `FEATURE_FLAGS` lives here because it reads `import.meta.env` at the module level — this would
+  not be possible inside a collection schema (schemas run at type-generation time).
+
+### `BIO` object added (not in original site.ts)
+- The Next.js home page bio is hardcoded inline in `app/page.tsx`, not in `utils/site.ts`.
+- Decision: migrate it into `src/data/site.ts` as a `BIO` constant so it is centralized.
+- Values are verbatim: `"Hi, I'm Ashwin."` and `"I'm a software engineer based in Washington, DC 🌸."`.
+
+### `createPageTitle()` replaces `createPageMetadata()`
+- Original Next.js helper returns `Metadata` (Next.js type). Astro does not have a `Metadata` type.
+- Replaced with `createPageTitle(pageTitle: string): string` — returns the formatted title string.
+- Callers pass it to `BaseLayout`'s `title` prop.
+
+### `.env.example` placed in `astro-src/` root (not repo root)
+- The Astro project root is `astro-src/`. Astro reads `.env` from the project root, not the monorepo
+  root. `.env.example` is placed alongside `astro.config.mjs` for discoverability.
+
+### Uses collection: 3 placeholder files, all items marked TODO
+- Three categories: "Editor & Terminal" (order 0), "Hardware" (order 1), "Software & Services" (order 2).
+- All item names and descriptions prefixed with "TODO:" so Ashwin can grep for `TODO:` to find them.
+- Each file has a one-sentence markdown body for context (optional; page builders can ignore it).
+
+## Build verification
+```
+$ cd astro-src && npm run build
+14:00:11 [content] Syncing content
+14:00:11 [content] Synced content
+14:00:11 [types] Generated 294ms
+14:00:11 [build] 1 page(s) built in 780ms
+14:00:11 [build] Complete!
+# exit 0 — both collections loaded, Zod schemas validated, no TS errors
+```
+
+## File layout after U4
+```
+astro-src/
+├── .env.example                        ← NEW: PUBLIC_SHOW_PROJECTS / PHOTOGRAPHY = false
+├── src/
+│   ├── content.config.ts               ← NEW: work + uses collections with zod schemas
+│   ├── content/
+│   │   ├── work/
+│   │   │   ├── amazon-web-services.md  ← NEW
+│   │   │   ├── northeastern-university.md  ← NEW
+│   │   │   └── active-ai.md            ← NEW
+│   │   └── uses/
+│   │       ├── editor-terminal.md      ← NEW (placeholder)
+│   │       ├── hardware.md             ← NEW (placeholder)
+│   │       └── software.md             ← NEW (placeholder)
+│   ├── data/
+│   │   └── site.ts                     ← NEW: SITE_NAME, NAV_LINKS, SOCIAL_LINKS,
+│   │                                          FEATURE_FLAGS, BIO, createPageTitle()
+│   └── lib/
+│       └── flags.ts                    ← NEW: isEnabled(), isDisabled()
+```
+
+## U5 starting point
+- Import `visibleNavLinks()` from `../data/site` for the Nav component.
+- Import `SOCIAL_LINKS` from `../data/site` for the Footer.
+- Import `isDisabled()` from `../lib/flags` for flagged page 404 guards.
+- Work collection: `getCollection('work')` + `.sort((a,b) => a.data.order - b.data.order)`.
+- Uses collection: `getCollection('uses')` + `.sort((a,b) => a.data.order - b.data.order)`.
+
+---
+
 # Implementation Notes — U2 Core config + BaseLayout
 
 ## Decisions made (not in spec)
