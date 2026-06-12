@@ -1,9 +1,23 @@
 @import "tailwindcss";
 
 /* =============================================================
+   DARK MODE VARIANT — class-based toggle (not prefers-color-scheme)
+   Must come before @theme so Tailwind's dark: utilities key off
+   the .dark class, matching the project's JS toggle convention.
+   ============================================================= */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =============================================================
    DESIGN TOKENS — Amber Warmth + Terracotta Accent
    Source of truth: .omc/state/final-identity.md (2026-06-12)
    Do NOT modify token values without updating contrast ratios.
+
+   Raw tokens live under --brand-* names. @theme inline maps
+   them to --color-* Tailwind utility names. Keeping the names
+   distinct is required: if @theme var() referenced the same
+   name defined in :root/.dark, Tailwind would resolve the value
+   at theme-declaration time (its own layer), not at the element,
+   and .dark overrides would silently never propagate.
    ============================================================= */
 
 /* ------------------------------------------------------------------
@@ -12,22 +26,22 @@
    ------------------------------------------------------------------ */
 :root {
   /* Backgrounds */
-  --color-bg:            oklch(97.7% 0.007 80.7);   /* #FAF7F2 */
-  --color-surface:       oklch(94.1% 0.014 84.6);   /* #F0EBE1 — cards / panels */
-  --color-border:        oklch(88.8% 0.015 77.0);   /* #E0D9CF — rules / dividers */
+  --brand-bg:            oklch(97.7% 0.007 80.7);   /* #FAF7F2 */
+  --brand-surface:       oklch(94.1% 0.014 84.6);   /* #F0EBE1 — cards / panels */
+  --brand-border:        oklch(88.8% 0.015 77.0);   /* #E0D9CF — rules / dividers */
 
   /* Text */
-  --color-text-primary:  oklch(20.3% 0.010 67.2);   /* #1A1612 — 16.83:1 AAA */
-  --color-text-secondary:oklch(49.3% 0.024 67.2);   /* #6B5F53 — 5.80:1 AA  */
+  --brand-text-primary:  oklch(20.3% 0.010 67.2);   /* #1A1612 — 16.83:1 AAA */
+  --brand-text-secondary:oklch(49.3% 0.024 67.2);   /* #6B5F53 — 5.80:1 AA  */
 
   /* Terracotta accent — AA on bg (4.99:1). Use on links, role labels,
      skill chips, section counts, card hover borders. NEVER as bg fill. */
-  --color-accent:        oklch(54.3% 0.143 34.7);   /* #B34A31 — 4.99:1 AA  */
-  --color-accent-hover:  oklch(45.3% 0.124 34.7);   /* #8E3621 — 7.28:1 AAA */
+  --brand-accent:        oklch(54.3% 0.143 34.7);   /* #B34A31 — 4.99:1 AA  */
+  --brand-accent-hover:  oklch(45.3% 0.124 34.7);   /* #8E3621 — 7.28:1 AAA */
 
   /* Fixed brand elements — same in both modes, never replaced by accent */
-  --color-avatar-ring:   #FFBE98;  /* Peach circle behind labrador avatar */
-  --color-ping:          #4ade80;  /* Green availability pulse — 10.40:1 AAA on dark bg */
+  --brand-avatar-ring:   #FFBE98;  /* Peach circle behind labrador avatar */
+  --brand-ping:          #4ade80;  /* Green availability pulse — 10.40:1 AAA on dark bg */
 }
 
 /* ------------------------------------------------------------------
@@ -37,41 +51,45 @@
    ------------------------------------------------------------------ */
 .dark {
   /* Backgrounds */
-  --color-bg:            oklch(20.0% 0.013 67.0);   /* #1A1510 */
-  --color-surface:       oklch(23.9% 0.013 72.2);   /* #231E18 — subtly lighter than bg */
-  --color-border:        oklch(29.8% 0.017 70.8);   /* #332C24 — low-contrast border */
+  --brand-bg:            oklch(20.0% 0.013 67.0);   /* #1A1510 */
+  --brand-surface:       oklch(23.9% 0.013 72.2);   /* #231E18 — subtly lighter than bg */
+  --brand-border:        oklch(29.8% 0.017 70.8);   /* #332C24 — low-contrast border */
 
   /* Text */
-  --color-text-primary:  oklch(92.7% 0.016 79.3);   /* #EDE6DB — 14.62:1 AAA */
-  --color-text-secondary:oklch(65.5% 0.029 71.0);   /* #9C8E7E — 5.68:1 AA  */
+  --brand-text-primary:  oklch(92.7% 0.016 79.3);   /* #EDE6DB — 14.62:1 AAA */
+  --brand-text-secondary:oklch(65.5% 0.029 71.0);   /* #9C8E7E — 5.68:1 AA  */
 
   /* Terracotta accent — shifted lighter for dark mode contrast (5.12:1 AA) */
-  --color-accent:        oklch(64.2% 0.141 34.8);   /* #D4694F — 5.12:1 AA  */
-  --color-accent-hover:  oklch(69.3% 0.129 35.6);   /* #E07D63 — 6.29:1 AA  */
+  --brand-accent:        oklch(64.2% 0.141 34.8);   /* #D4694F — 5.12:1 AA  */
+  --brand-accent-hover:  oklch(69.3% 0.129 35.6);   /* #E07D63 — 6.29:1 AA  */
 
   /* Fixed brand elements — unchanged across modes */
-  --color-avatar-ring:   #FFBE98;  /* Peach — always this value */
-  --color-ping:          #4ade80;  /* Green — always this value */
+  --brand-avatar-ring:   #FFBE98;  /* Peach — always this value */
+  --brand-ping:          #4ade80;  /* Green — always this value */
 }
 
 /* =============================================================
    TAILWIND 4 THEME EXTENSION
-   Maps CSS variables → Tailwind utility classes.
-   No tailwind.config.js — Tailwind 4 uses @theme in CSS.
+   @theme inline is required: it tells Tailwind to emit each
+   utility as a direct var(--color-*) reference in the output
+   CSS, so the cascade resolves at element paint time (picking
+   up .dark overrides) rather than at Tailwind's layer
+   declaration time. Without `inline`, bg-bg in dark mode would
+   still render the light value.
    Usage: bg-bg, bg-surface, text-primary, text-accent,
           border-border, font-display, font-mono, etc.
    ============================================================= */
-@theme {
-  /* Color utilities */
-  --color-bg:             var(--color-bg);
-  --color-surface:        var(--color-surface);
-  --color-border:         var(--color-border);
-  --color-primary:        var(--color-text-primary);
-  --color-secondary:      var(--color-text-secondary);
-  --color-accent:         var(--color-accent);
-  --color-accent-hover:   var(--color-accent-hover);
-  --color-avatar-ring:    var(--color-avatar-ring);
-  --color-ping:           var(--color-ping);
+@theme inline {
+  /* Color utilities — map to --brand-* raw tokens */
+  --color-bg:             var(--brand-bg);
+  --color-surface:        var(--brand-surface);
+  --color-border:         var(--brand-border);
+  --color-primary:        var(--brand-text-primary);
+  --color-secondary:      var(--brand-text-secondary);
+  --color-accent:         var(--brand-accent);
+  --color-accent-hover:   var(--brand-accent-hover);
+  --color-avatar-ring:    var(--brand-avatar-ring);
+  --color-ping:           var(--brand-ping);
 
   /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs */
   --font-family-display:  var(--font-display), sans-serif;   /* Space Grotesk */
@@ -101,8 +119,8 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
+  background-color: var(--brand-bg);
+  color: var(--brand-text-primary);
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-size: 1rem;
@@ -111,15 +129,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Text selection — terracotta accent highlight */
+/* Text selection — terracotta accent highlight
+   color uses var(--brand-bg) so it tracks the bg token if it ever changes */
 ::selection {
-  background-color: var(--color-accent);
-  color: oklch(97.7% 0.007 80.7); /* light bg hex as OKLCH for specificity-safety */
+  background-color: var(--brand-accent);
+  color: var(--brand-bg);
 }
 
 /* Focus-visible ring — terracotta for keyboard nav */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--brand-accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -131,4 +150,19 @@ pre,
 samp {
   font-family: var(--font-mono), monospace;
   font-size: 0.875em;
+}
+
+/* =============================================================
+   ANIMATIONS — U6 Hero ping badge
+   Defined globally so U9/U10 page variants can reference them
+   without depending on Hero.astro's scoped <style> load order.
+   The Hero component also declares these locally as a fallback.
+   ============================================================= */
+
+/* Ping pulse: outer ring scales out and fades */
+@keyframes hero-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
