@@ -955,3 +955,51 @@ astro-src/
   it out of dist.                                                             
   • **Verify:** npm run build exit 0 (6 pages); npm run check 0/0/0 (26 files).
 
+
+  ## Layout-fixes pass (redesign/personal-brand)                              
+                                                                              
+  Four interlocking layout fixes, one atomic commit.                          
+                                                                              
+  1. **Emoji tint cycler** (ThemeToggle.astro). User-requested override of the
+  anti-emoji rule, THIS toggle only. One emoji per tint evoking the hardware: 
+  dmg 🎮 · pocket 🕹️ · amber 🟠 · p1 🟢 · paper 📄 · vfd 🔵. Emoji is         
+  aria-hidden (decorative); readable tint name + next-tint hint stay in the   
+  button aria-label. Added a var EMOJI map to the inline script.              
+      • Decision: kept the cyclic JS architecture (BaseLayout owns pre-paint; 
+      toggle only flips attr+storage+label) untouched — only the label glyph  
+      source changed (name → emoji map). No double-apply risk introduced.     
+  2. **Footer pin + tint bg** (BaseLayout.astro + Footer.astro). Root cause of
+  both reported symptoms ("shifting" + "not changing color on some pages"):   
+  footer relied on inherited body bg and mt-20, so on short pages the body    
+  bg showed beneath and the margin pushed it inconsistently.                  
+      • Fix: body → flex min-h-dvh flex-col, main → flex-1, footer →          
+      shrink-0 bg-bg (dropped mt-20). Footer now pins to the bottom on        
+      every page and explicitly paints the tint bg (changes with every tint). 
+      • Tradeoff: removing mt-20 removes the old large gap above the footer on
+      tall pages; the footer's own top border + py-8 carry the separation.    
+      This is intentional — uniform footer height/position was the goal.      
+  3. **Lean home** (index.astro rewritten; variant-b.astro git rm'd). Home is 
+  now Hero + "[see my work]" link, no ExperienceTimeline. The timeline stays  
+  at /work. Build dropped from 6 → 5 pages. The stale "Variant B" comment in
+  work.astro was reworded. No variant-b references remain in src/ or dist/.      
+      • Decision: absorbed variant-b's composition into index rather than     
+      renaming the file, to keep the canonical / route and git history of     
+      index.astro intact.                                                     
+  4. **Full-bleed hero** (Hero.astro fill prop + BaseLayout fillViewport      
+  prop). On home, main becomes a flex column and the hero <section> gets      
+  flex-1 flex flex-col justify-center, stretching its grain bg + full-height  
+  center hairline to fill all space between nav and footer with content       
+  vertically centered (Kubrick axis preserved). Opt-in via props so other     
+  pages keep normal flow.                                                     
+      • Decision: made fill opt-in (props) rather than always-on, because Hero
+      is                                                                      
+      only used on home but the prop keeps the component reusable without     
+      forcing full-height everywhere.                                         
+                                                                              
+                                                                              
+  Verify: npm run build exit 0 (5 pages); npx astro check 0/0/0; footer block 
+  byte-identical across all 5 pages; home dist has 0 timeline markers + the   
+  see-work link + 🎮 label + flex-1 hero. No browser driver in env →          
+  structural                                                                  
+  (DOM-order + flex-chain) verification, which is deterministic for pin/fill. 
+

@@ -9,12 +9,19 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  /**
+   * When true, <main> grows to fill all space between nav and footer and
+   * lays its slot out as a column so a full-bleed hero can stretch to the
+   * remaining viewport height. Used by the lean home page.
+   */
+  fillViewport?: boolean;
 }
 
 const {
   title = 'Ashwin Chempolil — Software Engineer',
   description = 'Software engineer with a focus on distributed systems and cloud infrastructure.',
   ogImage = '/favicon.svg',
+  fillViewport = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -87,9 +94,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- Client-side navigation (view transitions) -->
     <ClientRouter />
   </head>
-  <body>
+  <body class="flex min-h-dvh flex-col">
     <Nav />
-    <main class="mx-auto w-full max-w-[60rem]">
+    <main
+      class:list={[
+        'mx-auto w-full max-w-[60rem] flex-1',
+        fillViewport && 'flex flex-col',
+      ]}
+    >
       <slot />
     </main>
     <Footer />

@@ -5,8 +5,13 @@
  *
  * Click cycles dmg → pocket → amber → p1 → paper → vfd → dmg.
  * Sets [data-theme] on <html> (dmg removes the attribute = :root default),
- * persists to localStorage('tint'), and shows the current tint as a
- * Fragment Mono label (e.g. [dmg]) — a readable name, not a mystery icon.
+ * persists to localStorage('tint'), and shows the current tint as a single
+ * emoji that evokes that display hardware:
+ *   dmg 🎮 (Game Boy DMG) · pocket 🕹️ (Game Boy Pocket) · amber 🟠 (amber CRT) ·
+ *   p1 🟢 (P1 green phosphor) · paper 📄 (e-paper white) · vfd 🔵 (blue VFD).
+ * The emoji is decorative (aria-hidden); the readable tint name + next-tint
+ * hint live in the button's aria-label so screen readers stay informative.
+ * (Emoji is intentional HERE ONLY — the rest of the site stays emoji-free.)
  *
  * Survives ClientRouter navigation via astro:after-swap event delegation
  * (bound once per document lifecycle). BaseLayout's is:inline script owns
@@ -24,15 +29,21 @@
   id="tint-toggle"
   type="button"
   aria-label="Display tint"
-  class="tint-toggle font-mono text-xs text-secondary border border-border rounded px-2 py-1 transition-colors duration-200 hover:border-primary hover:text-primary cursor-pointer"
+  class="tint-toggle font-mono text-sm leading-none text-secondary border border-border rounded px-2 py-1 transition-colors duration-200 hover:border-primary hover:text-primary cursor-pointer"
 >
-  <span id="tint-label" class="tint-label">[dmg]</span>
+  <span id="tint-label" class="tint-label" aria-hidden="true">🎮</span>
 </button>
 
 <script is:inline>
   (function () {
     // Single source of truth for the cycle order + display names.
     var TINTS = ['dmg', 'pocket', 'amber', 'p1', 'paper', 'vfd'];
+    // One emoji per tint, evoking that display hardware. Decorative only —
+    // the readable tint name stays in the aria-label.
+    var EMOJI = {
+      dmg: '🎮', pocket: '🕹️', amber: '🟠',
+      p1: '🟢', paper: '📄', vfd: '🔵'
+    };
 
     function currentTint() {
       var attr = document.documentElement.getAttribute('data-theme');
@@ -55,7 +66,7 @@
       var next = TINTS[nextIdx];
       var label = document.getElementById('tint-label');
       var btn = document.getElementById('tint-toggle');
-      if (label) label.textContent = '[' + cur + ']';
+      if (label) label.textContent = EMOJI[cur] || EMOJI.dmg;
       if (btn) btn.setAttribute('aria-label', 'Display tint: ' + cur + '. Click for ' + next + '.');
     }
 

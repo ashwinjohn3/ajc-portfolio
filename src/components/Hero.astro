@@ -35,6 +35,13 @@ interface Props {
   ctaHref?: string;
   ctaLabel?: string;
   badgeText?: string;
+  /**
+   * When true the hero stretches to fill the remaining viewport height
+   * (flex-1 inside a column <main>) and vertically centers its content so
+   * the dead-center axis runs the full body height with no unfilled bg
+   * around it. Used on the lean home page.
+   */
+  fill?: boolean;
 }
 
 const {
@@ -42,6 +49,7 @@ const {
   ctaHref = '/contact',
   ctaLabel = 'Get in touch',
   badgeText = 'Open to opportunities',
+  fill = false,
 } = Astro.props;
 ---
 
@@ -51,7 +59,12 @@ const {
      ============================================================ -->
 <section
   id="hero"
-  class="hero-dmg relative w-full px-6 sm:px-10 pt-24 pb-16 sm:pt-32 sm:pb-20"
+  class:list={[
+    'hero-dmg relative w-full px-6 sm:px-10',
+    fill
+      ? 'flex-1 flex flex-col justify-center py-16 sm:py-20'
+      : 'pt-24 pb-16 sm:pt-32 sm:pb-20',
+  ]}
   aria-label="Introduction"
 >
   <!-- One-point center axis guide (hairline framing device, decorative) -->
