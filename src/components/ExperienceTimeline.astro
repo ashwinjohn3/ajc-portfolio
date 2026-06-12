@@ -10,8 +10,9 @@
  *   desktop treatment: absolutely positioned at md:-left-16 so they float
  *   into the negative space left of each card.
  * • Layout: Section wrapper 1/3 label + 2/3 content, collapses mobile.
- * • Typography: Space Grotesk for title/body (font-display), Space Mono for
- *   period/company (font-mono). Terracotta (text-accent) for company names
+ * • Typography: Instrument Sans for title/body, Fragment Mono for
+ *   period/company (font-mono). Logo monogram uses Instrument Serif (font-display).
+ *   Terracotta (text-accent) for company names
  *   per final-identity.md usage rules.
  * • No card-level href — cards are <div> elements. Company links are rendered
  *   as inline <a> tags within the card body. This avoids nested <a> elements
@@ -32,6 +33,9 @@
 import { getCollection } from 'astro:content';
 import Section from './Section.astro';
 import Card from './Card.astro';
+import BrandIcon from './BrandIcon.astro';
+// NEU wordmark lives in public/logos/ and is referenced by URL (not imported);
+// it is a brand-red PD wordmark, kept full-color, so it stays an <img>.
 
 // Sort ascending: order 0 = most recent role, rendered first.
 const entries = (await getCollection('work')).sort(
@@ -47,13 +51,24 @@ const COMPANY_HREFS: Record<string, string> = {
   'Active.ai': 'https://www.active.ai',
 };
 
-// Company abbreviation labels used in the logo slot when no image is available.
-// These render as the negative-offset element on desktop — styled in Space Mono,
-// small caps, terracotta. They occupy the same visual slot as a logo would.
-const COMPANY_ABBR: Record<string, string> = {
-  'Amazon Web Services': 'AWS',
-  'Northeastern University': 'NEU',
-  'Active.ai': 'AI',
+// Company → logo descriptor used to render the exact brand mark in the card
+// header logo slot. `kind` selects the render path:
+//   'brand'  → inline BrandIcon glyph (currentColor — themes in light/dark)
+//   'img'    → <img> to a full-color SVG in public/logos/ (NEU brand red)
+//   'word'   → typographic wordmark fallback (asset unobtainable)
+type LogoDescriptor =
+  | { kind: 'brand'; icon: 'github' | 'linkedin' | 'aws'; label: string }
+  | { kind: 'img'; src: string; label: string }
+  | { kind: 'word'; primary: string; accent: string; label: string };
+
+const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
+  'Amazon Web Services': { kind: 'brand', icon: 'aws', label: 'Amazon Web Services' },
+  'Northeastern University': {
+    kind: 'img',
+    src: '/logos/northeastern.svg',
+    label: 'Northeastern University',
+  },
+  'Active.ai': { kind: 'word', primary: 'active', accent: '.ai', label: 'Active.ai' },
 };
 ---
 
@@ -61,7 +76,7 @@ const COMPANY_ABBR: Record<string, string> = {
   <div class="flex flex-col gap-y-4">
     {entries.map((entry) => {
       const href = COMPANY_HREFS[entry.data.company];
-      const abbr = COMPANY_ABBR[entry.data.company] ?? entry.data.company.slice(0, 3).toUpperCase();
+      const logo = COMPANY_LOGOS[entry.data.company];
       const bullets = entry.data.bullets ?? [];
 
       return (
@@ -69,15 +84,34 @@ const COMPANY_ABBR: Record<string, string> = {
           heading={entry.data.title}
           meta={entry.data.period}
         >
-          <!-- Logo slot: text abbreviation badge. On desktop this is absolutely
-               positioned at md:-left-16 (handled inside Card.astro). On mobile
-               it renders above the card header with mb-3. -->
+          <!-- Logo slot: exact brand mark in a fixed 40x40 chip. All three
+               render paths share the same chip chrome (surface + border + ring)
+               so logos line up uniformly down the timeline regardless of glyph
+               shape. Chip background guarantees the brand-red NEU wordmark and
+               the AWS smile stay legible on both the cream and dark page bg. -->
           <span
             slot="logo"
-            aria-hidden="true"
-            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface border border-border font-mono text-xs font-medium text-accent tracking-wider select-none"
+            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface border border-border ring-1 ring-border/60 overflow-hidden select-none"
           >
-            {abbr}
+            {logo.kind === 'brand' && (
+              <BrandIcon name={logo.icon} title={logo.label} class="w-5 h-5 text-primary" />
+            )}
+            {logo.kind === 'img' && (
+              <img
+                src={logo.src}
+                alt={`${logo.label} logo`}
+                width="40"
+                height="40"
+                loading="lazy"
+                decoding="async"
+                class="w-8 h-auto"
+              />
+            )}
+            {logo.kind === 'word' && (
+              <span aria-hidden="true" class="font-display text-[0.6rem] font-semibold leading-none tracking-tight text-primary">
+                {logo.primary}<span class="text-accent">{logo.accent}</span>
+              </span>
+            )}
           </span>
 
           <!-- Company name — rendered as an inline link when a href exists,

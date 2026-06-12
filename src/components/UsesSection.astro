@@ -1,18 +1,27 @@
 ---
 /**
- * UsesSection — renders the `uses` content collection grouped by category.
- * Uses Section + Card primitives. Each category becomes a Card; each item
- * inside is rendered as a chip/row with an optional link.
+ * UsesSection — renders the `uses` content collection as a balanced grid of
+ * category cards. Each category is a Card (same chrome as /work); each item is
+ * a mono-label row with an optional link and description.
  *
- * TODO placeholder items (description starts with "TODO") render fine —
- * they show a muted "TODO" badge so the section is visually complete even
- * before content is filled in.
+ * Layout (USER-FIX-3): self-contained, full site container (max-w-[60rem],
+ * matching Nav/Hero/Footer). Categories sit in a responsive grid —
+ *   • 1 column  < md   (stacked)
+ *   • 2 columns ≥ md   (balanced, symmetric pair)
+ * `items-start` keeps unequal-height cards top-aligned so the grid stays tidy.
+ *
+ * Deliberately NOT wrapped in Section.astro: Section forces a 1/3-label + 2/3
+ * content split that crammed the cards into a narrow right column (the old
+ * off-center look) and emitted a second "tools & setup" label that duplicated
+ * the page header. This component now owns its own container + grid instead.
+ *
+ * TODO placeholder items (description starts with "TODO") render with a muted
+ * italic badge so the section reads as complete before content is filled in.
  *
  * Consumes: src/content/uses/*.md (sorted by `order` field)
  */
 
 import { getCollection } from 'astro:content';
-import Section from './Section.astro';
 import Card from './Card.astro';
 
 const uses = (await getCollection('uses')).sort(
@@ -20,16 +29,16 @@ const uses = (await getCollection('uses')).sort(
 );
 ---
 
-<Section id="uses" label="tools & setup">
-  <div class="flex flex-col gap-4">
+<section id="uses" class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pb-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-start">
     {uses.map((cat) => (
-      <Card heading={cat.data.category}>
-        <ul class="flex flex-col gap-2 mt-1">
+      <Card heading={cat.data.category} class="h-full">
+        <ul class="flex flex-col gap-2.5 mt-1">
           {cat.data.items.map((item) => {
             const isTodo = item.description?.startsWith('TODO');
             return (
-              <li class="flex items-start gap-2">
-                <!-- Item name — link if url present -->
+              <li class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                {/* Item name — link if url present */}
                 {item.url ? (
                   <a
                     href={item.url}
@@ -63,4 +72,4 @@ const uses = (await getCollection('uses')).sort(
       </Card>
     ))}
   </div>
-</Section>
+</section>

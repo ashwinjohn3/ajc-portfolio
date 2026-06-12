@@ -9,6 +9,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
+import BrandIcon from '../components/BrandIcon.astro';
 import { SOCIAL_LINKS, createPageTitle } from '../data/site';
 ---
 
@@ -17,7 +18,7 @@ import { SOCIAL_LINKS, createPageTitle } from '../data/site';
   description="Get in touch with Ashwin John Chempolil."
 >
   <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-16 sm:pt-28">
-    <!-- Section label: Space Mono, consistent with other page headers -->
+    <!-- Section label: Fragment Mono, consistent with other page headers -->
     <p class="font-mono text-xs uppercase tracking-widest text-secondary mb-6">contact</p>
 
     <p class="text-secondary mb-8">
@@ -35,9 +36,9 @@ import { SOCIAL_LINKS, createPageTitle } from '../data/site';
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
-        class="font-mono text-accent hover:text-accent-hover transition-colors duration-200 underline underline-offset-4"
+        class="inline-flex items-center text-accent hover:text-accent-hover transition-colors duration-200"
       >
-        [github]
+        <BrandIcon name="github" title="GitHub" class="w-5 h-5" />
       </a>
 
       <!-- LinkedIn -->
@@ -46,9 +47,9 @@ import { SOCIAL_LINKS, createPageTitle } from '../data/site';
         target="_blank"
         rel="noopener noreferrer"
         aria-label="LinkedIn"
-        class="font-mono text-accent hover:text-accent-hover transition-colors duration-200 underline underline-offset-4"
+        class="inline-flex items-center text-accent hover:text-accent-hover transition-colors duration-200"
       >
-        [linkedin]
+        <BrandIcon name="linkedin" title="LinkedIn" class="w-5 h-5" />
       </a>
     </div>
   </div>
