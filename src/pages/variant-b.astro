@@ -3,15 +3,12 @@
  * variant-b.astro
  * U10 — Home Variant B (lean front page, no work timeline)
  *
- * Layout: Hero → "see my work" link → Uses/Tools → Contact teaser
- * The full work timeline lives at /work.
- * At user review (U15), if this variant wins it is renamed to index.astro.
+ * Layout: Hero → "see my work" link
+ * The full work timeline lives at /work. Tools & Setup at /uses.
+ * At user review, if this variant wins it is renamed to index.astro.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import UsesSection from '../components/UsesSection.astro';
-import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
-import Section from '../components/Section.astro';
 import { BIO, createPageTitle } from '../data/site';
 ---
 
@@ -50,19 +47,4 @@ import { BIO, createPageTitle } from '../data/site';
       </svg>
     </a>
   </div>
-
-  <!-- Uses / Tools — self-contained, reads from uses content collection -->
-  <UsesSection />
-
-  <!-- Contact teaser — minimal, no duplicate of /contact page -->
-  <Section id="contact" label="contact">
-    <div class="flex flex-col gap-4">
-      <p class="text-primary font-sans leading-relaxed">
-        Want to work together or just say hello? Reach out.
-      </p>
-      <p class="text-primary font-sans">
-        <ObfuscatedEmail label="[email]" class="text-accent hover:text-accent-hover transition-colors font-mono" />
-      </p>
-    </div>
-  </Section>
 </BaseLayout>

@@ -717,3 +717,64 @@ astro-src/
   • npx astro check → 0 errors, 0 warnings, 0 hints.                          
   • No console.log/debugger/TODO in U11 files.                                
 
+
+  ## USER-FIX-2 — Visual QA (Card + site-wide symmetry)                       
+                                                                              
+  Root causes (confirmed via Playwright screenshots, not assumption):         
+                                                                              
+  • No shared container: BaseLayout <main> had no max-width; only             
+  Nav/Hero/Footer/page-headers self-centered, while Section.astro rendered    
+  full viewport width → labels flush to x=0, cards bled to right viewport edge.
+  Composition violently off-center per page.                                  
+  • Card didn't read as a card: surface≈bg (~6% L diff) + faint border, AND   
+  logo badge floated outside the card at md:-left-16 (orphaned in the gutter).
+  • Duplicate "experience" label on /work (page header + Section label).      
+                                                                              
+  Fixes (token values untouched):                                             
+                                                                              
+  • BaseLayout <main> = mx-auto w-full max-w-[60rem] (single container; no    
+  padding on main — padding lives one level down so page wrappers I don't own 
+  don't double-pad).                                                          
+  • Section: added px-6 sm:px-10. Hero: dropped redundant max-w/mx-auto, kept 
+  padding.                                                                    
+  • Card: border border-border ring-1 ring-border/60 always-on + hover-       
+  brighten; logo moved inside header flex row (dropped negative offset).      
+  • work.astro: removed duplicate label.                                      
+                                                                              
+  Deviation from reference DNA (justified): negative-offset logo dropped — it 
+  broke card geometry and centering. Badge now inside card.                   
+  Verified: build exit 0; astro check 0/0/0; screenshots at 375/768/1280 +    
+  dark mode. Did NOT commit. Owned only                                       
+  Card/Section/Hero/BaseLayout/work.astro + handoff; did not touch            
+  index/variant-b/uses/site.ts (executor's).                                  
+
+
+  ## FIX-STRUCTURE-VERIFY (2026-06-12) — restructure verification             
+                                                                              
+  Verified the prior worker's page restructure on branch redesign/personal-   
+  brand.                                                                      
+  **No source edits were needed — the restructure was already complete and    
+  correct.**                                                                  
+                                                                              
+  • / = Hero + ExperienceTimeline only; /variant-b = Hero + [see my work] link
+  only;                                                                       
+  /uses = Space Mono header + UsesSection (mirrors work.astro); site.ts NAV   
+  order                                                                       
+  work→uses→resume→(flagged)→contact. All confirmed against built HTML.       
+  • npm run build exit 0, exactly 6 pages. Grep of dist/: no uses/tools or    
+  contact-section                                                             
+  markup on / or /variant-b; /uses renders 3 tool categories; nav /uses on all
+  6 pages;                                                                    
+  zero email plaintext.                                                       
+  • npm run check (astro check) → 0 errors/warnings/hints.                    
+  • import.meta TS1343 in IDE diagnostics = stale tsserver noise.             
+  astro/tsconfigs/base.json                                                   
+  (via strict) sets module=ESNext, moduleResolution=Bundler — import.meta is  
+  fully supported.                                                            
+  astro check passes; no fix applied (would be a band-aid). Restart tsserver  
+  to clear.                                                                   
+  • Out-of-scope flag: /uses content is still TODO placeholders (collection   
+  not yet populated).                                                         
+  • Did NOT commit. Did NOT touch visual-fix files. Handoff: .omc/handoffs/fix-
+  structure.md                                                                
+
