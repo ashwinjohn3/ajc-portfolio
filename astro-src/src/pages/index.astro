@@ -1,9 +1,36 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ExperienceTimeline from '../components/ExperienceTimeline.astro';
+import UsesSection from '../components/UsesSection.astro';
+import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
+import Section from '../components/Section.astro';
+import { BIO, createPageTitle } from '../data/site';
 ---
 
-<BaseLayout title="Ashwin Chempolil — Software Engineer">
-  <main>
-    <h1>Scaffold</h1>
-  </main>
+<BaseLayout
+  title={createPageTitle('Home')}
+  description="Software engineer based in Washington, DC. Building distributed systems and cloud infrastructure at AWS."
+>
+  <Hero
+    greeting={BIO.greeting}
+    tagline={BIO.tagline}
+    ctaHref="/contact"
+    ctaLabel="Get in touch"
+  />
+
+  <ExperienceTimeline />
+
+  <UsesSection />
+
+  <Section id="contact" label="contact">
+    <div class="flex flex-col gap-4">
+      <p class="text-primary font-sans leading-relaxed">
+        Want to work together or just say hello? Reach out.
+      </p>
+      <p class="text-primary font-sans">
+        <ObfuscatedEmail label="[email]" class="text-accent hover:text-accent-hover transition-colors font-mono" />
+      </p>
+    </div>
+  </Section>
 </BaseLayout>
