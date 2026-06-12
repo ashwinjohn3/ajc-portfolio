@@ -1,0 +1,81 @@
+---
+/**
+ * Card — surface card with border-brighten hover and optional logo slot.
+ *
+ * Props:
+ *   heading      — primary heading (e.g. job title)
+ *   subheading   — secondary line (e.g. company name) — rendered in text-accent
+ *   meta         — tertiary meta (e.g. date range) — Space Mono, text-secondary
+ *   href         — if set, the entire card becomes an <a> tag
+ *   class        — forwarded to the outer element for overrides
+ *
+ * Slots:
+ *   logo         — optional logo/image; receives the negative-offset treatment on desktop
+ *   default      — card body content (bullet lists, descriptions, chips…)
+ *
+ * Hover:
+ *   Border brightens (text-primary/25 opacity). No scale/lift — border is the
+ *   only feedback (matches design DNA from explore-inspiration.md).
+ *
+ * Logo offset:
+ *   On desktop (md:), the logo slot is absolutely positioned to the left of the
+ *   card (-left-16), creating the negative-offset visual treatment from the
+ *   reference theme. The card has md:pl-4 to leave room for the logo on the
+ *   left when used inside a Section 2/3 column.
+ */
+
+interface Props {
+  heading: string;
+  subheading?: string;
+  meta?: string;
+  href?: string;
+  class?: string;
+}
+
+const { heading, subheading, meta, href, class: className } = Astro.props;
+
+// Render as <a> when href is provided, otherwise <div>
+const Tag = href ? 'a' : 'div';
+const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<Tag
+  {...linkProps}
+  class:list={[
+    // Layout
+    'relative rounded-2xl border border-border px-5 py-3',
+    // Surface
+    'bg-surface',
+    // Hover — border brightens; shadow appears
+    'transition-all duration-200',
+    href && 'hover:border-primary/25 hover:shadow-sm cursor-pointer',
+    // Desktop logo offset: left padding makes room for the absolute-positioned logo
+    'md:pl-4',
+    className,
+  ]}
+>
+  <!-- Logo slot: stacks on mobile, absolute-offset on desktop -->
+  {Astro.slots.has('logo') && (
+    <div class="mb-3 md:mb-0 md:absolute md:-left-16 md:top-3 flex items-center justify-center">
+      <slot name="logo" />
+    </div>
+  )}
+
+  <!-- Card header -->
+  <div class="flex flex-col gap-0.5">
+    {meta && (
+      <span class="font-mono text-xs text-secondary mb-1">{meta}</span>
+    )}
+    <h3 class="text-base font-medium text-primary leading-snug">{heading}</h3>
+    {subheading && (
+      <p class="text-sm text-accent font-mono">{subheading}</p>
+    )}
+  </div>
+
+  <!-- Default slot — body content -->
+  {Astro.slots.has('default') && (
+    <div class="mt-3 text-sm text-secondary leading-relaxed">
+      <slot />
+    </div>
+  )}
+</Tag>

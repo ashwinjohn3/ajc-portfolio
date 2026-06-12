@@ -31,7 +31,7 @@ const work = defineCollection({
       .array(
         z.object({
           text: z.string(),
-          href: z.string().url().optional(),
+          href: z.url().optional(),
           team: z.string().optional(),
         })
       )
@@ -56,7 +56,7 @@ const uses = defineCollection({
         /** Short description — may include "TODO:" to flag placeholders */
         description: z.string().optional(),
         /** Optional link to the tool's website */
-        url: z.string().url().optional(),
+        url: z.url().optional(),
       })
     ),
   }),

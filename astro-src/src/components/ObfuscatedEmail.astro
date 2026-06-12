@@ -1,0 +1,65 @@
+---
+/**
+ * ObfuscatedEmail — renders a clickable email link with ZERO plaintext email
+ * in server-emitted HTML. The address is stored as a char-code array and
+ * decoded client-side by an is:inline script.
+ *
+ * Security model:
+ *   - The <a> href starts as "#" (inert).
+ *   - An is:inline script (runs once on DOMContentLoaded) decodes the char-code
+ *     array and sets href="mailto:..." + textContent on the anchor.
+ *   - Because is:inline emits the script verbatim into the HTML, a grep of
+ *     dist/ for "ashwinjohn3" or "@gmail" must return zero results.
+ *   - The char-code array below encodes: ashwinjohn3@gmail.com
+ *
+ * Props:
+ *   label    — visible link text before JS decodes it (default: "[email]")
+ *   class    — forwarded to the <a> tag
+ *
+ * How to regenerate codes if the address changes:
+ *   node -e "console.log([...'newemail@example.com'].map(c => c.charCodeAt(0)).join(','))"
+ */
+
+interface Props {
+  label?: string;
+  class?: string;
+}
+
+const { label = '[email]', class: className } = Astro.props;
+
+// ashwinjohn3@gmail.com encoded as char codes — never plaintext in this file
+// prettier-ignore
+const CODES = [97,115,104,119,105,110,106,111,104,110,51,64,103,109,97,105,108,46,99,111,109];
+---
+
+<a
+  id="obfuscated-email"
+  href="#"
+  class:list={[
+    'font-mono text-accent hover:text-accent-hover transition-colors duration-200 underline underline-offset-4',
+    className,
+  ]}
+  aria-label="Send email"
+>
+  {label}
+</a>
+
+<script is:inline define:vars={{ CODES }}>
+  (function () {
+    function decode() {
+      var el = document.getElementById('obfuscated-email');
+      if (!el) return;
+      var addr = CODES.map(function (c) { return String.fromCharCode(c); }).join('');
+      el.href = 'mailto:' + addr;
+      el.textContent = addr;
+      el.removeAttribute('aria-label');
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', decode);
+    } else {
+      decode();
+    }
+    // Re-decode after ClientRouter navigations
+    document.addEventListener('astro:after-swap', decode);
+  })();
+</script>

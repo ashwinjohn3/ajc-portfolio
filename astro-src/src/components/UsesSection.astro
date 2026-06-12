@@ -1,0 +1,66 @@
+---
+/**
+ * UsesSection — renders the `uses` content collection grouped by category.
+ * Uses Section + Card primitives. Each category becomes a Card; each item
+ * inside is rendered as a chip/row with an optional link.
+ *
+ * TODO placeholder items (description starts with "TODO") render fine —
+ * they show a muted "TODO" badge so the section is visually complete even
+ * before content is filled in.
+ *
+ * Consumes: src/content/uses/*.md (sorted by `order` field)
+ */
+
+import { getCollection } from 'astro:content';
+import Section from './Section.astro';
+import Card from './Card.astro';
+
+const uses = (await getCollection('uses')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Section id="uses" label="tools & setup">
+  <div class="flex flex-col gap-4">
+    {uses.map((cat) => (
+      <Card heading={cat.data.category}>
+        <ul class="flex flex-col gap-2 mt-1">
+          {cat.data.items.map((item) => {
+            const isTodo = item.description?.startsWith('TODO');
+            return (
+              <li class="flex items-start gap-2">
+                <!-- Item name — link if url present -->
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-mono text-xs text-accent hover:text-accent-hover transition-colors duration-200 underline underline-offset-2 shrink-0"
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <span class="font-mono text-xs text-primary shrink-0">
+                    {item.name}
+                  </span>
+                )}
+                {/* Description or TODO badge */}
+                {item.description && (
+                  isTodo ? (
+                    <span class="text-xs text-secondary/50 italic">
+                      {item.description}
+                    </span>
+                  ) : (
+                    <span class="text-xs text-secondary">
+                      — {item.description}
+                    </span>
+                  )
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </Card>
+    ))}
+  </div>
+</Section>
