@@ -1,0 +1,224 @@
+---
+/**
+ * Hero.astro
+ * U6 — Avatar ring + ping badge + name + bio
+ *
+ * Props:
+ *   avatarSrc   — remote image URL (plain <img>, no astro:assets optimization — static-mode safe)
+ *   avatarAlt   — alt text for the avatar image
+ *   greeting    — first line of bio (e.g. "Hi, I'm Ashwin.")
+ *   tagline     — second line (e.g. "I'm a software engineer…")
+ *   ctaHref     — href for the primary CTA link (terracotta accent, required)
+ *   ctaLabel    — visible label for the CTA link
+ *   badgeText   — availability badge text (Space Mono, green ping) — optional
+ *
+ * U9/U10 usage:
+ *   Pass all props explicitly so both home variants can customise without touching this file.
+ *   Default values below cover the standard home page case from src/data/site.ts.
+ */
+
+interface Props {
+  avatarSrc?: string;
+  avatarAlt?: string;
+  greeting?: string;
+  tagline?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+  badgeText?: string;
+}
+
+const {
+  avatarSrc = 'https://placedog.net/400/400',
+  avatarAlt = "Ashwin's labrador",
+  greeting = "Hi, I'm Ashwin.",
+  tagline = "I'm a software engineer based in Washington, DC 🌸.",
+  ctaHref = '/contact',
+  ctaLabel = 'Get in touch',
+  badgeText = 'Open to opportunities',
+} = Astro.props;
+---
+
+<!-- ============================================================
+     Hero section
+     Layout: vertically centered column, generous top padding.
+     On sm+: avatar and text share a row (avatar left, text right).
+     ============================================================ -->
+<section
+  id="hero"
+  class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-16 sm:pt-28 sm:pb-20"
+  aria-label="Introduction"
+>
+  <div class="flex flex-col sm:flex-row items-center sm:items-start gap-10 sm:gap-14">
+
+    <!-- ── Avatar column ── -->
+    <div class="flex-shrink-0 flex flex-col items-center gap-4">
+
+      <!-- Peach ring + labrador photo -->
+      <!-- Ring: fixed #FFBE98 background, rounded-full, padding for breathing room -->
+      <div
+        class="hero-avatar-ring rounded-full flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <img
+          src={avatarSrc}
+          alt={avatarAlt}
+          width="112"
+          height="112"
+          loading="eager"
+          decoding="async"
+          class="rounded-full object-cover w-28 h-28 block"
+        />
+      </div>
+
+      <!-- Green ping availability badge -->
+      <!-- Pure CSS ping animation; reduced-motion disables the pulse -->
+      <!-- Space Mono for the "technical" axis per final-identity.md -->
+      <div
+        class="hero-badge flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-surface"
+        aria-label={badgeText}
+      >
+        <!-- Ping dot: outer pulse ring + inner solid dot -->
+        <span class="relative flex h-2.5 w-2.5 flex-shrink-0" aria-hidden="true">
+          <span class="ping-ring absolute inline-flex h-full w-full rounded-full"></span>
+          <span class="ping-dot relative inline-flex rounded-full h-2.5 w-2.5"></span>
+        </span>
+        <span class="hero-badge-text font-mono text-xs leading-none whitespace-nowrap">
+          {badgeText}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- ── Text column ── -->
+    <div class="flex flex-col gap-5 text-center sm:text-left">
+
+      <!-- Name: two-weight typographic treatment -->
+      <!-- First name: weight 400, giving it room to breathe -->
+      <!-- Last name(s): weight 700, the visual anchor — the ONE playful touch -->
+      <h1 class="hero-name leading-[1.1] tracking-tight" aria-label="Ashwin John Chempolil">
+        <span class="hero-name-first block font-display font-normal text-primary">Ashwin</span>
+        <span class="hero-name-last block font-display font-bold text-primary">John Chempolil</span>
+      </h1>
+
+      <!-- Bio text: greeting + tagline from site data -->
+      <div class="flex flex-col gap-1.5">
+        <p class="font-display font-medium text-lg text-primary leading-snug">
+          {greeting}
+        </p>
+        <p class="font-display font-normal text-base text-secondary leading-relaxed">
+          {tagline}
+        </p>
+      </div>
+
+      <!-- CTA link — terracotta accent ONLY here per usage rules -->
+      <div class="flex flex-wrap gap-4 justify-center sm:justify-start mt-1">
+        <a
+          href={ctaHref}
+          class="hero-cta font-display font-semibold text-sm inline-flex items-center gap-1.5 transition-colors duration-200"
+        >
+          {ctaLabel}
+          <!-- Inline SVG arrow — no icon library needed -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ------------------------------------------------------------------
+     Avatar ring — fixed peach color, never driven by theme variables.
+     Padding inside gives the dog photo breathing room inside the circle.
+     ------------------------------------------------------------------ */
+  .hero-avatar-ring {
+    background-color: #FFBE98; /* --color-avatar-ring: fixed brand element */
+    padding: 0.625rem; /* 10px inset padding inside the ring */
+    /* Ring is slightly larger than the image: image 112px + 2×10px padding = 132px */
+  }
+
+  /* ------------------------------------------------------------------
+     Name: dual-weight typographic flourish.
+     First name: 3.75rem / 60px at relaxed weight — spacious entry.
+     Last name: 4.5rem / 72px bold — visual anchor / landing weight.
+     Stack reads top-to-bottom as: gentle → emphatic.
+     ------------------------------------------------------------------ */
+  .hero-name-first {
+    font-size: clamp(2.5rem, 6vw, 3.75rem);
+    letter-spacing: -0.02em;
+  }
+
+  .hero-name-last {
+    font-size: clamp(2.75rem, 7vw, 4.5rem);
+    letter-spacing: -0.03em;
+  }
+
+  /* ------------------------------------------------------------------
+     CTA link — terracotta accent (only occurrence per usage rules).
+     ------------------------------------------------------------------ */
+  .hero-cta {
+    color: var(--color-accent);
+  }
+
+  .hero-cta:hover {
+    color: var(--color-accent-hover);
+  }
+
+  /* ------------------------------------------------------------------
+     Badge text — Space Mono, muted secondary color.
+     ------------------------------------------------------------------ */
+  .hero-badge-text {
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono), monospace;
+  }
+
+  /* ------------------------------------------------------------------
+     Ping animation — pure CSS, no JS.
+     Two layers: outer ring pulses (opacity + scale), inner dot is solid.
+     Colors: fixed #4ade80 (--color-ping) regardless of mode.
+
+     NOTE: these @keyframes are also declared once in global.css as
+     @keyframes hero-ping so they are available globally if needed.
+     The component-scoped version here ensures zero dependency on
+     load order.
+     ------------------------------------------------------------------ */
+  .ping-ring {
+    background-color: #4ade80; /* --color-ping: fixed brand element */
+    animation: hero-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.75;
+  }
+
+  .ping-dot {
+    background-color: #4ade80; /* --color-ping: fixed brand element */
+  }
+
+  @keyframes hero-ping {
+    75%, 100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Reduced-motion: disable ping pulse for users who prefer it.
+     The dot remains visible (green) but does not animate.
+     ------------------------------------------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    .ping-ring {
+      animation: none;
+    }
+  }
+</style>
