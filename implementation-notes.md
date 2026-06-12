@@ -931,3 +931,27 @@ astro-src/
   lg→rounded-[4px].                                                           
   • Anti-slop: dropped 🌸 (site.ts tagline) and 🐏 (AWS RAM bullet content).  
 
+
+                                                                              
+  --------                                                                    
+                                                                              
+  ## WAVE6-FIX (reviewer findings)                                            
+                                                                              
+  • **[****HIGH] NEU dark-tint filter was dead code.** :global(.dark) .neu-   
+  duotone could never match — TINT-ENGINE retired the .dark class for [data-  
+  theme]. Retargeted to the three DARK tints: :global([data-theme="amber"]) . 
+  neu-duotone, :global([data-theme="p1"]) .neu-duotone, :global([data-        
+  theme="vfd"]) .neu-duotone. Same invert+screen filter. Verified the rule    
+  appears (and the old .dark rule is gone) in dist/index.html +               
+  dist/work/index.html.                                                       
+  • **[****LOW] Orphan tokens removed.** Deleted --brand-avatar-ring / --brand-
+  ping from all 6 tint blocks AND their --color-* mappings in @theme inline   
+  (grep confirmed zero consumers — removing the mapping too avoids emitting   
+  equally-orphan utilities). 0 occurrences left in dist.                      
+  • **[****LOW] Static aria-label.** Added aria-label="Display tint" to the   
+  #tint-toggle button markup so it is labeled pre-JS; the inline script still 
+  refines it to the full "Display tint: X. Click for Y." at runtime.          
+  • **Debris:** mv public/logos/00Tree.html /tmp/00Tree.html (not rm) — kept  
+  it out of dist.                                                             
+  • **Verify:** npm run build exit 0 (6 pages); npm run check 0/0/0 (26 files).
+

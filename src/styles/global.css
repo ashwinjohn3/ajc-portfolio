@@ -40,8 +40,6 @@
   --brand-text-secondary: #244c0f;   /* softer ink — 4.53:1 AA */
   --brand-accent:         #0f380f;   /* duotone accent === ink */
   --brand-accent-hover:   #28500f;   /* near-ink — 4.27:1 */
-  --brand-avatar-ring:    #0f380f;   /* retired → monochrome ink */
-  --brand-ping:           #0f380f;   /* retired → monochrome ink */
 }
 
 /* POCKET — Game Boy Pocket MGB-001 neutral-gray STN LCD
@@ -54,8 +52,6 @@
   --brand-text-secondary: #52564b;   /* 4.52:1 AA */
   --brand-accent:         #1b1f18;
   --brand-accent-hover:   #3a3e34;
-  --brand-avatar-ring:    #1b1f18;
-  --brand-ping:           #1b1f18;
 }
 
 /* AMBER — P3 amber-phosphor monochrome CRT terminal
@@ -68,8 +64,6 @@
   --brand-text-secondary: #a87402;   /* 4.56:1 AA */
   --brand-accent:         #ffb000;
   --brand-accent-hover:   #d69401;
-  --brand-avatar-ring:    #ffb000;
-  --brand-ping:           #ffb000;
 }
 
 /* P1 — P1 green-phosphor classic terminal (VT100-era)
@@ -82,8 +76,6 @@
   --brand-text-secondary: #20913b;   /* 4.57:1 AA */
   --brand-accent:         #33ff66;
   --brand-accent-hover:   #2cd555;
-  --brand-avatar-ring:    #33ff66;
-  --brand-ping:           #33ff66;
 }
 
 /* PAPER — FSTN paper-white blue-gray reflective LCD
@@ -96,8 +88,6 @@
   --brand-text-secondary: #5a626a;   /* 4.52:1 AA */
   --brand-accent:         #1c2630;
   --brand-accent-hover:   #3e4750;
-  --brand-avatar-ring:    #1c2630;
-  --brand-ping:           #1c2630;
 }
 
 /* VFD — vacuum-fluorescent display cyan glow (~510 nm)
@@ -110,8 +100,6 @@
   --brand-text-secondary: #19897e;   /* 4.51:1 AA */
   --brand-accent:         #2bf0dc;
   --brand-accent-hover:   #24c8b7;
-  --brand-avatar-ring:    #2bf0dc;
-  --brand-ping:           #2bf0dc;
 }
 
 /* =============================================================
@@ -134,8 +122,6 @@
   --color-secondary:      var(--brand-text-secondary);
   --color-accent:         var(--brand-accent);
   --color-accent-hover:   var(--brand-accent-hover);
-  --color-avatar-ring:    var(--brand-avatar-ring);
-  --color-ping:           var(--brand-ping);
 
   /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs
      Pairing 03: display = Instrument Serif (serif), body = Instrument Sans,
