@@ -26,6 +26,14 @@
    CONTRACT: utility names (bg-bg, bg-surface, border-border,
    text-primary, text-secondary, text-accent, text-accent-hover)
    DO NOT CHANGE — only the values + the selector mechanism do.
+
+   ⚠️ REGISTRY SYNC — the --brand-bg value of every tint below is
+   mirrored in the tint registry at src/lib/tints.ts (the single
+   source for cycle order, emoji, bg, and color-scheme consumed by
+   the no-flash script + the ThemeToggle cycler). If you change a
+   --brand-bg here, change the matching `bg` in tints.ts too. The
+   build asserts they match (assertTintsSyncedWithCss, called from
+   BaseLayout) and FAILS on drift — so a mismatch can't ship.
    ============================================================= */
 
 /* ------------------------------------------------------------------
@@ -167,14 +175,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Text selection — terracotta accent highlight
-   color uses var(--brand-bg) so it tracks the bg token if it ever changes */
+/* Text selection — duotone ink (accent === ink) on the tint bg.
+   color uses var(--brand-bg) so it tracks the bg token per tint. */
 ::selection {
   background-color: var(--brand-accent);
   color: var(--brand-bg);
 }
 
-/* Focus-visible ring — terracotta for keyboard nav */
+/* Focus-visible ring — duotone ink for keyboard nav */
 :focus-visible {
   outline: 2px solid var(--brand-accent);
   outline-offset: 3px;
@@ -188,19 +196,4 @@ pre,
 samp {
   font-family: var(--font-mono), monospace;
   font-size: 0.875em;
-}
-
-/* =============================================================
-   ANIMATIONS — U6 Hero ping badge
-   Defined globally so U9/U10 page variants can reference them
-   without depending on Hero.astro's scoped <style> load order.
-   The Hero component also declares these locally as a fallback.
-   ============================================================= */
-
-/* Ping pulse: outer ring scales out and fades */
-@keyframes hero-ping {
-  75%, 100% {
-    transform: scale(2);
-    opacity: 0;
-  }
 }

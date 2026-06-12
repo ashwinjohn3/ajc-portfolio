@@ -20,9 +20,11 @@
  *
  * Contract with BaseLayout:
  *   BaseLayout's is:inline script reads localStorage('tint') and sets
- *   data-theme pre-paint (and on astro:after-swap). This component reuses
- *   the SAME tint order + the SAME label rule so they never disagree.
+ *   data-theme pre-paint (and on astro:after-swap). Both derive their tint
+ *   order + emoji from the SINGLE-SOURCE registry (src/lib/tints.ts), injected
+ *   at build time via define:vars, so they can never disagree.
  */
+import { TINT_IDS, TINT_EMOJI } from '../lib/tints';
 ---
 
 <button
@@ -34,17 +36,10 @@
   <span id="tint-label" class="tint-label" aria-hidden="true">🎮</span>
 </button>
 
-<script is:inline>
+<script is:inline define:vars={{ TINTS: TINT_IDS, EMOJI: TINT_EMOJI }}>
   (function () {
-    // Single source of truth for the cycle order + display names.
-    var TINTS = ['dmg', 'pocket', 'amber', 'p1', 'paper', 'vfd'];
-    // One emoji per tint, evoking that display hardware. Decorative only —
-    // the readable tint name stays in the aria-label.
-    var EMOJI = {
-      dmg: '🎮', pocket: '🕹️', amber: '🟠',
-      p1: '🟢', paper: '📄', vfd: '🔵'
-    };
-
+    // TINTS (cycle order) + EMOJI (per-tint glyph) are injected at build time
+    // from the single-source registry (src/lib/tints.ts) via define:vars above.
     function currentTint() {
       var attr = document.documentElement.getAttribute('data-theme');
       return TINTS.indexOf(attr) !== -1 ? attr : 'dmg';

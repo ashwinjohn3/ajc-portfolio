@@ -6,12 +6,14 @@
  * ──────────────────────────────────────────────────────────
  * • No vertical spine / node dots — pure card stacking.
  * • Company logos sit in a PROMINENT 54×54 chip (φ-stepped up from the old
- *   40px), inline-left of each card heading. All logos are monochrome-safe:
- *     - github / linkedin / aws  → inline currentColor BrandIcon (themes natively)
- *     - Northeastern             → full-color brand-red <img> forced to duotone
+ *   40px), inline-left of each card heading. The logo identity + company link
+ *   live in the work collection frontmatter (companyHref + logo descriptor),
+ *   so a new employer needs ZERO edits here. All logos are monochrome-safe:
+ *     - kind:brand (github / linkedin / aws) → inline currentColor BrandIcon
+ *     - kind:img (e.g. Northeastern)         → full-color SVG forced to duotone
  *       via a CSS grayscale+contrast filter (`.neu-duotone`) so no full-color
  *       element breaks the duotone discipline.
- *     - Active.ai                → typographic wordmark, pure ink.
+ *     - kind:word (e.g. Active.ai)           → typographic wordmark, pure ink.
  * • Duotone: company names + team tags read in text-primary (in duotone the
  *   "accent" is the ink step, not a hue) — no terracotta anywhere.
  * • Cards are <div>; company links render as inline <a> within the body
@@ -24,43 +26,21 @@ import { getCollection } from 'astro:content';
 import Section from './Section.astro';
 import Card from './Card.astro';
 import BrandIcon from './BrandIcon.astro';
-// NEU wordmark is a brand-red PD wordmark in public/logos/; kept as <img> and
-// forced to duotone via CSS filter so it stays monochrome-safe.
+// Company link + logo identity now live in each role's frontmatter
+// (companyHref + logo descriptor) — see src/content.config.ts. NEU's kind:img
+// brand-red SVG is forced to duotone via the .neu-duotone CSS filter below.
 
 // Sort ascending: order 0 = most recent role, rendered first.
 const entries = (await getCollection('work')).sort(
   (a, b) => a.data.order - b.data.order
 );
-
-// Company link map — inline company <a> within the card body.
-const COMPANY_HREFS: Record<string, string> = {
-  'Amazon Web Services': 'https://aws.amazon.com',
-  'Northeastern University': 'https://www.northeastern.edu',
-  'Active.ai': 'https://www.active.ai',
-};
-
-// Company → logo descriptor. `kind` selects the render path.
-type LogoDescriptor =
-  | { kind: 'brand'; icon: 'github' | 'linkedin' | 'aws'; label: string }
-  | { kind: 'img'; src: string; label: string }
-  | { kind: 'word'; primary: string; accent: string; label: string };
-
-const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
-  'Amazon Web Services': { kind: 'brand', icon: 'aws', label: 'Amazon Web Services' },
-  'Northeastern University': {
-    kind: 'img',
-    src: '/logos/northeastern.svg',
-    label: 'Northeastern University',
-  },
-  'Active.ai': { kind: 'word', primary: 'active', accent: '.ai', label: 'Active.ai' },
-};
 ---
 
 <Section id="experience" label="experience">
   <div class="flex flex-col gap-y-4">
     {entries.map((entry) => {
-      const href = COMPANY_HREFS[entry.data.company];
-      const logo = COMPANY_LOGOS[entry.data.company];
+      const href = entry.data.companyHref;
+      const logo = entry.data.logo;
       const bullets = entry.data.bullets ?? [];
 
       return (
@@ -70,30 +50,32 @@ const COMPANY_LOGOS: Record<string, LogoDescriptor> = {
         >
           <!-- Logo chip — PROMINENT 54×54, surface + border, tight 4px radius.
                Shared chrome so logos line up uniformly down the timeline. -->
-          <span
-            slot="logo"
-            class="inline-flex items-center justify-center w-[54px] h-[54px] rounded-[4px] bg-surface border border-border overflow-hidden select-none"
-          >
-            {logo.kind === 'brand' && (
-              <BrandIcon name={logo.icon} title={logo.label} class="w-8 h-8 text-primary" />
-            )}
-            {logo.kind === 'img' && (
-              <img
-                src={logo.src}
-                alt={`${logo.label} logo`}
-                width="54"
-                height="54"
-                loading="lazy"
-                decoding="async"
-                class="neu-duotone w-11 h-auto"
-              />
-            )}
-            {logo.kind === 'word' && (
-              <span aria-hidden="true" class="font-display text-[0.75rem] font-semibold leading-none tracking-tight text-primary text-center px-1">
-                {logo.primary}{logo.accent}
-              </span>
-            )}
-          </span>
+          {logo && (
+            <span
+              slot="logo"
+              class="inline-flex items-center justify-center w-[54px] h-[54px] rounded-[4px] bg-surface border border-border overflow-hidden select-none"
+            >
+              {logo.kind === 'brand' && (
+                <BrandIcon name={logo.icon} title={entry.data.company} class="w-8 h-8 text-primary" />
+              )}
+              {logo.kind === 'img' && (
+                <img
+                  src={logo.src}
+                  alt={`${entry.data.company} logo`}
+                  width="54"
+                  height="54"
+                  loading="lazy"
+                  decoding="async"
+                  class="neu-duotone w-11 h-auto"
+                />
+              )}
+              {logo.kind === 'word' && (
+                <span aria-hidden="true" class="font-display text-[0.75rem] font-semibold leading-none tracking-tight text-primary text-center px-1">
+                  {logo.primary}{logo.accent}
+                </span>
+              )}
+            </span>
+          )}
 
           <!-- Company name — inline link (ink, mono, ink underline on hover). -->
           {href ? (

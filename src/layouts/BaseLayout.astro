@@ -4,6 +4,14 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import { TINT_IDS, TINT_BG, TINT_DARK, assertTintsSyncedWithCss } from '../lib/tints';
+// Raw CSS source for the build-time sync guard (Vite ?raw — string at build).
+import globalCssSource from '../styles/global.css?raw';
+
+// Build-time assertion: the tint registry's bg values must match --brand-bg in
+// global.css. Throws (failing the build) on any drift, so the no-flash fallback
+// can never silently diverge from the CSS token authority.
+assertTintsSyncedWithCss(globalCssSource);
 
 interface Props {
   title?: string;
@@ -33,17 +41,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- No-flash tint engine: runs synchronously before paint -->
-    <script is:inline>
+    <!-- No-flash tint engine: runs synchronously before paint.
+         Cycle order + per-tint bg + dark-set are injected from the single-source
+         registry (src/lib/tints.ts) at BUILD time via define:vars — no runtime
+         import, so the script stays literal-fast and pre-paint. -->
+    <script is:inline define:vars={{ TINTS: TINT_IDS, BG: TINT_BG, DARK: TINT_DARK }}>
       (function () {
-        // Cycle order + per-tint bg + color-scheme must match ThemeToggle + global.css.
-        var TINTS = ['dmg', 'pocket', 'amber', 'p1', 'paper', 'vfd'];
-        var BG = {
-          dmg: '#9bbc0f', pocket: '#c6cbb6', amber: '#1a1206',
-          p1: '#0a160a', paper: '#d7dde0', vfd: '#04110f'
-        };
-        var DARK = { amber: 1, p1: 1, vfd: 1 }; // dark-background tints
-
         function applyTint() {
           var stored = localStorage.getItem('tint') || '';
           var tint = TINTS.indexOf(stored) !== -1 ? stored : 'dmg';
@@ -55,7 +58,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           }
           // Paint-fallbacks so dark tints never flash white before CSS loads.
           html.style.backgroundColor = BG[tint];
-          html.style.colorScheme = DARK[tint] ? 'dark' : 'light';
+          html.style.colorScheme = DARK.indexOf(tint) !== -1 ? 'dark' : 'light';
           localStorage.setItem('tint', tint);
         }
         applyTint();

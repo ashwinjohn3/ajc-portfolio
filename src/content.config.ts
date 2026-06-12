@@ -17,6 +17,32 @@ const work = defineCollection({
     period: z.string(),
     /** Optional sub-role or course name */
     subtitle: z.string().optional(),
+    /** Optional external company link rendered on the company name. */
+    companyHref: z.url().optional(),
+    /**
+     * Company logo identity — lives in frontmatter (not the component) so a new
+     * employer needs zero component edits. `kind` selects the render path:
+     *   brand → inline currentColor BrandIcon (themes natively)
+     *   img   → full-color SVG forced to duotone via the .neu-duotone filter
+     *   word  → typographic wordmark (primary + accent text)
+     */
+    logo: z
+      .discriminatedUnion('kind', [
+        z.object({
+          kind: z.literal('brand'),
+          icon: z.enum(['github', 'linkedin', 'aws']),
+        }),
+        z.object({
+          kind: z.literal('img'),
+          src: z.string(),
+        }),
+        z.object({
+          kind: z.literal('word'),
+          primary: z.string(),
+          accent: z.string(),
+        }),
+      ])
+      .optional(),
     /**
      * Sort order — lower numbers appear first in the timeline.
      * Reflects chronological reverse order (most recent = lowest number).

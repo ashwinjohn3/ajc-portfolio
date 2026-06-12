@@ -3,6 +3,10 @@ title: "Software Development Engineer II"
 company: "Amazon Web Services"
 period: "2022–2026"
 order: 0
+companyHref: "https://aws.amazon.com"
+logo:
+  kind: "brand"
+  icon: "aws"
 bullets:
   - team: "AWS Resource Access Manager"
     text: "Making cloud shareable"

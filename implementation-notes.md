@@ -1003,3 +1003,77 @@ astro-src/
   structural                                                                  
   (DOM-order + flex-chain) verification, which is deterministic for pin/fill. 
 
+
+                                                                              
+  --------                                                                    
+                                                                              
+  # SOLID-FIXES — oracle audit top-5 (2026-06-12)                             
+                                                                              
+  Behavior-preserving refactor on redesign/personal-brand. Built site renders 
+  identically (5 pages, all 6 tints). Verified: npm run build exit 0 / 5      
+  pages, npm run check 0/0/0, all 6 --brand-bg + 5 [data-theme] blocks present,
+  all 6 toggle emoji + cycle order intact, 3 work cards render with           
+  logos+links, no-flash script still pre-paint in <head>, zero hero-ping, zero
+  orphan svg refs.                                                            
+                                                                              
+  1. **Centralized tint registry** → new src/lib/tints.ts is the single source
+  of truth: ordered TINTS array of {id, emoji, label, bg, scheme} + derived   
+  TINT_IDS / TINT_BG / TINT_DARK / TINT_EMOJI. BaseLayout's no-flash is:inline
+  script and ThemeToggle's cycler now receive their literals via define:vars  
+  injection at BUILD time (no runtime import — script stays literal-fast and  
+  pre-paint). Killed the 3-way palette duplication (BaseLayout + ThemeToggle +
+  CSS) and the desync hazard.                                                 
+      • **Decision:** <Font> (astro:assets) has no define:vars, so the        
+      registry feeds the inline scripts via define:vars (which Astro prepends 
+      as const decls to is:inline). Confirmed in dist: const TINTS = ["dmg",...
+      ], const EMOJI = {...}, const BG = {...} all serialized correctly.      
+      • **Decision:** DARK changed from an object map {amber:1,...} to an     
+      array (TINT_DARK) with indexOf membership — cleaner derivation from     
+      scheme: 'dark'.                                                         
+      • **Build-time sync guard:** assertTintsSyncedWithCss(css) parses --    
+      brand-bg out of :root + each [data-theme] block and throws on any drift 
+      vs the registry. Called from BaseLayout frontmatter via global.css?raw  
+      (Vite raw import) so it runs at build and FAILS the build on mismatch.  
+      Guard logic unit-validated (passes synced, throws on drift). global.css 
+      carries a loud ⚠️ REGISTRY SYNC comment cross-referencing tints.ts.     
+      • **Note:** baseline dist had 🎮 x7; post-refactor x2 — purely a        
+      serialization difference (old hand-written repeated literal vs compact  
+      define:vars JSON). All 6 glyphs + order preserved; behavior identical.  
+  2. **Dead code** — git rm orphan public/logos/{aws,github,linkedin}.svg     
+  (BrandIcon inlines the path data; zero refs confirmed). northeastern.svg    
+  STAYS (referenced by NEU frontmatter). Deleted dead @keyframes hero-ping    
+  (global.css tail; hero-blip is the live one). Reworded the two stale        
+  "terracotta" selection/focus comments to "duotone ink" and removed the "ping
+  badge" animations block comment. (The two remaining "no terracotta" mentions
+  in Hero/Timeline are intentional design-intent docs, not stale refs.)       
+  3. **Dead props (ISP)** — removed Card.subheading (only Card referenced it; 
+  both call sites omit it), Hero.greeting + its plumbing (BIO.greeting in site.
+  ts, the greeting={...} prop in index.astro), and Section.class (zero callers;
+  the class:list collapsed to a plain static class). All confirmed zero-caller
+  before removal.                                                             
+  4. **Timeline O/C** — moved company link + logo identity OUT of the two in- 
+  component maps (COMPANY_HREFS, COMPANY_LOGOS) INTO the work collection      
+  frontmatter. content.config.ts gained companyHref?: z.url() + a logo?       
+  discriminated union (brand{icon} | img{src} | word{primary,accent}). The 3  
+  work .md files carry their own companyHref + logo. ExperienceTimeline.astro 
+  now reads entry.data.companyHref / entry.data.logo and derives the logo     
+  label/alt from entry.data.company. A new employer now needs ZERO component  
+  edits — drop a .md with its logo descriptor.                                
+      • **Decision:** dropped the old label field from each descriptor since  
+      the component already has the company name from entry.data.company — DRY.
+      Guarded the logo chip with {logo && (...)} since logo is now optional.  
+  5. **Docs** — fixed stale CLAUDE.md: fonts (Space Grotesk/Mono → Instrument 
+  Serif/Instrument Sans/Fragment Mono via Fonts API), theme/tint note (6      
+  analog duotones via data-theme + registry, no .dark), CSS section (no       
+  @custom-variant dark, strict-duotone + registry-sync note), and added a     
+  Layout/footer pattern section (min-h-dvh flex chain, footer pin,            
+  fillViewport/fill).                                                         
+      • **Note:** CLAUDE.md is .gitignore'd (.gitignore:35), so the docs fix  
+      is applied to the working file (correct + current) but is NOT committed 
+      — respecting the repo's existing convention rather than force-tracking  
+      it.                                                                     
+                                                                              
+                                                                              
+  **Commits:** 2 atomic (refactor: registry + ISP + O/C ; chore: dead-code    
+  removal). Not pushed.                                                       
+

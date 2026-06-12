@@ -9,7 +9,6 @@
  *
  * Props:
  *   heading      — primary heading (e.g. job title)
- *   subheading   — secondary line (e.g. company name) — ink, mono
  *   meta         — tertiary meta (e.g. date range) — Fragment Mono, secondary
  *   href         — if set, the entire card becomes an <a> tag
  *   class        — forwarded to the outer element for overrides
@@ -23,13 +22,12 @@
 
 interface Props {
   heading: string;
-  subheading?: string;
   meta?: string;
   href?: string;
   class?: string;
 }
 
-const { heading, subheading, meta, href, class: className } = Astro.props;
+const { heading, meta, href, class: className } = Astro.props;
 
 // Render as <a> when href is provided, otherwise <div>
 const Tag = href ? 'a' : 'div';
@@ -61,9 +59,6 @@ const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } 
         <span class="font-mono text-xs text-secondary mb-1 tracking-wide">{meta}</span>
       )}
       <h3 class="text-base font-semibold text-primary leading-snug">{heading}</h3>
-      {subheading && (
-        <p class="text-sm text-primary font-mono">{subheading}</p>
-      )}
     </div>
   </div>
 

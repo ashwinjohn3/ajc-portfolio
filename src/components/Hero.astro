@@ -21,8 +21,6 @@
  * In duotone, "accent" == ink step, so ink here is text-primary, not text-accent.
  *
  * Props:
- *   greeting   — kept in the interface for call-site compatibility (unused in the
- *                title-card composition; the kicker carries the role/location line)
  *   tagline    — the mono tagline beneath the title card
  *   ctaHref    — primary CTA link target
  *   ctaLabel   — primary CTA visible label
@@ -30,7 +28,6 @@
  */
 
 interface Props {
-  greeting?: string;
   tagline?: string;
   ctaHref?: string;
   ctaLabel?: string;
