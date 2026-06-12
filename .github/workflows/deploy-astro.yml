@@ -1,22 +1,45 @@
 # Astro site deploy to GitHub Pages
 #
-# SCOPE: Runs ONLY on redesign/personal-brand branch (+ workflow_dispatch).
-# This intentionally does NOT trigger on main so that nextjs.yml continues
-# to own the live Pages deployment until the redesign branch is merged.
+# SCOPE (PRE-MERGE, current state): workflow_dispatch ONLY.
+# There is intentionally NO `push:` trigger. Pushing redesign/personal-brand
+# MUST NOT be able to deploy and overwrite the live GitHub Pages site, which is
+# still owned by nextjs.yml on `main`. This workflow only runs when manually
+# dispatched from the Actions tab, so the branch is deploy-inert until merge.
 #
-# U13 CUTOVER CHECKLIST (must be done at merge time):
-#   1. Change the `branches` trigger below from [redesign/personal-brand] to [main].
-#   2. Delete (or disable) .github/workflows/nextjs.yml — keeping both active
-#      would cause two concurrent deploys racing for the same Pages environment.
-#   3. Remove the workflow_dispatch trigger if undesired after cutover (optional).
+# As of U13 cutover prep, the Astro app now lives at the REPO ROOT (it was moved
+# out of astro-src/). The `withastro/action` discovers the project at root by
+# default, so there is no `path:` override below.
 #
-# See .omc/handoffs/u12-workflow.md for full cutover documentation.
+# ============================================================================
+# MERGE-DAY FLIPS (apply ALL of these in the merge PR, or immediately after):
+# ============================================================================
+#   1. ADD the push trigger so main auto-deploys. Replace the `on:` block with:
 #
+#          on:
+#            push:
+#              branches: ["main"]
+#            workflow_dispatch:
+#
+#   2. DELETE .github/workflows/nextjs.yml (it still owns main's deploy until
+#      merge). Keeping both active on main would cause two concurrent deploys
+#      racing for the same `github-pages` environment — the concurrency groups
+#      differ ("pages" vs "pages-astro"), so GitHub will NOT auto-cancel one.
+#
+#          git rm .github/workflows/nextjs.yml
+#
+#   3. (Optional) Rename the concurrency group below from "pages-astro" to
+#      "pages" for convention, once nextjs.yml is gone.
+#
+#   NOTE: the `path: astro-src` override is ALREADY removed (Astro is at root
+#   now), so no path change is needed at merge.
+#
+# See .omc/handoffs/u12-workflow.md and .omc/handoffs/u13-cutover.md for full
+# cutover documentation.
+# ============================================================================
 name: Deploy Astro site to Pages
 
 on:
-  push:
-    branches: ["redesign/personal-brand"]
+  # PRE-MERGE: manual dispatch only. NO push trigger — see MERGE-DAY FLIPS above.
   workflow_dispatch:
 
 # Required permissions for GitHub Pages OIDC deployment.
@@ -27,7 +50,7 @@ permissions:
 
 # Use a distinct concurrency group from nextjs.yml ("pages") to avoid
 # canceling in-flight Next.js deploys while both workflows coexist.
-# At cutover (U13), this group can be renamed to "pages" to match convention.
+# At cutover (after nextjs.yml is deleted), this can be renamed to "pages".
 concurrency:
   group: "pages-astro"
   cancel-in-progress: false
@@ -42,9 +65,8 @@ jobs:
       - name: Build and upload artifact
         uses: withastro/action@v3
         with:
-          # Astro app lives in astro-src/ (not repo root) until U13 cutover.
-          # At cutover: remove this line (astro-src/ contents move to root).
-          path: astro-src
+          # Astro app lives at the repo root (moved out of astro-src/ at U13).
+          # No `path:` override needed — the action discovers the project at root.
           node-version: 20
         env:
           # Feature flags — projects and photography are hidden by default.
