@@ -1,0 +1,79 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'Ashwin Chempolil — Software Engineer',
+  description = 'Software engineer with a focus on distributed systems and cloud infrastructure.',
+  ogImage = '/favicon.svg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- No-flash dark mode: runs synchronously before paint -->
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          var stored = localStorage.getItem('theme') ?? '';
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = ['dark', 'light'].includes(stored) ? stored : (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          localStorage.setItem('theme', theme);
+        }
+        applyTheme();
+        // Re-apply after ClientRouter navigations so dark mode survives page transitions
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+
+    <!-- Fonts (experimental API) -->
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-mono" preload />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Client-side navigation (view transitions) -->
+    <ClientRouter />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
