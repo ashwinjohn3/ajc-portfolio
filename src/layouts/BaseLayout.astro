@@ -26,23 +26,34 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- No-flash dark mode: runs synchronously before paint -->
+    <!-- No-flash tint engine: runs synchronously before paint -->
     <script is:inline>
       (function () {
-        function applyTheme() {
-          var stored = localStorage.getItem('theme') ?? '';
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = ['dark', 'light'].includes(stored) ? stored : (prefersDark ? 'dark' : 'light');
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
+        // Cycle order + per-tint bg + color-scheme must match ThemeToggle + global.css.
+        var TINTS = ['dmg', 'pocket', 'amber', 'p1', 'paper', 'vfd'];
+        var BG = {
+          dmg: '#9bbc0f', pocket: '#c6cbb6', amber: '#1a1206',
+          p1: '#0a160a', paper: '#d7dde0', vfd: '#04110f'
+        };
+        var DARK = { amber: 1, p1: 1, vfd: 1 }; // dark-background tints
+
+        function applyTint() {
+          var stored = localStorage.getItem('tint') || '';
+          var tint = TINTS.indexOf(stored) !== -1 ? stored : 'dmg';
+          var html = document.documentElement;
+          if (tint === 'dmg') {
+            html.removeAttribute('data-theme'); // :root is DMG default
           } else {
-            document.documentElement.classList.remove('dark');
+            html.setAttribute('data-theme', tint);
           }
-          localStorage.setItem('theme', theme);
+          // Paint-fallbacks so dark tints never flash white before CSS loads.
+          html.style.backgroundColor = BG[tint];
+          html.style.colorScheme = DARK[tint] ? 'dark' : 'light';
+          localStorage.setItem('tint', tint);
         }
-        applyTheme();
-        // Re-apply after ClientRouter navigations so dark mode survives page transitions
-        document.addEventListener('astro:after-swap', applyTheme);
+        applyTint();
+        // Re-apply after ClientRouter navigations so the tint survives transitions.
+        document.addEventListener('astro:after-swap', applyTint);
       })();
     </script>
 

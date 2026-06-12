@@ -1,71 +1,117 @@
 @import "tailwindcss";
 
 /* =============================================================
-   DARK MODE VARIANT — class-based toggle (not prefers-color-scheme)
-   Must come before @theme so Tailwind's dark: utilities key off
-   the .dark class, matching the project's JS toggle convention.
-   ============================================================= */
-@custom-variant dark (&:where(.dark, .dark *));
+   TINT ENGINE — 6 analog-display duotones
+   Source of truth: .omc/handoffs/design-v2-ballot.md (REVISION)
+   + .omc/handoffs/tint-engine.md (derived palette + AA proof).
 
-/* =============================================================
-   DESIGN TOKENS — Amber Warmth + Terracotta Accent
-   Source of truth: .omc/state/final-identity.md (2026-06-12)
-   Do NOT modify token values without updating contrast ratios.
+   Mechanism: an [data-theme="..."] attribute on <html> selects
+   the active tint. Default (DMG olive LCD) lives in :root so an
+   absent/unknown stored value renders DMG with NO attribute —
+   which keeps the no-flash inline script trivial and avoids a
+   white flash on dark tints.
 
-   Raw tokens live under --brand-* names. @theme inline maps
-   them to --color-* Tailwind utility names. Keeping the names
-   distinct is required: if @theme var() referenced the same
-   name defined in :root/.dark, Tailwind would resolve the value
-   at theme-declaration time (its own layer), not at the element,
-   and .dark overrides would silently never propagate.
+   STRICT DUOTONE: every tint is built from exactly two source
+   colors — a bg and an ink. surface/border/secondary/accent are
+   intensity steps blended between bg and ink, never a new hue.
+   accent === ink (a duotone has no second hue). The retired
+   avatar-ring / ping tokens are now monochrome ink too.
+
+   Raw tokens live under --brand-* names; @theme inline (below)
+   maps them to --color-* Tailwind utility names. The names must
+   stay distinct: a same-name @theme var() would resolve at
+   Tailwind's layer-declaration time, not at element paint, so
+   the data-theme override would never propagate.
+
+   CONTRACT: utility names (bg-bg, bg-surface, border-border,
+   text-primary, text-secondary, text-accent, text-accent-hover)
+   DO NOT CHANGE — only the values + the selector mechanism do.
    ============================================================= */
 
 /* ------------------------------------------------------------------
-   LIGHT MODE — :root
-   bg: warm off-white (#FAF7F2), OKLCH hue ~80° (amber undertone)
+   DMG — Game Boy DMG-001 olive LCD (DEFAULT, :root)
+   ink #0f380f on bg #9bbc0f. The canonical olive dot-matrix LCD.
    ------------------------------------------------------------------ */
 :root {
-  /* Backgrounds */
-  --brand-bg:            oklch(97.7% 0.007 80.7);   /* #FAF7F2 */
-  --brand-surface:       oklch(94.1% 0.014 84.6);   /* #F0EBE1 — cards / panels */
-  --brand-border:        oklch(88.8% 0.015 77.0);   /* #E0D9CF — rules / dividers */
-
-  /* Text */
-  --brand-text-primary:  oklch(20.3% 0.010 67.2);   /* #1A1612 — 16.83:1 AAA */
-  --brand-text-secondary:oklch(49.3% 0.024 67.2);   /* #6B5F53 — 5.80:1 AA  */
-
-  /* Terracotta accent — AA on bg (4.99:1). Use on links, role labels,
-     skill chips, section counts, card hover borders. NEVER as bg fill. */
-  --brand-accent:        oklch(54.3% 0.143 34.7);   /* #B34A31 — 4.99:1 AA  */
-  --brand-accent-hover:  oklch(45.3% 0.124 34.7);   /* #8E3621 — 7.28:1 AAA */
-
-  /* Fixed brand elements — same in both modes, never replaced by accent */
-  --brand-avatar-ring:   #FFBE98;  /* Peach circle behind labrador avatar */
-  --brand-ping:          #4ade80;  /* Green availability pulse — 10.40:1 AAA on dark bg */
+  --brand-bg:             #9bbc0f;   /* olive LCD panel */
+  --brand-surface:        #93b40f;   /* card/panel — 6% toward ink */
+  --brand-border:         #82a40f;   /* rules / dividers — 18% toward ink */
+  --brand-text-primary:   #0f380f;   /* dark olive ink — 6.02:1 AA */
+  --brand-text-secondary: #244c0f;   /* softer ink — 4.53:1 AA */
+  --brand-accent:         #0f380f;   /* duotone accent === ink */
+  --brand-accent-hover:   #28500f;   /* near-ink — 4.27:1 */
+  --brand-avatar-ring:    #0f380f;   /* retired → monochrome ink */
+  --brand-ping:           #0f380f;   /* retired → monochrome ink */
 }
 
-/* ------------------------------------------------------------------
-   DARK MODE — .dark
-   bg: warm near-black (#1A1510), OKLCH hue ~67° (amber undertone)
-   Prevents the cold blue-black trap common in dev-tool dark modes.
-   ------------------------------------------------------------------ */
-.dark {
-  /* Backgrounds */
-  --brand-bg:            oklch(20.0% 0.013 67.0);   /* #1A1510 */
-  --brand-surface:       oklch(23.9% 0.013 72.2);   /* #231E18 — subtly lighter than bg */
-  --brand-border:        oklch(29.8% 0.017 70.8);   /* #332C24 — low-contrast border */
+/* POCKET — Game Boy Pocket MGB-001 neutral-gray STN LCD
+   ink #1b1f18 on bg #c6cbb6. */
+[data-theme="pocket"] {
+  --brand-bg:             #c6cbb6;
+  --brand-surface:        #bcc1ad;
+  --brand-border:         #a7ac9a;
+  --brand-text-primary:   #1b1f18;   /* 10.05:1 AAA */
+  --brand-text-secondary: #52564b;   /* 4.52:1 AA */
+  --brand-accent:         #1b1f18;
+  --brand-accent-hover:   #3a3e34;
+  --brand-avatar-ring:    #1b1f18;
+  --brand-ping:           #1b1f18;
+}
 
-  /* Text */
-  --brand-text-primary:  oklch(92.7% 0.016 79.3);   /* #EDE6DB — 14.62:1 AAA */
-  --brand-text-secondary:oklch(65.5% 0.029 71.0);   /* #9C8E7E — 5.68:1 AA  */
+/* AMBER — P3 amber-phosphor monochrome CRT terminal
+   ink #ffb000 on near-black bg #1a1206. */
+[data-theme="amber"] {
+  --brand-bg:             #1a1206;
+  --brand-surface:        #281b06;
+  --brand-border:         #432e05;
+  --brand-text-primary:   #ffb000;   /* 10.12:1 AAA */
+  --brand-text-secondary: #a87402;   /* 4.56:1 AA */
+  --brand-accent:         #ffb000;
+  --brand-accent-hover:   #d69401;
+  --brand-avatar-ring:    #ffb000;
+  --brand-ping:           #ffb000;
+}
 
-  /* Terracotta accent — shifted lighter for dark mode contrast (5.12:1 AA) */
-  --brand-accent:        oklch(64.2% 0.141 34.8);   /* #D4694F — 5.12:1 AA  */
-  --brand-accent-hover:  oklch(69.3% 0.129 35.6);   /* #E07D63 — 6.29:1 AA  */
+/* P1 — P1 green-phosphor classic terminal (VT100-era)
+   ink #33ff66 on near-black bg #0a160a. */
+[data-theme="p1"] {
+  --brand-bg:             #0a160a;
+  --brand-surface:        #0c2410;
+  --brand-border:         #11401b;
+  --brand-text-primary:   #33ff66;   /* 13.81:1 AAA */
+  --brand-text-secondary: #20913b;   /* 4.57:1 AA */
+  --brand-accent:         #33ff66;
+  --brand-accent-hover:   #2cd555;
+  --brand-avatar-ring:    #33ff66;
+  --brand-ping:           #33ff66;
+}
 
-  /* Fixed brand elements — unchanged across modes */
-  --brand-avatar-ring:   #FFBE98;  /* Peach — always this value */
-  --brand-ping:          #4ade80;  /* Green — always this value */
+/* PAPER — FSTN paper-white blue-gray reflective LCD
+   ink #1c2630 on near-white bg #d7dde0. */
+[data-theme="paper"] {
+  --brand-bg:             #d7dde0;
+  --brand-surface:        #ccd2d5;
+  --brand-border:         #b5bcc0;
+  --brand-text-primary:   #1c2630;   /* 11.18:1 AAA */
+  --brand-text-secondary: #5a626a;   /* 4.52:1 AA */
+  --brand-accent:         #1c2630;
+  --brand-accent-hover:   #3e4750;
+  --brand-avatar-ring:    #1c2630;
+  --brand-ping:           #1c2630;
+}
+
+/* VFD — vacuum-fluorescent display cyan glow (~510 nm)
+   ink #2bf0dc on deep teal-black bg #04110f. */
+[data-theme="vfd"] {
+  --brand-bg:             #04110f;
+  --brand-surface:        #061e1b;
+  --brand-border:         #0b3934;
+  --brand-text-primary:   #2bf0dc;   /* 13.37:1 AAA */
+  --brand-text-secondary: #19897e;   /* 4.51:1 AA */
+  --brand-accent:         #2bf0dc;
+  --brand-accent-hover:   #24c8b7;
+  --brand-avatar-ring:    #2bf0dc;
+  --brand-ping:           #2bf0dc;
 }
 
 /* =============================================================
@@ -73,9 +119,9 @@
    @theme inline is required: it tells Tailwind to emit each
    utility as a direct var(--color-*) reference in the output
    CSS, so the cascade resolves at element paint time (picking
-   up .dark overrides) rather than at Tailwind's layer
-   declaration time. Without `inline`, bg-bg in dark mode would
-   still render the light value.
+   up [data-theme] overrides) rather than at Tailwind's layer
+   declaration time. Without `inline`, bg-bg under a tint would
+   still render the :root (DMG) value.
    Usage: bg-bg, bg-surface, text-primary, text-accent,
           border-border, font-display, font-mono, etc.
    ============================================================= */
