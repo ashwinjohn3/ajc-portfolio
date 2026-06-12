@@ -9,11 +9,18 @@ import { FEATURE_FLAGS } from '../data/site';
 /**
  * Returns true when the named feature flag is enabled.
  *
- * Usage in an Astro page frontmatter:
- *   import { isEnabled } from '../lib/flags';
- *   if (!isEnabled('projects')) return new Response(null, { status: 404 });
+ * STATIC-MODE GATING (output: 'static'): do NOT gate a route with
+ * `return new Response(null, { status: 404 })` — in a static build that Response
+ * is rendered to a 404-bodied HTML file, so the route still ships. Instead use a
+ * dynamic rest route (e.g. `projects/[...path].astro`) whose getStaticPaths()
+ * returns [] when the flag is off, so Astro emits zero HTML for it:
  *
- * Usage in a template expression:
+ *   import { isEnabled } from '../../lib/flags';
+ *   export function getStaticPaths() {
+ *     return isEnabled('projects') ? [{ params: { path: undefined } }] : [];
+ *   }
+ *
+ * Usage in a template expression (conditional nav/link rendering):
  *   {isEnabled('photography') && <a href="/photography">photography</a>}
  */
 export function isEnabled(flag: FeatureFlag): boolean {
@@ -22,9 +29,9 @@ export function isEnabled(flag: FeatureFlag): boolean {
 
 /**
  * Inverse of isEnabled — returns true when the flag is OFF.
- * Useful for early-return guards at the top of page frontmatter.
- *
- *   if (isDisabled('projects')) return new Response(null, { status: 404 });
+ * Useful for conditional rendering. For route suppression in static output,
+ * prefer the empty-getStaticPaths pattern documented on isEnabled above rather
+ * than an early-return Response (which still emits a static HTML file).
  */
 export function isDisabled(flag: FeatureFlag): boolean {
   return !FEATURE_FLAGS[flag];
