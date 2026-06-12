@@ -1,0 +1,26 @@
+---
+/**
+ * work.astro
+ * U10 — Dedicated work/experience page
+ *
+ * Renders a small Space Mono page header + full ExperienceTimeline.
+ * Used by Variant B's home page (no timeline on front page → link here).
+ * Also accessible from the top nav [work] link on all pages.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ExperienceTimeline from '../components/ExperienceTimeline.astro';
+import { createPageTitle } from '../data/site';
+---
+
+<BaseLayout
+  title={createPageTitle('Work')}
+  description="Work experience — software engineering roles at Amazon Web Services, Northeastern University, and Active.ai."
+>
+  <!-- Page header: Space Mono label style, consistent with Section label treatment -->
+  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-2 sm:pt-28">
+    <p class="font-mono text-xs uppercase tracking-widest text-secondary">experience</p>
+  </div>
+
+  <!-- Full experience timeline — self-contained, renders Section id="experience" -->
+  <ExperienceTimeline />
+</BaseLayout>
