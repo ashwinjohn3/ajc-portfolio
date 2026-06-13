@@ -83,15 +83,16 @@ const { fill = false } = Astro.props;
 
            GOLDEN-RATIO SIZING (desktop ≥640px): the plate diameter is tied to
            the rendered width of the hero name by φ. Measured at 1280px the name
-           "Ashwin John Chempolil" renders ~477px wide; the plate is sized to
-           477 / φ ≈ 296px (18.5rem) so name_width ≈ 1.618 × diameter — the name
+           "Ashwin John Chempolil" renders ~453px wide IN SYNE (the display font —
+           narrower than the earlier Onest mis-measurement of 477px); the plate is
+           sized to 453 / φ ≈ 280px so name_width ≈ 1.618 × diameter — the name
            stays wider than the circle (dominant) while the circle reads large and
            deliberate. Below sm the plate steps down to 13rem so it never crowds a
            375px viewport (where the name wraps); the φ relationship is the
            desktop target. -->
 
       <div
-        class="profile-avatar flex h-52 w-52 sm:h-[296px] sm:w-[296px] items-center justify-center rounded-full border border-border bg-surface p-2"
+        class="profile-avatar flex h-52 w-52 sm:h-[280px] sm:w-[280px] items-center justify-center rounded-full border border-border bg-surface p-2"
       >
         <img
           src="/headshot.jpg"

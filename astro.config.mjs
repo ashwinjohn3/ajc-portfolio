@@ -15,7 +15,7 @@ export default defineConfig({
       // headings. The name uses a strong weight (700/800); 600 for mid headings.
       provider: fontProviders.google(),
       name: 'Syne',
-      cssVariable: '--font-display',
+      cssVariable: '--font-syne',
       weights: [400, 500, 600, 700, 800],
     },
     {
@@ -23,14 +23,14 @@ export default defineConfig({
       // bold (700) for emphasis like the "Ashwin" name lead.
       provider: fontProviders.google(),
       name: 'Onest',
-      cssVariable: '--font-body',
+      cssVariable: '--font-onest',
       weights: [400, 500, 600, 700],
     },
     {
       // Labels / nav / meta — Spline Sans Mono, soft friendly terminal face.
       provider: fontProviders.google(),
       name: 'Spline Sans Mono',
-      cssVariable: '--font-mono',
+      cssVariable: '--font-spline-mono',
       weights: [400, 500, 600, 700],
       styles: ['normal', 'italic'],
     },
