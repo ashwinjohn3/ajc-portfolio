@@ -163,7 +163,11 @@ const {
      failure. Motion animates FROM hidden via keyframe arrays.
      ========================================================== */
   .hero-power {
-    background: var(--color-bg);
+    /* Transparent so the site-wide animated dot background (body::before)
+       shows THROUGH the hero. The body already paints var(--color-bg) under
+       this, so the tint field is unchanged — only the opaque hero layer that
+       was hiding the dots is dropped. CRT/scanline/content untouched. */
+    background: transparent;
     color: var(--color-primary);
 
     /* ---- FULL-BLEED BREAK-OUT ----

@@ -185,6 +185,49 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* =============================================================
+   SITE-WIDE ANIMATED DOT BACKGROUND — "BG-B · loose dots"
+   (from .omc/handoffs/adopt-demo.md)
+
+   A single fixed, full-viewport layer painted behind ALL content via
+   body::before. Strict duotone & token-driven: the dot color is a
+   color-mix of --color-border into --color-bg, so it retints across all
+   6 tints (no third hue) and stays subtle enough never to fight text.
+
+   - Recipe: radial dot at 11px spacing, dot tint = mix(border 55%, bg).
+   - position: fixed + z-index:-1 → behind everything, no layout shift,
+     no extra DOM nodes (one cheap painted layer, not thousands of dots).
+   - Animation: a slow, premium drift of the dot field (background-position
+     translate) — gentle, never distracting.
+   - prefers-reduced-motion: animation OFF, dots remain visible & static.
+   ============================================================= */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-border) 55%, var(--color-bg)) 1px,
+    transparent 1.4px
+  );
+  background-size: 11px 11px;
+  /* Slightly oversized via the drift keyframes' translate; fixed layer means
+     it scrolls with the viewport, so the drift is the only motion. */
+  animation: dot-drift 36s linear infinite;
+}
+
+@keyframes dot-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 22px 22px; } /* exactly 2 cells → seamless loop */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none; /* static dots, still fully visible */
+  }
+}
+
 /* Text selection — duotone ink (accent === ink) on the tint bg.
    color uses var(--brand-bg) so it tracks the bg token per tint. */
 ::selection {
