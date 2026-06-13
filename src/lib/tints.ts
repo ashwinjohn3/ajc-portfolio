@@ -19,11 +19,14 @@
 
 export type TintId = 'dmg' | 'pocket' | 'p1';
 
+/** Inline line-icon (Lucide) id rendered in the toggle for each tint. */
+export type TintIcon = 'gamepad' | 'sun' | 'moon';
+
 export interface Tint {
   /** Stable id, also the [data-theme] attribute value (dmg = :root, no attr). */
   id: TintId;
-  /** Decorative emoji evoking the display hardware (aria-hidden in the UI). */
-  emoji: string;
+  /** Decorative line-icon evoking the display hardware (aria-hidden in the UI). */
+  icon: TintIcon;
   /** Human-readable name surfaced in the toggle's aria-label. */
   label: string;
   /** Panel background — MUST equal --brand-bg for this tint in global.css. */
@@ -38,9 +41,9 @@ export interface Tint {
  * [data-theme] attribute (it lives in :root).
  */
 export const TINTS: readonly Tint[] = [
-  { id: 'dmg',    emoji: '🎮', label: 'dmg',    bg: '#9bbc0f', scheme: 'light' },
-  { id: 'pocket', emoji: '☀️', label: 'pocket', bg: '#c6cbb6', scheme: 'light' },
-  { id: 'p1',     emoji: '🌙', label: 'p1',     bg: '#0a160a', scheme: 'dark'  },
+  { id: 'dmg',    icon: 'gamepad', label: 'dmg',    bg: '#9bbc0f', scheme: 'light' },
+  { id: 'pocket', icon: 'sun',     label: 'pocket', bg: '#c6cbb6', scheme: 'light' },
+  { id: 'p1',     icon: 'moon',    label: 'p1',     bg: '#0a160a', scheme: 'dark'  },
 ] as const;
 
 /** Cycle order ids — derived, consumed by the no-flash + cycler scripts. */
@@ -56,10 +59,10 @@ export const TINT_DARK: TintId[] = TINTS.filter((t) => t.scheme === 'dark').map(
   (t) => t.id
 );
 
-/** id → emoji map for the toggle label. */
-export const TINT_EMOJI: Record<TintId, string> = Object.fromEntries(
-  TINTS.map((t) => [t.id, t.emoji])
-) as Record<TintId, string>;
+/** id → icon map for the toggle (consumed by ThemeToggle's inline-SVG cycler). */
+export const TINT_ICON: Record<TintId, TintIcon> = Object.fromEntries(
+  TINTS.map((t) => [t.id, t.icon])
+) as Record<TintId, TintIcon>;
 
 /**
  * Cheap build-time guard: assert the registry's bg values match the
