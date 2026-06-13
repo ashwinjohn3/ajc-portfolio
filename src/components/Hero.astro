@@ -1,6 +1,6 @@
 ---
 /**
- * Hero.astro — faithful mainline hero with a CRT power-on.
+ * Hero.astro — faithful mainline hero, static.
  *
  * Reproduces the mainline (app/page.tsx) hero VERBATIM — two left-aligned
  * lines, nothing else:
@@ -8,24 +8,14 @@
  *   1. "Hi, I'm Ashwin."                                  (semibold, ~1.5rem, primary ink)
  *   2. "I'm a software engineer based in Washington, DC 🌸." (muted ink, max-width ~520px)
  *
- * The only re-skin is the CRT POWER-ON: on load the hero "powers on" — the two
- * real lines resolve with a phosphor-bloom + scaleY snap while a single scanline
- * sweeps once across the field. ONE sequence, then it's done. The field itself
- * is the plain tint background (no grid, no spotlight, no terminal chrome).
+ * NO entrance animation, NO scanline, NO phosphor bloom — both lines are
+ * fully visible immediately (real text, a11y-first). The field itself is the
+ * site-wide tint background (the hero stays transparent so the animated dot
+ * field shows through); no grid, no spotlight, no terminal chrome.
  *
- * MOTION (motion.dev, vanilla — no React, no island, no hydration): the entrance
- * is one declarative animate() pass, fired on load AND re-fired on
- * `astro:after-swap` so it survives ClientRouter (View Transitions) navigations.
- *
- * PROGRESSIVE ENHANCEMENT / NO-FOUC: every element's CSS default IS its resolved
- * end-state (full opacity, no transform). With JS off, reduced-motion on, or the
- * bundle failing to load, the hero is fully visible — never blank. Motion animates
- * *from* a hidden keyframe only when motion is allowed. The scanline (decorative,
- * aria-hidden) starts hidden and is swept once by JS.
- *
- * STRICT DUOTONE — every visual reads only the tint tokens (--color-bg /
- * --color-primary / --color-secondary), so all 6 analog tints resolve via
- * [data-theme] alone. No hardcoded hues.
+ * STRICT DUOTONE — every visual reads only the tint tokens (--color-primary /
+ * --color-secondary), so all 6 analog tints resolve via [data-theme] alone.
+ * No hardcoded hues.
  *
  * Props mirror the prior Hero so callers (index.astro) keep working.
  */
@@ -54,26 +44,24 @@ const {
 ---
 
 <!-- ============================================================
-     Hero — POWER-ON over a PLAIN field. The <section> breaks out
-     of the parent max-w-[60rem] (.hero-power below) so the plain
-     tint background fills the viewport edge-to-edge between nav and
-     footer (keeping the footer pinned via the fill chain). The inner
-     .hero-col restores the 60rem reading column so the two lines
-     align to the same grid edge as the other pages/cards.
+     Hero — two static lines over the site's tint field. The <section>
+     breaks out of the parent max-w-[60rem] (.hero-power below) so the
+     transparent field fills the viewport edge-to-edge between nav and
+     footer (keeping the footer pinned via the fill chain) and the animated
+     dot field shows through. The inner .hero-col restores the 60rem reading
+     column so the two lines align to the same grid edge as the other
+     pages/cards.
      ============================================================ -->
 <section
   id="hero"
   class:list={[
-    'hero-power relative overflow-hidden',
+    'hero-power relative',
     fill
       ? 'flex-1 flex flex-col justify-center'
       : 'min-h-[78vh] flex flex-col justify-center',
   ]}
   aria-label="Introduction"
 >
-  <!-- Single scanline sweep — fires once on power-on, decorative -->
-  <div class="hero-scan" aria-hidden="true"></div>
-
   <!-- Reading column — restores the 60rem grid the text aligns to -->
   <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-16 pb-12">
     <p class="hero-intro font-body font-semibold text-primary">{BIO.intro}</p>
@@ -81,157 +69,45 @@ const {
   </div>
 </section>
 
-<script>
-  /* ============================================================
-     CRT POWER-ON (motion.dev, vanilla)
-
-     Bundled module <script>: Vite tree-shakes it, hoists it to <head>
-     as type="module" (deferred). It animates only transform/opacity/
-     filter (compositor-friendly, no CLS) and never touches the tint
-     custom props, so the no-flash inline tint script and the duotone
-     system are unaffected.
-
-     PROGRESSIVE ENHANCEMENT: the markup's resolved end-state is the CSS
-     default. If this bundle never loads, or prefers-reduced-motion is
-     set, the hero is already fully visible. Motion animates FROM hidden
-     only when motion is allowed.
-     ============================================================ */
-  import { animate } from 'motion';
-
-  function initHero() {
-    if (typeof window === 'undefined') return;
-
-    const hero = document.getElementById('hero');
-    if (!hero) return; // not on this page (e.g. after a ClientRouter swap)
-
-    // Idempotency: ClientRouter replaces <main>, so a freshly-swapped hero
-    // won't carry this flag.
-    if (hero.dataset.heroInit === '1') return;
-    hero.dataset.heroInit = '1';
-
-    // --- prefers-reduced-motion gate (FIRST, before any animate call) ---
-    // Leave every element in its resolved CSS default (fully visible). No
-    // power-on, no perpetual motion, no blank hero.
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
-
-    // -----------------------------------------------------------------
-    // CRT power-on: the two real lines resolve with a phosphor bloom +
-    // scaleY snap, in sync with ONE scanline sweep. transform-origin is
-    // set in CSS (top, about the bleed edge) so the lines snap open.
-    // -----------------------------------------------------------------
-    animate(
-      '.hero-intro',
-      {
-        opacity: [0, 1],
-        scaleY: [0.04, 1.03, 1],
-        filter: ['blur(3px) brightness(2)', 'blur(0px) brightness(1)'],
-      },
-      { type: 'spring', stiffness: 220, damping: 16, delay: 0.1 }
-    );
-
-    animate(
-      '.hero-sub',
-      { opacity: [0, 1], y: [8, 0], filter: ['blur(4px)', 'blur(0px)'] },
-      { type: 'spring', stiffness: 200, damping: 24, delay: 0.32 }
-    );
-
-    // Scanline sweep fires ONCE, in sync with the power-on.
-    const scan = hero.querySelector<HTMLElement>('.hero-scan');
-    if (scan) {
-      animate(
-        '.hero-scan',
-        { opacity: [0, 1, 1, 0], top: ['-16%', '100%'] },
-        { duration: 1.0, delay: 0.1 }
-      );
-    }
-  }
-
-  initHero(); // initial full page load
-  document.addEventListener('astro:after-swap', initHero); // survive ClientRouter nav
-</script>
-
 <style>
   /* ==========================================================
-     FAITHFUL HERO + CRT POWER-ON.
-
-     All visuals are token-driven duotone, so every tint resolves
-     via [data-theme] alone. The entrance is owned by the bundled
-     <script> (motion.dev), NOT CSS keyframes — every element's CSS
-     default is its RESOLVED end-state (visible, no transform) so the
-     hero is fully visible with JS off / reduced-motion / bundle
-     failure. Motion animates FROM hidden via keyframe arrays.
+     FAITHFUL HERO — static, token-driven duotone. Every tint
+     resolves via [data-theme] alone. Both lines are fully visible
+     by default; there is no entrance animation, so reduced-motion
+     is trivially satisfied.
      ========================================================== */
   .hero-power {
-    /* Transparent so the site-wide animated dot background (body::before)
-       shows THROUGH the hero. The body already paints var(--color-bg) under
-       this, so the tint field is unchanged — only the opaque hero layer that
-       was hiding the dots is dropped. CRT/scanline/content untouched. */
+    /* Transparent so the site-wide animated dot field (#dot-field) shows
+       THROUGH the hero. The base tint color is painted on <html>/<body>, so
+       the field is unchanged — only the hero stays see-through. */
     background: transparent;
     color: var(--color-primary);
 
     /* ---- FULL-BLEED BREAK-OUT ----
        The hero lives inside <main class="max-w-[60rem]">, which would clamp
-       the plain field to a 960px centered box. Break out so the tint
-       background fills the viewport edge-to-edge; the inner .hero-col
-       restores the 60rem reading column for the text.
+       the field to a 960px centered box. Break out so the field fills the
+       viewport edge-to-edge; the inner .hero-col restores the 60rem reading
+       column for the text.
 
        Negative inline margins (NOT width:100vw) stretch the section
        symmetrically to both viewport edges relative to the parent's box, so
        it stays centered and never forces horizontal page overflow from the
-       scrollbar gutter. body{overflow-x:clip} (global.css) absorbs any
+       scrollbar gutter. html{overflow-x:clip} (global.css) absorbs any
        sub-pixel delta. */
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
   }
 
-  /* ---- Intro line — "Hi, I'm Ashwin." (mainline: 1.5rem / 600 / primary ink).
-     Resolved default = fully resolved (opacity 1, no transform). Motion
-     powers it on with a phosphor-bloom + scaleY snap. ---- */
+  /* ---- Intro line — "Hi, I'm Ashwin." (mainline: 1.5rem / 600 / primary ink). ---- */
   .hero-intro {
     font-size: 1.5rem;
     line-height: 1.2;
     margin-bottom: 1rem;
-    /* phosphor bloom — pure ink glow, no hue */
-    text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 22%, transparent);
-    transform-origin: left top; /* CRT snaps open about the bleed edge */
   }
 
   /* ---- Subline — muted ink, the body font, max-width ~520px (mainline). ---- */
   .hero-sub {
     max-width: 520px;
     line-height: 1.55;
-  }
-
-  /* ---- Single scanline sweep — fired ONCE by Motion on power-on.
-     A soft refresh band. Resolved default = invisible & off-frame (it is the
-     power-on flash, not standing décor — with JS off there is simply no sweep,
-     which is correct). ---- */
-  .hero-scan {
-    position: absolute;
-    z-index: 3;
-    top: -16%;
-    left: 0;
-    right: 0;
-    height: 16%;
-    pointer-events: none;
-    opacity: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      color-mix(in srgb, var(--color-primary) 10%, transparent),
-      transparent
-    );
-  }
-
-  /* ==========================================================
-     REDUCED MOTION — full static hero, no effect, both lines
-     fully visible. The Motion entrance is already gated off in
-     the <script> (early return); here we also hide the decorative
-     scanline so there is zero perpetual or one-shot motion.
-     ========================================================== */
-  @media (prefers-reduced-motion: reduce) {
-    .hero-scan { display: none; }
-    .hero-intro { text-shadow: none; }
   }
 </style>
