@@ -1075,5 +1075,51 @@ astro-src/
                                                                               
                                                                               
   **Commits:** 2 atomic (refactor: registry + ISP + O/C ; chore: dead-code    
-  removal). Not pushed.                                                       
+  removal). Not pushed.
+
+---
+
+## HERO-FUSE — power-on hero (ballot T1 + T3 fused)
+
+**File:** `src/components/Hero.astro` fully replaced (the only owned file; no
+global.css change — all keyframes are scoped inside the component, and the tint
+tokens are already global).
+
+**Fusion (one motion timeline, not two halves glued together):** a power-on /
+boot sequence —
+1. a spotlit Aceternity hairline grid + radial-fade spotlight frames the shot and
+   drifts toward the name;
+2. the terminal boot log types in (his real lines, Fragment Mono:
+   `> whoami` / `Hi, I'm Ashwin.` / `> cat ./role & ./status`);
+3. the oversized name powers on like a CRT (scaleY switch-on snap + phosphor
+   bloom, "Ashwin" φ4 bleeding off the left frame edge) in sync with ONE
+   scanline sweep that fires once at 2.8s;
+4. surname (Instrument Serif italic, subordinate φ3) + strap ("Making cloud
+   shareable — SDE II, AWS", his verbatim AWS RAM bullet) + [github]/[linkedin]
+   coordinates resolve last. Kubrick corner ticks frame the whole.
+
+**Decisions made (not in spec):**
+- Demo→live token map: `--bg`→`--color-bg`, `--surface`→`--color-surface`,
+  `--border`→`--color-border`, `--ink`→`--color-primary`,
+  `--ink2`→`--color-secondary`, `--accent`→`--color-accent` (Tailwind
+  `@theme inline` maps the `--brand-*` source tokens).
+- Scanline sweep made **one-shot** (`1.1s ... 1 forwards`, delay 2.8s) instead of
+  the demo T3's infinite loop, because the brief said "one scanline sweep on
+  power-on" — it reads as the CRT switching on, then settles (no perpetual flicker).
+- Kept `tagline`/`ctaHref`/`ctaLabel`/`badgeText` props for **API parity** so
+  `index.astro` compiles unchanged (yields 4 non-blocking ts(6133) hints; the
+  real copy is sourced inline + from `SOCIAL_LINKS`). Trade-off: 4 hints vs.
+  editing the caller — chose not to touch index.astro beyond the read-only
+  fill-prop confirmation the brief scoped.
+- Name aligns to the `px-6`/`sm:px-10` content edge; `<main>` is already
+  `max-w-[60rem]`, so the section is grid-constrained and `overflow:hidden` clips
+  the bleed — no extra container needed.
+- `min-height` reserved on the boot block so the name doesn't jump while lines type in.
+
+**Verified:** `npm run check` 0 err / `npm run build` 5 pages exit 0; headless
+render in DMG + amber + paper (Ashwin 109.66px > surname 67.78px = φ 1.618);
+reduced-motion resolved end-state (no blank hero); full-bleed `fill` chain intact;
+no peach / green / emoji / availability-badge in dist.
+
+**Handoff:** `.omc/handoffs/hero-fuse.md`. One atomic commit, not pushed.                                                       
 

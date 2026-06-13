@@ -1,31 +1,42 @@
 ---
 /**
- * Hero.astro — Composition A "DMG" (design-v2 ballot, band A)
+ * Hero.astro — "POWER-ON" (hero-fuse: ballot treatments 1 + 3 fused)
  *
- * Kubrick dead-center one-point axis · monolithic centered title card ·
- * golden-ratio (φ) type scale · monochrome duotone discipline.
+ * One coherent power-on/boot composition, not two halves glued together:
  *
- * Layout: a centered title card on a dead-center vertical axis (hairline guide).
- * Type hierarchy (φ scale, base 18px, ratio 1.618):
- *   "Ashwin"          → DOMINANT, clamp(3.6rem, 11vw, 5.29rem) = 76.2px  (Instrument Sans 700)
- *   "John Chempolil"  → subordinate, clamp(2.4rem, 7vw, 3.27rem) = 47.1px (Instrument Serif italic)
- *   tagline           → 18px Fragment Mono (mono "technical" axis)
+ *   1. A spotlit hairline grid frames the shot
+ *        (Aceternity Grid background + radial-fade Spotlight, ported from
+ *         ballot Treatment 1 — the spotlight drifts in toward the name).
+ *   2. The terminal boot intro types in
+ *        (his real lines, Fragment Mono — ballot T1 boot log).
+ *   3. The oversized name resolves / glows like a CRT coming to life
+ *        (φ-scale "Ashwin" bleeding off the left frame edge, phosphor bloom,
+ *         scaleY power-on snap + ONE scanline sweep — ballot Treatment 3).
+ *   4. Surname (Instrument Serif italic) is the subordinate tail; the strap
+ *        ("Making cloud shareable") + [github]/[linkedin] coordinates resolve last.
  *
- * Duotone discipline: no peach ring, no green ping, no terracotta, no avatar.
- * The availability indicator survives as a MONOCHROME ink blip ("open to
- * opportunities") — the blip shadow pulses in the live ink color (text-primary),
- * never a hue.
+ * It runs as ONE sequenced motion timeline (grid/spot → boot type → CRT name
+ * power-on → strap/links), not two competing animations. Kubrick corner ticks
+ * frame the whole composition.
  *
- * Colors resolve entirely from the tint engine via the existing Tailwind utility
- * names (bg-bg / bg-surface / text-primary / text-secondary / border-border).
- * In duotone, "accent" == ink step, so ink here is text-primary, not text-accent.
+ * STRICT DUOTONE — every visual reads only the tint tokens (--color-bg /
+ * surface / border / primary / secondary / accent), so all 6 analog tints work
+ * by swapping [data-theme]. No third hue, no peach, no colored ping, no emoji.
  *
- * Props:
- *   tagline    — the mono tagline beneath the title card
- *   ctaHref    — primary CTA link target
- *   ctaLabel   — primary CTA visible label
- *   badgeText  — availability text beside the monochrome blip
+ * φ TYPE SCALE (base 1rem, ratio 1.618): "Ashwin" dominant (φ4, ~6.854rem
+ * ceiling, clamps oversized to bleed) over "John Chempolil" subordinate (φ2/φ3).
+ *
+ * prefers-reduced-motion: ALL animation off; name + boot shown in resolved
+ * end-state (never a blank hero).
+ *
+ * Props mirror the prior Hero so callers (index.astro) keep working:
+ *   tagline   — kept for API parity (the boot/strap use the real sourced copy)
+ *   ctaHref / ctaLabel — kept for API parity (links below use the social coords)
+ *   badgeText — kept for API parity
+ *   fill      — stretch to fill remaining viewport height (lean home page)
  */
+
+import { SOCIAL_LINKS } from '../data/site';
 
 interface Props {
   tagline?: string;
@@ -34,9 +45,8 @@ interface Props {
   badgeText?: string;
   /**
    * When true the hero stretches to fill the remaining viewport height
-   * (flex-1 inside a column <main>) and vertically centers its content so
-   * the dead-center axis runs the full body height with no unfilled bg
-   * around it. Used on the lean home page.
+   * (flex-1 inside a column <main>) and vertically centers its content, so
+   * the composition fills the body between nav and footer with no unfilled bg.
    */
   fill?: boolean;
 }
@@ -51,172 +61,328 @@ const {
 ---
 
 <!-- ============================================================
-     Hero — band A: dead-center axis, monolithic centered title card.
-     The outer <section> owns the responsive padding (project rule).
+     Hero — POWER-ON. The outer <section> owns the responsive
+     padding (project rule) and the full-bleed clip; the inner
+     stage aligns the name to the px-6/sm:px-10 grid edge.
      ============================================================ -->
 <section
   id="hero"
   class:list={[
-    'hero-dmg relative w-full px-6 sm:px-10',
+    'hero-power relative w-full overflow-hidden',
     fill
-      ? 'flex-1 flex flex-col justify-center py-16 sm:py-20'
-      : 'pt-24 pb-16 sm:pt-32 sm:pb-20',
+      ? 'flex-1 flex flex-col justify-center'
+      : 'min-h-[78vh] flex flex-col justify-center',
   ]}
   aria-label="Introduction"
 >
-  <!-- One-point center axis guide (hairline framing device, decorative) -->
-  <div class="hero-axis" aria-hidden="true"></div>
+  <!-- Layer 0 — spotlit hairline grid (Aceternity grid + radial-fade) -->
+  <div class="hero-grid" aria-hidden="true"></div>
+  <!-- Layer 1 — drifting spotlight, anchored toward the name resolve point -->
+  <div class="hero-spot" aria-hidden="true"></div>
+  <!-- Layer 2 — single scanline sweep that fires once on power-on -->
+  <div class="hero-scan" aria-hidden="true"></div>
+  <!-- Layer 3 — Kubrick corner ticks the oversized name bleeds against -->
+  <div class="hero-ticks" aria-hidden="true"></div>
+  <div class="hero-ticks hero-ticks--alt" aria-hidden="true"></div>
 
-  <div class="relative flex flex-col items-center text-center">
+  <!-- Stage — aligned to the work-card grid edge -->
+  <div class="hero-stage relative z-10 w-full px-6 sm:px-10 py-16 sm:py-20">
 
-    <!-- Kicker — mono role/location line above the title card -->
-    <p class="hero-kicker font-mono text-secondary">
-      Software Engineer · Washington, DC
-    </p>
-
-    <!-- Monolithic title card · φ scale · Ashwin dominant -->
-    <h1 class="hero-title" aria-label="Ashwin John Chempolil">
-      <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
-      <span class="hero-last block font-display italic font-normal text-primary">John Chempolil</span>
-    </h1>
-
-    <!-- Tagline — Fragment Mono, 18px, secondary ink -->
-    <p class="hero-tagline font-mono text-secondary">
-      {tagline}
-    </p>
-
-    <!-- Availability — monochrome ink blip (no green ping, no color) -->
-    <div class="hero-avail font-mono text-secondary" aria-label={badgeText}>
-      <span class="hero-blip" aria-hidden="true"></span>
-      <span>{badgeText}</span>
+    <!-- Boot log — his real lines type in (Fragment Mono) -->
+    <div class="hero-boot font-mono text-secondary" aria-hidden="true">
+      <span class="hero-ln">&gt; whoami</span>
+      <span class="hero-ln">Hi, I'm Ashwin.</span>
+      <span class="hero-ln hero-ln--cur">&gt; cat ./role &amp; ./status</span>
     </div>
 
-    <!-- Primary CTA — ink underline, no hue fill -->
-    <a
-      href={ctaHref}
-      class="hero-cta font-mono text-primary inline-flex items-center gap-1.5"
-    >
-      [{ctaLabel}]
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
+    <!-- Oversized name — powers on like a CRT, bleeds off the left edge -->
+    <h1 class="hero-name" aria-label="Ashwin John Chempolil">
+      <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
+      <span class="hero-last block font-display italic font-normal text-primary">John&nbsp;Chempolil</span>
+    </h1>
+
+    <!-- Strap — his own one-liner (verbatim AWS RAM bullet) + role -->
+    <p class="hero-strap font-mono text-secondary">
+      <span class="hero-sq" aria-hidden="true"></span>
+      Making cloud shareable — SDE&nbsp;II, AWS
+    </p>
+
+    <!-- Coordinates — real location + social links (Fragment Mono) -->
+    <div class="hero-meta font-mono text-secondary">
+      <span>Software engineer · Washington, DC</span>
+      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">[github]</a>
+      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">[linkedin]</a>
+    </div>
 
   </div>
 </section>
 
 <style>
-  /* ------------------------------------------------------------------
-     Dot-matrix LCD grain — subtle 3px radial dot grid over the hero,
-     scoped here so it never touches the sibling-owned global.css.
-     Uses border-border (the duotone rule step) so the texture tints
-     with the active theme and never introduces a hue.
-     ------------------------------------------------------------------ */
-  .hero-dmg {
-    background-image: radial-gradient(
-      color-mix(in srgb, var(--color-border) 45%, transparent) 0.5px,
-      transparent 0.5px
-    );
-    background-size: 3px 3px;
+  /* ==========================================================
+     POWER-ON HERO — fused ballot T1 (grid + spotlight + boot)
+     and T3 (CRT oversized name). All visuals are token-driven
+     duotone, so every tint resolves via [data-theme] alone.
+
+     φ type scale: base 1rem, ratio 1.618 →
+       φ1 1.618  φ2 2.618  φ3 4.236  φ4 6.854
+     ========================================================== */
+  .hero-power {
+    --phi2: 2.618rem;
+    --phi3: 4.236rem;
+    --phi4: 6.854rem;
+    background: var(--color-bg);
+    color: var(--color-primary);
   }
 
-  /* One-point dead-center vertical axis (hairline, fades downward) */
-  .hero-axis {
+  /* ---- Layer 0: Aceternity hairline grid with radial fade ----
+     Two linear-gradient rules at a 42px step, faded out at the
+     name's anchor (left-of-center) so the grid frames, not fights. */
+  .hero-grid {
     position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(to right,  color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px);
+    background-size: 42px 42px;
+    /* radial fade — grid is solid toward the name, dissolves at edges */
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 28% 52%, black 5%, transparent 78%);
+            mask-image: radial-gradient(ellipse 75% 65% at 28% 52%, black 5%, transparent 78%);
+    opacity: 0.9;
+  }
+
+  /* ---- Layer 1: Aceternity Spotlight — blurred radial that drifts in ----
+     Ported keyframes: opacity 0→1, translate/scale settle, then a slow
+     infinite drift so it lives on the static page. Anchored to the name. */
+  .hero-spot {
+    position: absolute;
+    z-index: 1;
+    top: -20%;
+    left: -12%;
+    width: 80%;
+    height: 130%;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-primary) 16%, transparent),
+      transparent 70%
+    );
+    filter: blur(46px);
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+    animation:
+      hero-spot 2s ease 0.4s forwards,
+      hero-drift 14s ease-in-out 2.4s infinite alternate;
+  }
+  @keyframes hero-spot {
+    to { opacity: 1; transform: translate(-28%, -30%) scale(1); }
+  }
+  @keyframes hero-drift {
+    from { transform: translate(-28%, -30%) scale(1); }
+    to   { transform: translate(-12%, -16%) scale(1.12); }
+  }
+
+  /* ---- Layer 2: single scanline sweep — fires ONCE on power-on ----
+     A soft refresh band that travels down the frame in sync with the
+     CRT name switch-on, then stays gone (it is the power-on, not loop décor). */
+  .hero-scan {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    height: 16%;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in srgb, var(--color-primary) 10%, transparent),
+      transparent
+    );
+    animation: hero-sweep 1.1s linear 2.8s 1 forwards;
+  }
+  @keyframes hero-sweep {
+    0%   { top: -16%; opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* ---- Layer 3: Kubrick corner ticks — the symmetry the name bleeds against -- */
+  .hero-ticks {
+    position: absolute;
+    inset: 1.2rem;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .hero-ticks::before,
+  .hero-ticks::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+  }
+  .hero-ticks::before {
     top: 0;
+    left: 0;
+    border-top: 1.5px solid var(--color-secondary);
+    border-left: 1.5px solid var(--color-secondary);
+  }
+  .hero-ticks::after {
     bottom: 0;
-    left: 50%;
-    width: 1px;
-    background: linear-gradient(var(--color-border), transparent 60%);
-    opacity: 0.5;
+    right: 0;
+    border-bottom: 1.5px solid var(--color-secondary);
+    border-right: 1.5px solid var(--color-secondary);
+  }
+  .hero-ticks--alt::before {
+    top: 0;
+    left: auto;
+    right: 0;
+    border-top: 1.5px solid var(--color-secondary);
+    border-right: 1.5px solid var(--color-secondary);
+    border-left: 0;
+  }
+  .hero-ticks--alt::after {
+    bottom: 0;
+    right: auto;
+    left: 0;
+    border-bottom: 1.5px solid var(--color-secondary);
+    border-left: 1.5px solid var(--color-secondary);
+    border-right: 0;
   }
 
-  /* Kicker — mono, wide tracking, uppercase. φ rhythm below it. */
-  .hero-kicker {
-    font-size: 0.6875rem;          /* 11px — Fragment Mono label step */
-    letter-spacing: 0.34em;
-    text-transform: uppercase;
-    margin-bottom: 1.1rem;
-  }
+  /* ==========================================================
+     STAGE CONTENT
+     ========================================================== */
 
-  /* Title card — φ type scale. line-height tightened for title-card mass. */
-  .hero-title {
-    line-height: 0.9;
+  /* ---- Boot log — typed lines (T1). Each line types in on a delay. ---- */
+  .hero-boot {
+    font-size: 0.8rem;
+    line-height: 2;
+    margin-bottom: 1.6rem;
+    /* reserve height so the name doesn't jump as lines type in */
+    min-height: 4.8em;
   }
+  .hero-ln {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+    border-right: 0.5em solid transparent;
+    animation: hero-type 1.0s steps(30, end) forwards;
+  }
+  .hero-ln:nth-child(1) { animation-delay: 0.2s; }
+  .hero-ln:nth-child(2) { animation-delay: 0.9s; }
+  .hero-ln--cur {
+    border-right-color: var(--color-primary);
+    animation:
+      hero-type 1.0s steps(30, end) 1.6s forwards,
+      hero-blink 1s step-end 2.8s infinite;
+  }
+  @keyframes hero-type  { to { width: 100%; } }
+  @keyframes hero-blink { 50% { border-right-color: transparent; } }
 
+  /* ---- Oversized name — CRT power-on snap + phosphor bloom (T3) ----
+     φ scale: "Ashwin" dominant, oversized so it bleeds off the left edge.
+     Resolves AFTER the boot log, in time with the scanline sweep. */
+  .hero-name {
+    line-height: 0.82;
+    margin-left: -0.06em;          /* bleed off the left frame edge */
+  }
   .hero-first {
-    /* φ step UP — 76.2px dominant */
-    font-size: clamp(3.6rem, 11vw, 5.29rem);
-    letter-spacing: -0.025em;
-    line-height: 0.86;
+    /* φ4 dominant — oversized, clamps up to ~6.854rem ceiling */
+    font-size: clamp(3.8rem, 16vw, var(--phi4));
+    letter-spacing: -0.04em;
+    line-height: 0.8;
+    text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 22%, transparent); /* phosphor bloom */
+    transform-origin: left center;
+    animation: hero-power 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 2.8s both;
   }
-
   .hero-last {
-    /* φ step DOWN — 47.1px subordinate serif tail */
-    font-size: clamp(2.4rem, 7vw, 3.27rem);
+    /* φ2/φ3 subordinate serif tail — strictly smaller than "Ashwin" */
+    font-size: clamp(1.9rem, 6vw, var(--phi3));
     letter-spacing: -0.01em;
-    margin-top: 0.08em;
+    line-height: 0.92;
+    margin-top: 0.06em;
+    margin-left: 0.08em;
+    opacity: 0;
+    animation: hero-resolve 0.9s ease 3.2s forwards;
+  }
+  @keyframes hero-power {
+    0%   { opacity: 0; filter: blur(3px) brightness(2);   transform: scaleY(0.02); }
+    18%  { opacity: 1; filter: blur(0)   brightness(1.6); transform: scaleY(1.04); } /* switch-on snap */
+    30%  {                                                transform: scaleY(0.99); }
+    100% { opacity: 1; filter: blur(0)   brightness(1);   transform: scaleY(1); }
+  }
+  @keyframes hero-resolve {
+    from { opacity: 0; filter: blur(8px); transform: translateY(8px); }
+    to   { opacity: 1; filter: blur(0);   transform: none; }
   }
 
-  /* Tagline — 18px body floor, mono technical axis */
-  .hero-tagline {
-    font-size: 1.125rem;           /* 18px */
-    margin-top: 1.35rem;
-    max-width: 30rem;
-  }
-
-  /* Availability row — φ-derived spacing above */
-  .hero-avail {
-    display: inline-flex;
+  /* ---- Strap — his own one-liner + monochrome ink square (no hue) ---- */
+  .hero-strap {
+    display: flex;
     align-items: center;
-    gap: 0.45rem;
-    margin-top: 1.5rem;
-    font-size: 0.65625rem;         /* 10.5px */
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: hero-resolve 0.9s ease 3.4s forwards;
   }
-
-  /* Monochrome ink blip — shadow pulses in ink (text-primary), no hue */
-  .hero-blip {
+  .hero-sq {
     width: 7px;
     height: 7px;
-    border-radius: 50%;
     background: var(--color-primary);
-    box-shadow: 0 0 0 0 var(--color-primary);
-    animation: hero-blip 2.4s ease-out infinite;
+    display: inline-block;
+    animation: hero-sq-blink 1.2s step-end 3.6s infinite;
   }
+  @keyframes hero-sq-blink { 50% { opacity: 0; } }
 
-  @keyframes hero-blip {
-    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 55%, transparent); }
-    70%  { box-shadow: 0 0 0 7px transparent; }
-    100% { box-shadow: 0 0 0 0 transparent; }
+  /* ---- Coordinates — location + social links ---- */
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1.4rem;
+    margin-top: 0.8rem;
+    font-size: 0.74rem;
+    opacity: 0;
+    animation: hero-resolve 0.9s ease 3.6s forwards;
   }
-
-  /* CTA — ink, underline-on-hover only (no hue) */
-  .hero-cta {
-    margin-top: 1.6rem;
-    font-size: 0.875rem;
+  .hero-meta a {
+    color: var(--color-primary);
     text-decoration: none;
-    transition: opacity 0.2s ease;
+    border-bottom: 1px solid var(--color-border);
+    transition: border-color 0.2s ease;
   }
-  .hero-cta:hover {
-    opacity: 0.7;
+  .hero-meta a:hover {
+    border-color: var(--color-primary);
   }
 
+  /* ==========================================================
+     REDUCED MOTION — all animation off, end-states preserved.
+     The name + boot + strap + links show fully resolved, so a
+     reduced-motion user never sees a blank hero.
+     ========================================================== */
   @media (prefers-reduced-motion: reduce) {
-    .hero-blip {
+    .hero-spot {
       animation: none;
+      opacity: 1;
+      transform: translate(-28%, -30%) scale(1);
     }
+    .hero-scan { animation: none; display: none; }
+    .hero-boot { min-height: 0; }
+    .hero-ln,
+    .hero-ln--cur {
+      animation: none;
+      width: auto;
+      white-space: normal;
+      border-right-color: transparent;
+    }
+    .hero-first { animation: none; opacity: 1; filter: none; transform: none; }
+    .hero-last,
+    .hero-strap,
+    .hero-meta { animation: none; opacity: 1; filter: none; transform: none; }
+    .hero-sq { animation: none; }
   }
 </style>
