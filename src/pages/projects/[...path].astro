@@ -20,6 +20,7 @@
  * Nav link is also hidden by Nav.astro when the flag is off (U5).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
 import { isEnabled } from '../../lib/flags';
 import { createPageTitle } from '../../data/site';
 
@@ -33,10 +34,9 @@ export function getStaticPaths() {
   title={createPageTitle('Projects')}
   description="Projects by Ashwin John Chempolil."
 >
-  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-16 sm:pt-28">
-    <p class="font-mono text-xs uppercase tracking-widest text-secondary mb-6">projects</p>
+  <PageHeader label="projects" labelClass="mb-6">
     <p class="text-secondary">
       Coming soon.
     </p>
-  </div>
+  </PageHeader>
 </BaseLayout>

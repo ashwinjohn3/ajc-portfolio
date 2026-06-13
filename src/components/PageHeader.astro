@@ -1,0 +1,34 @@
+---
+/**
+ * PageHeader.astro
+ * A1 — DRY/SRP extraction of the duplicated page-header boilerplate.
+ *
+ * Replaces the byte-identical shell + Fragment Mono section-label `<p>` that
+ * contact/tools/photography/projects each hand-copied. The shell spacing
+ * (`max-w-[60rem]` container + `pt-20 sm:pt-28`) and the label treatment
+ * (`font-mono text-xs uppercase tracking-widest text-secondary`) are now
+ * centralized here, so a spacing/label change is one edit instead of four.
+ *
+ * Variable bits stay props so each page keeps its exact prior output:
+ *   - `label`      — section label text (verbatim per page).
+ *   - `pb`         — outer bottom-padding utility (pages differ: pb-16 / pb-2).
+ *   - `labelClass` — extra label classes, e.g. the per-page bottom margin
+ *                    (contact/photography/projects use `mb-6`; tools uses none).
+ * A `<slot />` carries any trailing header content (the "Coming soon." /
+ * "Open to interesting conversations." paragraphs) below the label.
+ */
+interface Props {
+  label: string;
+  /** Outer container bottom padding utility (default pb-16). */
+  pb?: string;
+  /** Extra classes appended to the label <p> (e.g. mb-6). */
+  labelClass?: string;
+}
+
+const { label, pb = 'pb-16', labelClass = '' } = Astro.props;
+---
+
+<div class:list={['w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20', pb, 'sm:pt-28']}>
+  <p class:list={['font-mono text-xs uppercase tracking-widest text-secondary', labelClass]}>{label}</p>
+  <slot />
+</div>

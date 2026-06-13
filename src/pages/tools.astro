@@ -7,6 +7,7 @@
  * Pattern mirrors work.astro exactly.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import UsesSection from '../components/UsesSection.astro';
 import { createPageTitle } from '../data/site';
 ---
@@ -15,10 +16,7 @@ import { createPageTitle } from '../data/site';
   title={createPageTitle('Tools')}
   description="Tools, hardware, and software setup — the gear and software Ashwin uses daily."
 >
-  <!-- Page header: Fragment Mono label style, consistent with Section label treatment -->
-  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-20 pb-2 sm:pt-28">
-    <p class="font-mono text-xs uppercase tracking-widest text-secondary">tools &amp; setup</p>
-  </div>
+  <PageHeader label="tools & setup" pb="pb-2" />
 
   <!-- Full tools section — self-contained, reads from uses content collection -->
   <UsesSection />
