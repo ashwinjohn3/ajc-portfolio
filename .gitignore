@@ -48,3 +48,23 @@ ChempolilAshwin2026.md
 # leftover Next.js build artifacts on disk (app retired at U13; never re-tracked)
 /.next/
 next-env.d.ts
+/.omc
+/.github
+/.cursor
+/CLAUDE.md
+/AGENTS.md
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+/bun.lockb
+/bun.lock
+/bun.lock.json
+/bun.lock.yaml
+/bun.lock.json
+/.next
+/.atl
+/.astro
+/.pi
+/.remember
+/astro-src
+/node_modules
