@@ -1178,5 +1178,84 @@ no peach / green / emoji / availability-badge in dist.
   hero-chrome-bottom class hooks exposed on the two TerminalChrome instances  
   for                                                                         
   the follow-on animation work. The .hero-window is a clean single wrap to    
-  animate.                                                                    
+  animate.
+
+---
+
+## HERO-MOTION (2026-06-13) — Motion-driven entrance (motion.dev vanilla)
+
+**Files (owned):** `package.json` + `package-lock.json` (added `motion@^12.40.0`
+dependency) and `src/components/Hero.astro` (added a bundled `<script>`; flipped
+the CSS-keyframe entrance to a Motion-driven one). No `global.css` change needed —
+the existing hooks were sufficient. Did NOT touch TerminalChrome, the tint
+registry, BaseLayout, or any page. No React reintroduced.
+
+### Library decision (followed motion-docs.md verbatim)
+- Installed **`motion`** (vanilla, motion.dev — same author as Framer Motion),
+  NOT `@astrojs/react` + `framer-motion`. Imports `{ animate, stagger, inView }`
+  from `'motion'`. Tree-shakes into the hero's bundled module `<script>`: the
+  hero chunk is **64.5KB raw / 22.9KB gzip** (animate + spring + stagger + inView
+  + IntersectionObserver), deferred (`type="module"`), hoisted to `<head>`.
+- Used a BUNDLED `<script>` (Vite-processed), NOT `is:inline` — so the npm import
+  resolves and tree-shakes. (The no-flash tint script stays `is:inline` precisely
+  because it must run pre-paint without bundling; Motion is the opposite case.)
+
+### Orchestration (ONE spring timeline, not generic fade-up)
+- Background powers up first: grid `opacity/scale` in, spotlight animates in from
+  its off-frame start (own tracks so the timeline can lead with the field).
+- Boot lines `stagger(0.28, { startDelay: 0.25 })` — real stagger, opacity+y.
+- The entrance proper is ONE declarative `animate([...])` sequence with `at`
+  offsets and REAL spring physics:
+  1. `.hero-first` ("Ashwin") CRT power-on — `type:'spring', stiffness:220,
+     damping:16`, `scaleY:[0.02, 1.04, 1]` snap + `filter` bloom (blur+brightness
+     → 0). `transform-origin:left center` (CSS) so it snaps open about the bleed
+     edge.
+  2. `.hero-scan` one-shot scanline sweep `top:['-16%','100%']` fired at `'<'`
+     (in sync with the power-on snap, not a perpetual loop).
+  3. `.hero-last` surname resolves at `'-0.35'` (spring), then `.hero-strap`
+     (`'-0.45'`) and `.hero-meta` (`'-0.4'`) resolve last. All spring, all
+     transform/opacity only (no CLS).
+- `inView('[data-reveal]', ...)` guards the short-viewport case where the
+  strap/links sit below the fold; the timeline owns the common-case entrance.
+
+### Lifecycle / ClientRouter (the one gotcha)
+- `initHero()` is called once on load AND wired to `astro:after-swap` so the hero
+  re-animates after client-side navigation (ClientRouter is active in
+  BaseLayout). Without this the hero stops animating after the first SPA nav.
+- Idempotency: `hero.dataset.heroInit` flag guards double-init; ClientRouter
+  replaces `<main>`, so a freshly-swapped hero carries no flag and re-fires.
+  `inView` nodes additionally guarded with `dataset.revealed`.
+
+### Progressive enhancement / no-FOUC (CRITICAL — the key inversion)
+- The previous Hero set `opacity:0` + CSS `animation` as the default state — if
+  JS were off the hero would stay blank. **Flipped it:** every element's CSS
+  default is now its RESOLVED end-state (full opacity, no transform). Motion
+  animates FROM a hidden keyframe (`opacity:[0,1]`) only when motion is allowed,
+  dipping the element to hidden the instant JS begins. Verified in built HTML:
+  zero `opacity:0`, `.hero-first` compiled rule has no opacity/transform default,
+  all hero text (Ashwin / John Chempolil / strap / [github] / [linkedin]) is real
+  crawlable DOM. With JS off or the bundle failing to load → fully visible hero.
+- **prefers-reduced-motion:** the `<script>` early-returns (matchMedia gate is the
+  first line after the node lookup), so NO Motion runs — every element stays in
+  its resolved CSS default (fully visible). The scoped CSS reduced-motion block
+  ALSO kills the standing CSS loops (spotlight drift, caret + square blink) so
+  there is zero perpetual motion. No blank hero, no perpetual motion. Verified
+  both the JS gate and the CSS block are present in the compiled output.
+
+### Tradeoffs / notes
+- Kept `tagline`/`ctaHref`/`ctaLabel`/`badgeText` props for API parity (4
+  non-blocking ts(6133) hints, unchanged from before — index.astro untouched).
+- The `.hero-ln--cur` caret blink and `.hero-sq`/`.term-caret` blinks remain pure
+  CSS loops (decorative, gated off under reduced-motion) — Motion owns only the
+  one-shot entrance, not standing décor.
+- The 8 npm-audit vulnerabilities reported on install are PRE-EXISTING (unrelated
+  to `motion`) — did not run `npm audit fix --force` (out of scope; breaking).
+
+**Verify:** `npm install motion` OK (`^12.40.0` in package.json); `npm run build`
+exit 0, 5 pages, motion tree-shaken into the hero chunk (22.9KB gz); `npm run
+check` 0 errors / 0 warnings / 4 pre-existing hints; built HTML has all hero text
++ zero `opacity:0`; reduced-motion gate + CSS block compiled in; full-bleed
+(`calc(50% - 50vw)`) + strict duotone (`--color-*` only) intact.
+
+**Handoff:** `.omc/handoffs/hero-motion.md`. One atomic commit, NOT pushed.                                                                    
 
