@@ -10,7 +10,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import { BIO, createPageTitle } from '../data/site';
+import { createPageTitle } from '../data/site';
 ---
 
 <BaseLayout
@@ -18,11 +18,6 @@ import { BIO, createPageTitle } from '../data/site';
   description="Software engineer based in Washington, DC. Building distributed systems and cloud infrastructure at AWS."
   fillViewport
 >
-  <!-- Hero — full-bleed, fills remaining viewport height; centered axis stays centered -->
-  <Hero
-    tagline={BIO.tagline}
-    ctaHref="/contact"
-    ctaLabel="Get in touch"
-    fill
-  />
+  <!-- Hero — centered profile card, full-bleed, fills remaining viewport height -->
+  <Hero fill />
 </BaseLayout>

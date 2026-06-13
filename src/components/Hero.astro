@@ -1,56 +1,70 @@
 ---
 /**
- * Hero.astro — faithful mainline hero, static.
+ * Hero.astro — centered profile-card homepage hero.
  *
- * Reproduces the mainline (app/page.tsx) hero VERBATIM — two left-aligned
- * lines, nothing else:
+ * Composition adopted faithfully from the inspiration template's landing hero
+ * (srleom/astro-theme-resume index.astro hero) — a CENTERED VERTICAL STACK —
+ * and re-skinned to this site's strict-duotone token system:
  *
- *   1. "Hi, I'm Ashwin."                                  (semibold, ~1.5rem, primary ink)
- *   2. "I'm a software engineer based in Washington, DC 🌸." (muted ink, max-width ~520px)
+ *   (profile photo — circle on a duotone surface plate)
+ *        Ashwin John Chempolil                        ← serif display heading
+ *      • Open to opportunities                         ← status badge, pulsing dot
+ *   📍 Washington DC   ·   Connect on LinkedIn          ← centered wrapping labels
  *
- * NO entrance animation, NO scanline, NO phosphor bloom — both lines are
- * fully visible immediately (real text, a11y-first). The field itself is the
- * site-wide tint background (the hero stays transparent so the animated dot
- * field shows through); no grid, no spotlight, no terminal chrome.
+ * Re-skin rules applied (KEEP the template layout, SWAP the skin):
+ *   - Template's peach plate (#FFBE98, a third hue) → border-border + bg-surface.
+ *   - Template's rounded-3xl pill → rounded-[3px] badge (Ashwin's radius rule).
+ *   - Template's green pulsing dot (green = third hue) → bg-accent (the ink), so
+ *     the composition stays strictly two-color in every tint.
+ *   - Template's soft shadows dropped (anti-slop; a hairline border carries it).
  *
- * STRICT DUOTONE — every visual reads only the tint tokens (--color-primary /
- * --color-secondary), so all 6 analog tints resolve via [data-theme] alone.
- * No hardcoded hues.
+ * STRICT DUOTONE — every visual reads only the tint tokens (surface/border/
+ * primary/secondary/accent), so all active tints (dmg/pocket/p1) resolve via
+ * [data-theme] alone. No hardcoded hues; the colour photo is forced toward ink
+ * via the scoped `.profile-duotone` filter (same recipe as ExperienceTimeline's
+ * `.neu-duotone`, replicated + scoped here) so it harmonizes with the tints.
  *
- * Props mirror the prior Hero so callers (index.astro) keep working.
+ * The ONE animation: a subtle pulse on the status dot (the user's request).
+ * It is a scoped @keyframes; prefers-reduced-motion turns it OFF (static dot).
+ * The dot is aria-hidden — the real "Open to opportunities" text carries meaning.
+ *
+ * Full-bleed: the <section> breaks out of the parent max-w-[60rem] so the tint
+ * field fills the viewport edge-to-edge between nav and footer; the inner column
+ * (items-center) centres the profile card. `fill` keeps the footer pinned.
  */
 
-import { BIO } from '../data/site';
+import { SOCIAL_LINKS } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
 
 interface Props {
-  tagline?: string;
-  /** Kept for API parity with the prior Hero so callers (index.astro) keep working. */
-  ctaHref?: string;
-  ctaLabel?: string;
-  badgeText?: string;
   /**
    * When true the hero stretches to fill the remaining viewport height
-   * (flex-1 inside a column <main>) and vertically centers its content, so
-   * the composition fills the body between nav and footer — keeping the
+   * (flex-1 inside the column <main>) and vertically centres the profile card,
+   * so the composition fills the body between nav and footer — keeping the
    * footer pinned to the bottom with no unfilled background.
    */
   fill?: boolean;
+  /** Kept for API parity with the prior Hero so callers stay drop-in. */
+  tagline?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+  badgeText?: string;
 }
 
-const {
-  tagline = BIO.tagline,
-  fill = false,
-} = Astro.props;
+const { fill = false } = Astro.props;
+
+// TODO: replace with Ashwin's real headshot. Remote placeholder for now — a
+// chocolate-lab stand-in (square source so rounded-full crops cleanly). Static
+// build allows a remote <img>; nothing is downloaded into the repo.
+const PROFILE_PHOTO_PLACEHOLDER = 'https://placedog.net/500/500?id=89';
 ---
 
 <!-- ============================================================
-     Hero — two static lines over the site's tint field. The <section>
+     Hero — centered profile card over the site's tint field. The <section>
      breaks out of the parent max-w-[60rem] (.hero-power below) so the
-     transparent field fills the viewport edge-to-edge between nav and
-     footer (keeping the footer pinned via the fill chain) and the animated
-     dot field shows through. The inner .hero-col restores the 60rem reading
-     column so the two lines align to the same grid edge as the other
-     pages/cards.
+     transparent field fills the viewport edge-to-edge between nav and footer
+     (footer pinned via the fill chain). The inner .hero-col restores the
+     reading column and centres the card.
      ============================================================ -->
 <section
   id="hero"
@@ -62,19 +76,78 @@ const {
   ]}
   aria-label="Introduction"
 >
-  <!-- Reading column — restores the 60rem grid the text aligns to -->
-  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-16 pb-12">
-    <p class="hero-intro font-body font-semibold text-primary">{BIO.intro}</p>
-    <p class="hero-sub text-secondary">{tagline}</p>
+  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16">
+    <!-- Centered vertical stack: photo → (name → status → labels). -->
+    <div class="flex flex-col items-center gap-y-7 text-center">
+      <!-- PHOTO — circle on a duotone surface plate (no peach third hue). -->
+      <img
+        src={PROFILE_PHOTO_PLACEHOLDER}
+        alt="Ashwin John Chempolil"
+        width="112"
+        height="112"
+        loading="eager"
+        decoding="async"
+        class="profile-duotone h-28 w-28 rounded-full border border-border bg-surface object-cover p-2"
+      />
+
+      <!-- Intro block — name, status badge, labels row. -->
+      <div class="flex flex-col items-center gap-y-4">
+        <!-- NAME — serif display, φ-scaled. -->
+        <h1 class="font-display text-4xl leading-tight text-primary">
+          Ashwin John Chempolil
+        </h1>
+
+        <!-- STATUS BADGE — rounded-[3px] (not a pill), duotone surface, pulsing
+             ink dot. The dot is decorative (aria-hidden); the text is the label. -->
+        <span
+          class="status-badge flex flex-row items-center gap-x-3 rounded-[3px] border border-border bg-surface px-4 py-2"
+        >
+          <span class="status-dot-wrap relative flex h-2 w-2 items-center justify-center" aria-hidden="true">
+            <span class="status-pulse absolute inline-flex h-2 w-2 rounded-full bg-accent"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+          </span>
+          <span class="font-mono text-sm font-medium text-primary">Open to opportunities</span>
+        </span>
+
+        <!-- LABELS ROW — centered, wrapping: location + LinkedIn. -->
+        <div class="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 font-mono text-sm text-secondary">
+          <span class="flex flex-row items-center gap-x-2">
+            <!-- Location pin — inline svg, forced to ink (text-primary). -->
+            <svg
+              class="h-5 w-5 text-primary"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>Washington DC</span>
+          </span>
+
+          <a
+            href={SOCIAL_LINKS.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex flex-row items-center gap-x-2 text-accent transition-colors hover:text-accent-hover"
+          >
+            <BrandIcon name="linkedin" class="h-5 w-5" />
+            <span>Connect on LinkedIn</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
   /* ==========================================================
-     FAITHFUL HERO — static, token-driven duotone. Every tint
-     resolves via [data-theme] alone. Both lines are fully visible
-     by default; there is no entrance animation, so reduced-motion
-     is trivially satisfied.
+     Centered profile-card hero — token-driven duotone. Every tint resolves
+     via [data-theme] alone; no hardcoded hues.
      ========================================================== */
   .hero-power {
     /* Transparent so the base tint background (painted on <body>) shows
@@ -84,29 +157,52 @@ const {
 
     /* ---- FULL-BLEED BREAK-OUT ----
        The hero lives inside <main class="max-w-[60rem]">, which would clamp
-       the field to a 960px centered box. Break out so the field fills the
-       viewport edge-to-edge; the inner .hero-col restores the 60rem reading
-       column for the text.
-
-       Negative inline margins (NOT width:100vw) stretch the section
-       symmetrically to both viewport edges relative to the parent's box, so
-       it stays centered and never forces horizontal page overflow from the
-       scrollbar gutter. html{overflow-x:clip} (global.css) absorbs any
-       sub-pixel delta. */
+       it to a 960px centred box. Negative inline margins (NOT width:100vw)
+       stretch the section symmetrically to both viewport edges relative to the
+       parent's box, so it stays centred and never forces horizontal page
+       overflow from the scrollbar gutter. html{overflow-x:clip} (global.css)
+       absorbs any sub-pixel delta. */
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
   }
 
-  /* ---- Intro line — "Hi, I'm Ashwin." (mainline: 1.5rem / 600 / primary ink). ---- */
-  .hero-intro {
-    font-size: 1.5rem;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+  /* ---- Profile photo duotone treatment ----
+     A colour headshot/placeholder would break the strict-duotone screen, so
+     force it toward ink: grayscale removes the hue, contrast/brightness shape
+     it. Recipe mirrors ExperienceTimeline's `.neu-duotone`, scoped here. */
+  .profile-duotone {
+    filter: grayscale(1) contrast(1.05) brightness(0.95);
+  }
+  /* Under the dark tint (p1) lighten + invert so the photo reads as light ink
+     on the dark panel instead of being crushed to black. */
+  :global([data-theme='p1']) .profile-duotone {
+    filter: grayscale(1) contrast(1.05) brightness(1.15) invert(0.92);
   }
 
-  /* ---- Subline — muted ink, the body font, max-width ~520px (mainline). ---- */
-  .hero-sub {
-    max-width: 520px;
-    line-height: 1.55;
+  /* ---- Status dot pulse — the ONE animation (user request) ----
+     A subtle expanding/fading ring behind the solid ink dot. Tasteful, low
+     amplitude. The whole dot cluster is aria-hidden; the text carries meaning. */
+  .status-pulse {
+    transform-origin: center;
+    animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes status-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+
+  /* Reduced motion — pulse OFF, static ink dot only. */
+  @media (prefers-reduced-motion: reduce) {
+    .status-pulse {
+      animation: none;
+      opacity: 0;
+    }
   }
 </style>
