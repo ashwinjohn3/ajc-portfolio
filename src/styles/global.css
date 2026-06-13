@@ -102,6 +102,43 @@
   --font-family-body:     var(--font-body), sans-serif;          /* Onest */
   --font-family-mono:     var(--font-mono), monospace;           /* Spline Sans Mono */
   --font-family-sans:     var(--font-body), sans-serif;          /* default sans = body */
+
+  /* =============================================================
+     TYPE SCALE — uniform scale-up (~+17%) for readability.
+     Tailwind v4 text-* utilities read these --text-* theme vars and
+     emit them as direct var() refs, so overriding them here grows
+     EVERY text-xs / text-sm / text-base / text-4xl on the site in one
+     place — the φ hierarchy is preserved (each step scales by the same
+     factor), the type is just bigger. The body base (below in BASE
+     STYLES) and the two arbitrary text-[…] sizes are bumped to match.
+     Line-heights carry Tailwind's ratio formulas, tightened on the large
+     display step so the hero name stays dominant without going airy.
+     before → after:
+       xs   0.75 → 0.875rem  (12 → 14px)
+       sm   0.875→ 1rem      (14 → 16px)
+       base 1    → 1.1875rem (16 → 19px)
+       lg   1.125→ 1.3125rem (18 → 21px)
+       xl   1.25 → 1.4375rem (20 → 23px)
+       2xl  1.5  → 1.75rem   (24 → 28px)
+       3xl  1.875→ 2.1875rem (30 → 35px)
+       4xl  2.25 → 2.75rem   (36 → 44px)  ← hero name, still dominant
+     ============================================================= */
+  --text-xs:                0.875rem;          /* 14px */
+  --text-xs--line-height:   calc(1.25 / 0.875);
+  --text-sm:                1rem;              /* 16px */
+  --text-sm--line-height:   calc(1.5 / 1);
+  --text-base:              1.1875rem;         /* 19px */
+  --text-base--line-height: calc(1.7 / 1.1875);
+  --text-lg:                1.3125rem;         /* 21px */
+  --text-lg--line-height:   calc(1.85 / 1.3125);
+  --text-xl:                1.4375rem;         /* 23px */
+  --text-xl--line-height:   calc(1.9 / 1.4375);
+  --text-2xl:               1.75rem;           /* 28px */
+  --text-2xl--line-height:  calc(2.2 / 1.75);
+  --text-3xl:               2.1875rem;         /* 35px */
+  --text-3xl--line-height:  calc(2.5 / 2.1875);
+  --text-4xl:               2.75rem;           /* 44px — hero name */
+  --text-4xl--line-height:  1.12;
 }
 
 /* =============================================================
@@ -142,9 +179,11 @@ body {
   /* Body text = Onest (Pairing 05). Display (Syne) is opt-in via font-display. */
   font-family: var(--font-body), sans-serif;
   font-weight: 400;
-  /* Generous scale from the ballot demo: 18px body / 1.6 line-height. */
-  font-size: 1.125rem;
-  line-height: 1.6;
+  /* Generous, scaled-up base: 21px body / 1.65 line-height (was 18px / 1.6).
+     Tracks the +17% type-scale bump in @theme so running text and every
+     rem-relative element grows together while staying comfortable. */
+  font-size: 1.3125rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
