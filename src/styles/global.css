@@ -47,6 +47,8 @@
   --brand-text-secondary: #244c0f;   /* softer ink — 4.53:1 AA */
   --brand-accent:         #0f380f;   /* duotone accent === ink */
   --brand-accent-hover:   #28500f;   /* near-ink — 4.27:1 */
+  /* dot-field tint: ink @45% into bg → darker step (light bg flips dark). 2.09:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-bg));
 }
 
 /* POCKET — Game Boy Pocket MGB-001 neutral-gray STN LCD
@@ -59,6 +61,8 @@
   --brand-text-secondary: #52564b;   /* 4.52:1 AA */
   --brand-accent:         #1b1f18;
   --brand-accent-hover:   #3a3e34;
+  /* dot-field tint: ink @37% into bg → darker step (light bg flips dark). 2.10:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 37%, var(--color-bg));
 }
 
 /* AMBER — P3 amber-phosphor monochrome CRT terminal
@@ -71,6 +75,8 @@
   --brand-text-secondary: #a87402;   /* 4.56:1 AA */
   --brand-accent:         #ffb000;
   --brand-accent-hover:   #d69401;
+  /* dot-field tint: phosphor ink @32% into bg → brighter step (glows on dark). 2.10:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 32%, var(--color-bg));
 }
 
 /* P1 — P1 green-phosphor classic terminal (VT100-era)
@@ -83,6 +89,8 @@
   --brand-text-secondary: #20913b;   /* 4.57:1 AA */
   --brand-accent:         #33ff66;
   --brand-accent-hover:   #2cd555;
+  /* dot-field tint: phosphor ink @27% into bg → brighter step (glows on dark). 2.08:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 27%, var(--color-bg));
 }
 
 /* PAPER — FSTN paper-white blue-gray reflective LCD
@@ -95,6 +103,8 @@
   --brand-text-secondary: #5a626a;   /* 4.52:1 AA */
   --brand-accent:         #1c2630;
   --brand-accent-hover:   #3e4750;
+  /* dot-field tint: ink @37% into bg → darker step (light bg flips dark). 2.10:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 37%, var(--color-bg));
 }
 
 /* VFD — vacuum-fluorescent display cyan glow (~510 nm)
@@ -107,6 +117,8 @@
   --brand-text-secondary: #19897e;   /* 4.51:1 AA */
   --brand-accent:         #2bf0dc;
   --brand-accent-hover:   #24c8b7;
+  /* dot-field tint: phosphor ink @29% into bg → brighter step (glows on dark). 2.13:1 */
+  --dot-color: color-mix(in srgb, var(--color-primary) 29%, var(--color-bg));
 }
 
 /* =============================================================
@@ -206,11 +218,15 @@ body {
    base bg and the content. One cheap painted layer, zero extra DOM spam,
    no layout shift.
 
-   Strict duotone & token-driven: dot color = color-mix of --color-border
-   into --color-bg, so it retints across all 6 tints (no third hue).
-   Spacing is a LOOSE 13px grid; the dot is bumped to clearly perceptible
-   contrast (border @78%, 1.4px radius) so it actually reads on every tint
-   while staying quiet behind text.
+   Strict duotone & token-driven: each tint defines its OWN --dot-color as a
+   step of that tint's SAME two-color palette — color-mix of --color-primary
+   (the ink) into --color-bg — so NO third hue is ever introduced. The mix %
+   is tuned PER TINT so the dot lands at ~2.1:1 against that tint's bg
+   (perceptible, well under the ~3:1 that would fight text). Direction follows
+   the palette: on LIGHT tints (dmg/pocket/paper) the ink is darker so the dot
+   flips to a darker step; on the PHOSPHOR/dark tints (amber/p1/vfd) the ink is
+   the bright phosphor so the dot brightens and GLOWS against the dark panel.
+   Spacing stays a LOOSE 13px grid; radius 1.4px.
 
    - Animation: slow drift of the dot field (background-position translate).
    - prefers-reduced-motion: animation OFF, dots remain visible & static.
@@ -228,7 +244,7 @@ html {
   z-index: 0;
   pointer-events: none;
   background-image: radial-gradient(
-    color-mix(in srgb, var(--color-border) 78%, var(--color-bg)) 1.4px,
+    var(--dot-color) 1.4px,
     transparent 1.6px
   );
   background-size: 13px 13px;
