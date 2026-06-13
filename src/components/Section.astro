@@ -4,7 +4,7 @@
  *
  * Props:
  *   id       — rendered as the <section> id; used for scroll anchors
- *   label    — Fragment Mono section label (e.g. "experience", "tools").
+ *   label    — Spline Sans Mono section label (e.g. "experience", "tools").
  *              Pass "" to omit the label column entirely (used by /work,
  *              where the shared PageHeader already carries the kicker).
  *
@@ -34,7 +34,7 @@ const { id, label } = Astro.props;
 >
   <div class="flex flex-col gap-6 md:flex-row md:gap-10">
     {label && (
-      <!-- 1/3 — section label (Fragment Mono, muted, uppercase tracking) -->
+      <!-- 1/3 — section label (Spline Sans Mono, muted, uppercase tracking) -->
       <div class="md:w-1/3 shrink-0">
         <span class="font-mono text-xs uppercase tracking-widest text-secondary">
           {label}

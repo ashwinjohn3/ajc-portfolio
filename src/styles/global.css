@@ -95,12 +95,12 @@
   --color-accent-hover:   var(--brand-accent-hover);
 
   /* Font families — CSS variables wired by Astro Fonts API in astro.config.mjs
-     Pairing 03: display = Instrument Serif (serif), body = Instrument Sans,
-     mono = Fragment Mono. Display is a SERIF now, so the default sans (reset
-     fallthrough + running text) must point at the body sans, not display. */
-  --font-family-display:  var(--font-display), serif;            /* Instrument Serif */
-  --font-family-body:     var(--font-body), sans-serif;          /* Instrument Sans */
-  --font-family-mono:     var(--font-mono), monospace;           /* Fragment Mono */
+     Pairing 05: display = Syne (sans), body = Onest (sans),
+     mono = Spline Sans Mono. Display is a SANS now; the default sans (reset
+     fallthrough + running text) still points at the body sans, not display. */
+  --font-family-display:  var(--font-display), sans-serif;       /* Syne */
+  --font-family-body:     var(--font-body), sans-serif;          /* Onest */
+  --font-family-mono:     var(--font-mono), monospace;           /* Spline Sans Mono */
   --font-family-sans:     var(--font-body), sans-serif;          /* default sans = body */
 }
 
@@ -139,7 +139,7 @@ html {
 body {
   background-color: var(--brand-bg);
   color: var(--brand-text-primary);
-  /* Body text = Instrument Sans (Pairing 03). Display serif is opt-in via font-display. */
+  /* Body text = Onest (Pairing 05). Display (Syne) is opt-in via font-display. */
   font-family: var(--font-body), sans-serif;
   font-weight: 400;
   /* Generous scale from the ballot demo: 18px body / 1.6 line-height. */
@@ -163,7 +163,7 @@ body {
   border-radius: 2px;
 }
 
-/* Monospace elements inherit Fragment Mono */
+/* Monospace elements inherit Spline Sans Mono */
 code,
 kbd,
 pre,

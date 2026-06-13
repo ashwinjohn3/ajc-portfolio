@@ -8,32 +8,30 @@ export default defineConfig({
   output: 'static',
 
   // Fonts API — top-level in Astro 6 (not under experimental)
-  // Pairing 03: Instrument Serif (display) + Instrument Sans (body) + Fragment Mono (labels)
+  // Pairing 05: Syne (display) + Onest (body) + Spline Sans Mono (labels)
   fonts: [
     {
-      // Display — Instrument Serif ships ONLY 400, normal + italic.
-      // Italic is the signature (hero last name). Display sizing is built
-      // around the single 400 weight (sized up large; see global.css/Hero).
+      // Display — Syne, geometric art-school sans. Carries the hero name and
+      // headings. The name uses a strong weight (700/800); 600 for mid headings.
       provider: fontProviders.google(),
-      name: 'Instrument Serif',
+      name: 'Syne',
       cssVariable: '--font-display',
-      weights: [400],
-      styles: ['normal', 'italic'],
+      weights: [400, 500, 600, 700, 800],
     },
     {
-      // Body — Instrument Sans, variable weights. Default running text +
-      // honest "Ashwin" bold (700) against the serif italic last name.
+      // Body — Onest, quiet even body sans (variable). Default running text +
+      // bold (700) for emphasis like the "Ashwin" name lead.
       provider: fontProviders.google(),
-      name: 'Instrument Sans',
+      name: 'Onest',
       cssVariable: '--font-body',
       weights: [400, 500, 600, 700],
     },
     {
-      // Labels / nav / meta — Fragment Mono, single 400 weight.
+      // Labels / nav / meta — Spline Sans Mono, soft friendly terminal face.
       provider: fontProviders.google(),
-      name: 'Fragment Mono',
+      name: 'Spline Sans Mono',
       cssVariable: '--font-mono',
-      weights: [400],
+      weights: [400, 500, 600, 700],
       styles: ['normal', 'italic'],
     },
   ],
