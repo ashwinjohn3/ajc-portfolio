@@ -36,7 +36,7 @@ const entries = (await getCollection('work')).sort(
 );
 ---
 
-<Section id="experience" label="experience">
+<Section id="experience" label="">
   <div class="flex flex-col gap-y-4">
     {entries.map((entry) => {
       const href = entry.data.companyHref;

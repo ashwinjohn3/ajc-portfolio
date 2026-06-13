@@ -3,11 +3,14 @@
  * work.astro
  * U10 — Dedicated work/experience page
  *
- * Renders a small Fragment Mono page header + full ExperienceTimeline.
- * The lean home page links here ("see my work") since the front page
- * carries no timeline. Also accessible from the top nav [work] link.
+ * Uses the shared PageHeader (Fragment Mono kicker) like every other page
+ * (tools/contact/resume), then the full ExperienceTimeline. The timeline's own
+ * Section runs with an empty label (its former "experience" label is now the
+ * PageHeader kicker, so it appears exactly once). Reached from the top nav
+ * [work] link.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import ExperienceTimeline from '../components/ExperienceTimeline.astro';
 import { createPageTitle } from '../data/site';
 ---
@@ -16,11 +19,11 @@ import { createPageTitle } from '../data/site';
   title={createPageTitle('Work')}
   description="Work experience — software engineering roles at Amazon Web Services, Northeastern University, and Active.ai."
 >
-  <!-- Top spacing before the timeline. The timeline renders its own
-       Section id="experience" with the "experience" label, so no separate
-       page-header label here (it would duplicate). -->
-  <div class="pt-20 sm:pt-28"></div>
+  <!-- Shared page header: Fragment Mono kicker, matching tools/contact/resume
+       (the site's pages use a kicker label, not a large title). -->
+  <PageHeader label="experience" pb="pb-2" />
 
-  <!-- Full experience timeline — self-contained, renders Section id="experience" -->
+  <!-- Full experience timeline — self-contained, renders Section id="experience"
+       with an empty label (kicker lives in the PageHeader above). -->
   <ExperienceTimeline />
 </BaseLayout>
