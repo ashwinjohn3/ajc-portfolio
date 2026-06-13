@@ -26,13 +26,3 @@ import { FEATURE_FLAGS } from '../data/site';
 export function isEnabled(flag: FeatureFlag): boolean {
   return FEATURE_FLAGS[flag];
 }
-
-/**
- * Inverse of isEnabled — returns true when the flag is OFF.
- * Useful for conditional rendering. For route suppression in static output,
- * prefer the empty-getStaticPaths pattern documented on isEnabled above rather
- * than an early-return Response (which still emits a static HTML file).
- */
-export function isDisabled(flag: FeatureFlag): boolean {
-  return !FEATURE_FLAGS[flag];
-}

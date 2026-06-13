@@ -14,8 +14,7 @@
    STRICT DUOTONE: every tint is built from exactly two source
    colors — a bg and an ink. surface/border/secondary/accent are
    intensity steps blended between bg and ink, never a new hue.
-   accent === ink (a duotone has no second hue). The retired
-   avatar-ring / ping tokens are now monochrome ink too.
+   accent === ink (a duotone has no second hue).
 
    Raw tokens live under --brand-* names; @theme inline (below)
    maps them to --color-* Tailwind utility names. The names must
