@@ -17,7 +17,7 @@
  * (below) lets a build step cheaply assert the two never drift.
  */
 
-export type TintId = 'dmg' | 'pocket' | 'amber' | 'p1' | 'paper' | 'vfd';
+export type TintId = 'dmg' | 'pocket' | 'p1';
 
 export interface Tint {
   /** Stable id, also the [data-theme] attribute value (dmg = :root, no attr). */
@@ -34,16 +34,13 @@ export interface Tint {
 
 /**
  * Ordered registry. Array order === click-cycle order
- * (dmg → pocket → amber → p1 → paper → vfd → dmg). DMG is first/default and
- * renders with NO [data-theme] attribute (it lives in :root).
+ * (dmg → pocket → p1 → dmg). DMG is first/default and renders with NO
+ * [data-theme] attribute (it lives in :root).
  */
 export const TINTS: readonly Tint[] = [
-  { id: 'dmg',    emoji: '🎮',  label: 'dmg',    bg: '#9bbc0f', scheme: 'light' },
-  { id: 'pocket', emoji: '🕹️', label: 'pocket', bg: '#c6cbb6', scheme: 'light' },
-  { id: 'amber',  emoji: '🟠',  label: 'amber',  bg: '#1a1206', scheme: 'dark'  },
-  { id: 'p1',     emoji: '🟢',  label: 'p1',     bg: '#0a160a', scheme: 'dark'  },
-  { id: 'paper',  emoji: '📄',  label: 'paper',  bg: '#d7dde0', scheme: 'light' },
-  { id: 'vfd',    emoji: '🔵',  label: 'vfd',    bg: '#04110f', scheme: 'dark'  },
+  { id: 'dmg',    emoji: '🎮', label: 'dmg',    bg: '#9bbc0f', scheme: 'light' },
+  { id: 'pocket', emoji: '☀️', label: 'pocket', bg: '#c6cbb6', scheme: 'light' },
+  { id: 'p1',     emoji: '🌙', label: 'p1',     bg: '#0a160a', scheme: 'dark'  },
 ] as const;
 
 /** Cycle order ids — derived, consumed by the no-flash + cycler scripts. */
@@ -87,8 +84,8 @@ export function assertTintsSyncedWithCss(css: string): void {
   };
 
   // Perceived luminance (0..1) of a hex bg → the scheme it should carry.
-  // sRGB-weighted average; the 6 tints split cleanly (light bgs ≥ 0.5,
-  // dark bgs ≈ 0.01), so a 0.5 midpoint is a robust, non-borderline cut.
+  // sRGB-weighted average; the 3 tints split cleanly (light bgs ≥ 0.5,
+  // dark bg ≈ 0.01), so a 0.5 midpoint is a robust, non-borderline cut.
   const schemeFromBg = (hex: string): 'light' | 'dark' => {
     const h = expand(hex);
     const r = parseInt(h.slice(0, 2), 16) / 255;

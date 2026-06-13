@@ -3,12 +3,11 @@
  * ThemeToggle.astro
  * TINT CYCLER — Zero-framework analog-display tint switcher.
  *
- * Click cycles dmg → pocket → amber → p1 → paper → vfd → dmg.
+ * Click cycles dmg → pocket → p1 → dmg.
  * Sets [data-theme] on <html> (dmg removes the attribute = :root default),
  * persists to localStorage('tint'), and shows the current tint as a single
- * emoji that evokes that display hardware:
- *   dmg 🎮 (Game Boy DMG) · pocket 🕹️ (Game Boy Pocket) · amber 🟠 (amber CRT) ·
- *   p1 🟢 (P1 green phosphor) · paper 📄 (e-paper white) · vfd 🔵 (blue VFD).
+ * emoji that evokes its role:
+ *   dmg 🎮 (Game Boy DMG, default) · pocket ☀️ (light) · p1 🌙 (green phosphor, dark).
  * The emoji is decorative (aria-hidden); the readable tint name + next-tint
  * hint live in the button's aria-label so screen readers stay informative.
  * (Emoji is intentional HERE ONLY — the rest of the site stays emoji-free.)
@@ -39,8 +38,8 @@ import { TINT_IDS, TINT_EMOJI } from '../lib/tints';
 <style>
   /*
    * Normalize the tint emoji into a fixed, vertically-centered box so every
-   * glyph (🎮 wide · 🕹️ VS16 · 🟠🟢🔵 geometric · 📄 tall) occupies an
-   * IDENTICAL footprint — the button width never changes between tints, so
+   * glyph (🎮 wide · ☀️🌙 VS16) occupies an IDENTICAL footprint — the
+   * button width never changes between tints, so
    * there is no nav-height/width layout shift when cycling.
    *
    * Technique: inline-grid 1.25rem square box that ignores the glyph's

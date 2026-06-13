@@ -142,9 +142,7 @@ const uses = (await getCollection('uses')).sort(
     opacity: 0.92;
     mix-blend-mode: multiply;
   }
-  :global([data-theme='amber']) .tool-glyph.neu-duotone,
-  :global([data-theme='p1']) .tool-glyph.neu-duotone,
-  :global([data-theme='vfd']) .tool-glyph.neu-duotone {
+  :global([data-theme='p1']) .tool-glyph.neu-duotone {
     filter: grayscale(1) contrast(1.1) brightness(1.8) invert(1);
     mix-blend-mode: screen;
     opacity: 0.9;

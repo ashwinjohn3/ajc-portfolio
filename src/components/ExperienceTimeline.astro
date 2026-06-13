@@ -143,12 +143,10 @@ const entries = (await getCollection('work')).sort(
     opacity: 0.92;
     mix-blend-mode: multiply;
   }
-  /* Under the three DARK tints (amber/p1/vfd) the multiply blend would crush
-     the mark; invert+screen so the wordmark reads as light ink on the dark
-     panel instead. Targets the [data-theme] attrs (the .dark class is retired). */
-  :global([data-theme="amber"]) .neu-duotone,
-  :global([data-theme="p1"]) .neu-duotone,
-  :global([data-theme="vfd"]) .neu-duotone {
+  /* Under the DARK tint (p1) the multiply blend would crush the mark;
+     invert+screen so the wordmark reads as light ink on the dark panel
+     instead. Targets the [data-theme] attr (the .dark class is retired). */
+  :global([data-theme="p1"]) .neu-duotone {
     filter: grayscale(1) contrast(1.1) brightness(1.8) invert(1);
     mix-blend-mode: screen;
     opacity: 0.9;
