@@ -248,6 +248,12 @@ html {
     transparent 1.6px
   );
   background-size: 13px 13px;
+  /* Soften the whole dot field a notch — user found the per-tint --dot-color
+     (~2.1:1) slightly too strong. opacity 0.7 composites each dot toward the
+     tint's own bg painted beneath this fixed layer, dropping dot-vs-bg to
+     ~1.61–1.65:1 across all 6 tints (still clearly visible, strict duotone —
+     no third hue, since the bg blended in is that same tint's bg). */
+  opacity: 0.7;
   animation: dot-drift 36s linear infinite;
 }
 
