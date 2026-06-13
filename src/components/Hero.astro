@@ -53,11 +53,11 @@ interface Props {
 
 const { fill = false } = Astro.props;
 
-// TODO: replace with Ashwin's real headshot. Remote placeholder for now — a
-// chocolate-lab stand-in (square source so rounded-full crops cleanly). Static
-// build allows a remote <img>; nothing is downloaded into the repo.
-const PROFILE_PHOTO_PLACEHOLDER =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Labrador_Retriever_Chocolate_puppy_05.jpg/500px-Labrador_Retriever_Chocolate_puppy_05.jpg';
+// TODO: replace with Ashwin's real headshot. In-project EMOJI placeholder for
+// now (no remote URL, no asset download) — a dog glyph keeping the brown-lab
+// joke. Rendered on the surface plate and pushed toward ink via .profile-duotone
+// so the colored glyph harmonizes with the strict-duotone tints.
+const PROFILE_AVATAR_EMOJI = '🐕';
 ---
 
 <!-- ============================================================
@@ -80,16 +80,16 @@ const PROFILE_PHOTO_PLACEHOLDER =
   <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16">
     <!-- Centered vertical stack: photo → (name → status → labels). -->
     <div class="flex flex-col items-center gap-y-7 text-center">
-      <!-- PHOTO — circle on a duotone surface plate (no peach third hue). -->
-      <img
-        src={PROFILE_PHOTO_PLACEHOLDER}
-        alt="Ashwin John Chempolil"
-        width="112"
-        height="112"
-        loading="eager"
-        decoding="async"
-        class="profile-duotone h-28 w-28 rounded-full border border-border bg-surface object-cover p-2"
-      />
+      <!-- AVATAR — emoji on a duotone surface plate (no remote URL, no asset;
+           no peach third hue). role="img" carries the label; the glyph itself is
+           aria-hidden so screen readers read the name, not the emoji codepoint. -->
+      <div
+        role="img"
+        aria-label="Ashwin John Chempolil — placeholder avatar"
+        class="profile-duotone profile-avatar flex h-28 w-28 items-center justify-center rounded-full border border-border bg-surface p-2 leading-none"
+      >
+        <span aria-hidden="true">{PROFILE_AVATAR_EMOJI}</span>
+      </div>
 
       <!-- Intro block — name, status badge, labels row. -->
       <div class="flex flex-col items-center gap-y-4">
@@ -173,6 +173,12 @@ const PROFILE_PHOTO_PLACEHOLDER =
      it. Recipe mirrors ExperienceTimeline's `.neu-duotone`, scoped here. */
   .profile-duotone {
     filter: grayscale(1) contrast(1.05) brightness(0.95);
+  }
+  /* Emoji avatar — size the glyph to fill the circular plate nicely. The plate
+     is h-28 (7rem) with p-2 (0.5rem) padding each side → ~6rem inner; a 3.25rem
+     glyph sits centered with comfortable breathing room inside the ring. */
+  .profile-avatar span {
+    font-size: 3.25rem;
   }
   /* Under the dark tint (p1) lighten + invert so the photo reads as light ink
      on the dark panel instead of being crushed to black. */
