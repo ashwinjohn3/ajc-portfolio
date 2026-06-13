@@ -162,14 +162,20 @@ html {
   scroll-margin-top: 4rem;
 }
 
+/* Full-bleed guard: the hero breaks out to 100vw (margin-left: calc(50% - 50vw))
+   so its background fills the viewport. 100vw counts the scrollbar gutter, which
+   would add a sliver of horizontal scroll. The clip must live on <html> — the
+   root scroll container — so it actually suppresses x-axis scroll (a clip on
+   <body> only clips body's paint and leaves the viewport scrollable). This is
+   defense-in-depth; the nav is sized to fit on its own (see narrow-viewport
+   nav rules below), so no real content is ever hidden by this clip. */
+html {
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--brand-bg);
   color: var(--brand-text-primary);
-  /* Full-bleed guard: the hero breaks out to 100vw (margin-left: calc(50% - 50vw))
-     so its background fills the viewport. 100vw counts the scrollbar gutter, which
-     would add a sliver of horizontal scroll; clip the x-axis to absorb it without
-     affecting vertical scroll or sticky/anchored elements. */
-  overflow-x: clip;
   /* Body text = Instrument Sans (Pairing 03). Display serif is opt-in via font-display. */
   font-family: var(--font-body), sans-serif;
   font-weight: 400;
@@ -201,4 +207,29 @@ pre,
 samp {
   font-family: var(--font-mono), monospace;
   font-size: 0.875em;
+}
+
+/* ------------------------------------------------------------------
+   Narrow-viewport nav (< 420px)
+   The default nav row (brand "ajc" + bracket links + tint toggle) is
+   spaced for comfortable desktop reading (px-6, gap-6, per-link px-2).
+   On phones that intrinsic width (~466px) exceeds the viewport and was
+   the real source of horizontal page scroll. Here we condense the
+   horizontal rhythm — tighter outer padding, gaps, and link padding —
+   so the full, symmetric row fits with no hidden content and no scroll.
+   Rules live outside @layer so they win over Tailwind utility classes.
+   ------------------------------------------------------------------ */
+@media (max-width: 419.98px) {
+  .nav-inner {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    gap: 0.375rem;
+  }
+  .nav-inner nav ul {
+    gap: 0.125rem;
+  }
+  .nav-link {
+    padding-left: 0.3125rem;
+    padding-right: 0.3125rem;
+  }
 }

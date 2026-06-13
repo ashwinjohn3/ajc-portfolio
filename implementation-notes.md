@@ -1257,5 +1257,49 @@ check` 0 errors / 0 warnings / 4 pre-existing hints; built HTML has all hero tex
 + zero `opacity:0`; reduced-motion gate + CSS block compiled in; full-bleed
 (`calc(50% - 50vw)`) + strict duotone (`--color-*` only) intact.
 
-**Handoff:** `.omc/handoffs/hero-motion.md`. One atomic commit, NOT pushed.                                                                    
+**Handoff:** `.omc/handoffs/hero-motion.md`. One atomic commit, NOT pushed.
+
+## MOBILE-NAV-FIX — nav responsive overflow at narrow viewports (2026-06-13)
+
+### Root cause (REAL, not a crop artifact)
+The hero-geometry handoff's claim that the "375px overflow" was a headless crop
+artifact was FALSE — **retracted**. At a true 375px CSS viewport the page genuinely
+scrolls horizontally: `documentElement.scrollWidth=466` vs `clientWidth=375`. Source
+is the **Nav row**, not the hero. The nav lays out brand `ajc` + four bracket links
+(`[work][tools][resume][contact]`) + the tint toggle with desktop spacing (`px-6`
+outer padding, `gap-6` between flex children, per-link `px-2`); intrinsic width ≈466px
+exceeds narrow phones. The hero is correctly full-bleed (width===innerWidth, left===0)
+and contributes nothing to the overflow.
+
+### Why the existing guard failed
+`overflow-x: clip` was on `body`, but the root scroll container is `<html>`. A clip on
+body only clips body's paint and leaves the viewport/root scrollable — a no-op for its
+stated purpose.
+
+### Fix (global.css only — Nav.astro needed no markup change)
+1. **Condense the nav below 420px** via a top-level `@media (max-width: 419.98px)` rule
+   (outside `@layer`, so it wins over Tailwind utilities) targeting the existing custom
+   classes: `.nav-inner` padding `1.5rem → 0.75rem` + gap `1.5rem → 0.375rem`;
+   `.nav-inner nav ul` gap `0.25rem → 0.125rem`; `.nav-link` padding `0.5rem → 0.3125rem`.
+   The full symmetric row now fits — no hidden content, brackets + monochrome intact.
+2. **Relocate `overflow-x: clip` from `body` to `html`** as honest defense-in-depth
+   (the scrollbar-gutter sub-pixel from the full-bleed hero). It no longer masks a real
+   layout bug because the nav genuinely fits.
+
+Decision: kept the fix CSS-only. The condensing targets classes already present in
+Nav.astro (`nav-inner`/`nav-link`), so no component markup change was required — smaller
+diff, and the responsive behavior lives next to the other global responsive rules.
+
+### Verify (evidence — production `astro preview` build)
+- `documentElement.scrollWidth === clientWidth` and `scrollX===0` after `scrollTo(300,0)`
+  at **375, 390, 414, 768, 1280** (375: 375/375, 390: 390/390, 414: 414/414, 768: 768/768,
+  1280: 1280/1280). Before the fix: 375→scrollWidth 466.
+- Nav @375 readable + symmetric: brand left=12, toggle right=370 (iw=375); all four links
+  `[work][tools][resume][contact]` in view. Screenshot confirms clean monochrome row.
+- Per-page sweep @375 (/, /work, /tools, /resume, /contact): all scrollWidth===clientWidth.
+- No regression: hero full-bleed (width===iw, left===0 @375 & @1280); footer width===iw.
+- `npm run build` exit 0 (5 pages); `npm run check` 0 errors / 0 warnings / 4 pre-existing hints.
+
+**Handoff:** `.omc/handoffs/mobile-nav-fix.md`. Owned files: `src/styles/global.css` only.
+One atomic commit, NOT pushed.                                                                    
 
