@@ -173,7 +173,6 @@ html {
 }
 
 body {
-  background-color: var(--brand-bg);
   color: var(--brand-text-primary);
   /* Body text = Instrument Sans (Pairing 03). Display serif is opt-in via font-display. */
   font-family: var(--font-body), sans-serif;
@@ -189,41 +188,72 @@ body {
    SITE-WIDE ANIMATED DOT BACKGROUND — "BG-B · loose dots"
    (from .omc/handoffs/adopt-demo.md)
 
-   A single fixed, full-viewport layer painted behind ALL content via
-   body::before. Strict duotone & token-driven: the dot color is a
-   color-mix of --color-border into --color-bg, so it retints across all
-   6 tints (no third hue) and stays subtle enough never to fight text.
+   WHY a dedicated fixed layer (not body::before z-index:-1):
+   The prior recipe painted the dots in a `body::before` at z-index:-1.
+   A negative-z pseudo-element on <body> paints BEHIND the body box's own
+   background — and because <body> propagates its background to the root
+   canvas (and the no-flash script also paints html's bg), the body/canvas
+   background is opaque and sits ON TOP of the z-index:-1 dot layer. Net
+   result: the dots were always covered → invisible. Classic root-stacking
+   trap.
 
-   - Recipe: radial dot at 11px spacing, dot tint = mix(border 55%, bg).
-   - position: fixed + z-index:-1 → behind everything, no layout shift,
-     no extra DOM nodes (one cheap painted layer, not thousands of dots).
-   - Animation: a slow, premium drift of the dot field (background-position
-     translate) — gentle, never distracting.
+   ROBUST FIX: a real positioned element — the #dot-field <div> that
+   BaseLayout renders as <body>'s first child — at z-index:0, fixed and
+   full-viewport. Page content (Nav/main/Footer) is a normal-flow sibling;
+   give the structural wrappers their own stacking so they always paint
+   above z:0. The base tint color stays on <html>/<body> via the no-flash
+   script + the html rule below, so the dot field sits cleanly BETWEEN the
+   base bg and the content. One cheap painted layer, zero extra DOM spam,
+   no layout shift.
+
+   Strict duotone & token-driven: dot color = color-mix of --color-border
+   into --color-bg, so it retints across all 6 tints (no third hue).
+   Spacing is a LOOSE 13px grid; the dot is bumped to clearly perceptible
+   contrast (border @78%, 1.4px radius) so it actually reads on every tint
+   while staying quiet behind text.
+
+   - Animation: slow drift of the dot field (background-position translate).
    - prefers-reduced-motion: animation OFF, dots remain visible & static.
    ============================================================= */
-body::before {
-  content: '';
+
+/* Base tint color lives on the root so the fixed dot field has an opaque
+   bg painted beneath it (the dot layer is transparent between dots). */
+html {
+  background-color: var(--brand-bg);
+}
+
+#dot-field {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   background-image: radial-gradient(
-    color-mix(in srgb, var(--color-border) 55%, var(--color-bg)) 1px,
-    transparent 1.4px
+    color-mix(in srgb, var(--color-border) 78%, var(--color-bg)) 1.4px,
+    transparent 1.6px
   );
-  background-size: 11px 11px;
-  /* Slightly oversized via the drift keyframes' translate; fixed layer means
-     it scrolls with the viewport, so the drift is the only motion. */
+  background-size: 13px 13px;
   animation: dot-drift 36s linear infinite;
+}
+
+/* Lift all real content above the dot field. The structural wrappers get a
+   stacking context (position + z-index) so every page's content paints over
+   the z-index:0 dot layer without touching any component internals.
+   Nav's root is <header> (sticky, already z-50); main is transparent so the
+   dots show through it; footer carries its own bg-bg. */
+body > header,
+body > main,
+body > footer {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes dot-drift {
   from { background-position: 0 0; }
-  to   { background-position: 22px 22px; } /* exactly 2 cells → seamless loop */
+  to   { background-position: 26px 26px; } /* exactly 2 cells → seamless loop */
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body::before {
+  #dot-field {
     animation: none; /* static dots, still fully visible */
   }
 }
