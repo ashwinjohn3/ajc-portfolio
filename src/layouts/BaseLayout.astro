@@ -98,12 +98,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <ClientRouter />
   </head>
   <body class="flex min-h-dvh flex-col">
-    <!-- Site-wide animated dot field. A real fixed, full-viewport layer at
-         z-index:0 painted ABOVE the base tint bg (on <html>/<body>) and BELOW
-         all content (the structural wrappers below are lifted to z-index:1 in
-         global.css). This avoids the body::before z-index:-1 root-stacking trap
-         that left the dots painted behind the opaque body background. -->
-    <div id="dot-field" aria-hidden="true"></div>
     <Nav />
     <main
       class:list={[

@@ -47,8 +47,6 @@
   --brand-text-secondary: #244c0f;   /* softer ink — 4.53:1 AA */
   --brand-accent:         #0f380f;   /* duotone accent === ink */
   --brand-accent-hover:   #28500f;   /* near-ink — 4.27:1 */
-  /* dot-field tint: ink @45% into bg → darker step (light bg flips dark). 2.09:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-bg));
 }
 
 /* POCKET — Game Boy Pocket MGB-001 neutral-gray STN LCD
@@ -61,8 +59,6 @@
   --brand-text-secondary: #52564b;   /* 4.52:1 AA */
   --brand-accent:         #1b1f18;
   --brand-accent-hover:   #3a3e34;
-  /* dot-field tint: ink @37% into bg → darker step (light bg flips dark). 2.10:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 37%, var(--color-bg));
 }
 
 /* AMBER — P3 amber-phosphor monochrome CRT terminal
@@ -75,8 +71,6 @@
   --brand-text-secondary: #a87402;   /* 4.56:1 AA */
   --brand-accent:         #ffb000;
   --brand-accent-hover:   #d69401;
-  /* dot-field tint: phosphor ink @32% into bg → brighter step (glows on dark). 2.10:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 32%, var(--color-bg));
 }
 
 /* P1 — P1 green-phosphor classic terminal (VT100-era)
@@ -89,8 +83,6 @@
   --brand-text-secondary: #20913b;   /* 4.57:1 AA */
   --brand-accent:         #33ff66;
   --brand-accent-hover:   #2cd555;
-  /* dot-field tint: phosphor ink @27% into bg → brighter step (glows on dark). 2.08:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 27%, var(--color-bg));
 }
 
 /* PAPER — FSTN paper-white blue-gray reflective LCD
@@ -103,8 +95,6 @@
   --brand-text-secondary: #5a626a;   /* 4.52:1 AA */
   --brand-accent:         #1c2630;
   --brand-accent-hover:   #3e4750;
-  /* dot-field tint: ink @37% into bg → darker step (light bg flips dark). 2.10:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 37%, var(--color-bg));
 }
 
 /* VFD — vacuum-fluorescent display cyan glow (~510 nm)
@@ -117,8 +107,6 @@
   --brand-text-secondary: #19897e;   /* 4.51:1 AA */
   --brand-accent:         #2bf0dc;
   --brand-accent-hover:   #24c8b7;
-  /* dot-field tint: phosphor ink @29% into bg → brighter step (glows on dark). 2.13:1 */
-  --dot-color: color-mix(in srgb, var(--color-primary) 29%, var(--color-bg));
 }
 
 /* =============================================================
@@ -185,6 +173,7 @@ html {
 }
 
 body {
+  background-color: var(--brand-bg);
   color: var(--brand-text-primary);
   /* Body text = Instrument Sans (Pairing 03). Display serif is opt-in via font-display. */
   font-family: var(--font-body), sans-serif;
@@ -194,90 +183,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* =============================================================
-   SITE-WIDE ANIMATED DOT BACKGROUND — "BG-B · loose dots"
-   (from .omc/handoffs/adopt-demo.md)
-
-   WHY a dedicated fixed layer (not body::before z-index:-1):
-   The prior recipe painted the dots in a `body::before` at z-index:-1.
-   A negative-z pseudo-element on <body> paints BEHIND the body box's own
-   background — and because <body> propagates its background to the root
-   canvas (and the no-flash script also paints html's bg), the body/canvas
-   background is opaque and sits ON TOP of the z-index:-1 dot layer. Net
-   result: the dots were always covered → invisible. Classic root-stacking
-   trap.
-
-   ROBUST FIX: a real positioned element — the #dot-field <div> that
-   BaseLayout renders as <body>'s first child — at z-index:0, fixed and
-   full-viewport. Page content (Nav/main/Footer) is a normal-flow sibling;
-   give the structural wrappers their own stacking so they always paint
-   above z:0. The base tint color stays on <html>/<body> via the no-flash
-   script + the html rule below, so the dot field sits cleanly BETWEEN the
-   base bg and the content. One cheap painted layer, zero extra DOM spam,
-   no layout shift.
-
-   Strict duotone & token-driven: each tint defines its OWN --dot-color as a
-   step of that tint's SAME two-color palette — color-mix of --color-primary
-   (the ink) into --color-bg — so NO third hue is ever introduced. The mix %
-   is tuned PER TINT so the dot lands at ~2.1:1 against that tint's bg
-   (perceptible, well under the ~3:1 that would fight text). Direction follows
-   the palette: on LIGHT tints (dmg/pocket/paper) the ink is darker so the dot
-   flips to a darker step; on the PHOSPHOR/dark tints (amber/p1/vfd) the ink is
-   the bright phosphor so the dot brightens and GLOWS against the dark panel.
-   Spacing stays a LOOSE 13px grid; radius 1.4px.
-
-   - Animation: slow drift of the dot field (background-position translate).
-   - prefers-reduced-motion: animation OFF, dots remain visible & static.
-   ============================================================= */
-
-/* Base tint color lives on the root so the fixed dot field has an opaque
-   bg painted beneath it (the dot layer is transparent between dots). */
-html {
-  background-color: var(--brand-bg);
-}
-
-#dot-field {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: radial-gradient(
-    var(--dot-color) 1.4px,
-    transparent 1.6px
-  );
-  background-size: 13px 13px;
-  /* Soften the whole dot field a notch — user found the per-tint --dot-color
-     (~2.1:1) slightly too strong. opacity 0.7 composites each dot toward the
-     tint's own bg painted beneath this fixed layer, dropping dot-vs-bg to
-     ~1.61–1.65:1 across all 6 tints (still clearly visible, strict duotone —
-     no third hue, since the bg blended in is that same tint's bg). */
-  opacity: 0.7;
-  animation: dot-drift 36s linear infinite;
-}
-
-/* Lift all real content above the dot field. The structural wrappers get a
-   stacking context (position + z-index) so every page's content paints over
-   the z-index:0 dot layer without touching any component internals.
-   Nav's root is <header> (sticky, already z-50); main is transparent so the
-   dots show through it; footer carries its own bg-bg. */
-body > header,
-body > main,
-body > footer {
-  position: relative;
-  z-index: 1;
-}
-
-@keyframes dot-drift {
-  from { background-position: 0 0; }
-  to   { background-position: 26px 26px; } /* exactly 2 cells → seamless loop */
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #dot-field {
-    animation: none; /* static dots, still fully visible */
-  }
 }
 
 /* Text selection — duotone ink (accent === ink) on the tint bg.
