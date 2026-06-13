@@ -52,12 +52,6 @@ interface Props {
 }
 
 const { fill = false } = Astro.props;
-
-// TODO: replace with Ashwin's real headshot. In-project EMOJI placeholder for
-// now (no remote URL, no asset download) — a dog glyph keeping the brown-lab
-// joke. Rendered on the surface plate and pushed toward ink via .profile-duotone
-// so the colored glyph harmonizes with the strict-duotone tints.
-const PROFILE_AVATAR_EMOJI = '🐕';
 ---
 
 <!-- ============================================================
@@ -80,15 +74,25 @@ const PROFILE_AVATAR_EMOJI = '🐕';
   <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16">
     <!-- Centered vertical stack: photo → (name → status → labels). -->
     <div class="flex flex-col items-center gap-y-7 text-center">
-      <!-- AVATAR — emoji on a duotone surface plate (no remote URL, no asset;
-           no peach third hue). role="img" carries the label; the glyph itself is
-           aria-hidden so screen readers read the name, not the emoji codepoint. -->
+      <!-- AVATAR — Ashwin's headshot on a duotone surface plate. The circular
+           plate + hairline border are preserved; the photo fills the ring via
+           object-cover and is framed on the face (it sits in the upper-middle of
+           the source frame). A uniform grayscale+contrast (.profile-duotone)
+           harmonizes the photo with the strict-duotone tints — NEVER inverted on
+           any tint, so it always reads as a normal (non-negative) photo. -->
       <div
-        role="img"
-        aria-label="Ashwin John Chempolil — placeholder avatar"
-        class="profile-duotone profile-avatar flex h-28 w-28 items-center justify-center rounded-full border border-border bg-surface p-2 leading-none"
+        class="profile-avatar flex h-28 w-28 items-center justify-center rounded-full border border-border bg-surface p-2"
       >
-        <span aria-hidden="true">{PROFILE_AVATAR_EMOJI}</span>
+        <img
+          src="/headshot.jpg"
+          alt="Ashwin John Chempolil"
+          width="900"
+          height="729"
+          loading="eager"
+          decoding="async"
+          class="profile-duotone h-full w-full rounded-full object-cover"
+          style="object-position: 50% 28%;"
+        />
       </div>
 
       <!-- Intro block — name, status badge, labels row. -->
@@ -168,22 +172,16 @@ const PROFILE_AVATAR_EMOJI = '🐕';
   }
 
   /* ---- Profile photo duotone treatment ----
-     A colour headshot/placeholder would break the strict-duotone screen, so
-     force it toward ink: grayscale removes the hue, contrast/brightness shape
-     it. Recipe mirrors ExperienceTimeline's `.neu-duotone`, scoped here. */
+     A colour headshot would break the strict-duotone screen, so force it toward
+     ink: grayscale removes the hue, contrast/brightness shape it. Recipe mirrors
+     ExperienceTimeline's `.neu-duotone`, scoped here.
+
+     UNIFORM across ALL tints (dmg/pocket/p1) — there is deliberately NO per-theme
+     invert. The photo must NEVER render as a negative/inverted image on the dark
+     (p1) tint; a normal grayscale headshot reads correctly on every tint and fits
+     the monochrome aesthetic. */
   .profile-duotone {
     filter: grayscale(1) contrast(1.05) brightness(0.95);
-  }
-  /* Emoji avatar — size the glyph to fill the circular plate nicely. The plate
-     is h-28 (7rem) with p-2 (0.5rem) padding each side → ~6rem inner; a 3.25rem
-     glyph sits centered with comfortable breathing room inside the ring. */
-  .profile-avatar span {
-    font-size: 3.25rem;
-  }
-  /* Under the dark tint (p1) lighten + invert so the photo reads as light ink
-     on the dark panel instead of being crushed to black. */
-  :global([data-theme='p1']) .profile-duotone {
-    filter: grayscale(1) contrast(1.05) brightness(1.15) invert(0.92);
   }
 
   /* ---- Status dot pulse — the ONE animation (user request) ----
