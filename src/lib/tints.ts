@@ -66,9 +66,17 @@ export const TINT_EMOJI: Record<TintId, string> = Object.fromEntries(
 
 /**
  * Cheap build-time guard: assert the registry's bg values match the
- * `--brand-bg` declarations parsed out of global.css. Throws (failing the
- * build) on any drift. Hex is normalized lower-case; both 3- and 6-digit
- * forms are compared by expanding shorthand.
+ * `--brand-bg` declarations parsed out of global.css, AND that each tint's
+ * declared `scheme` agrees with that CSS bg. Throws (failing the build) on any
+ * drift. Hex is normalized lower-case; both 3- and 6-digit forms are compared
+ * by expanding shorthand.
+ *
+ * Scheme check: global.css carries no per-tint `color-scheme` declaration (the
+ * registry is the sole pre-paint authority), so the expected scheme is derived
+ * from the CSS bg's perceived luminance — a dark panel MUST be `scheme: 'dark'`
+ * and a light panel `scheme: 'light'`. This catches a mislabeled scheme (e.g.
+ * a dark tint tagged 'light') that would otherwise flash the wrong paint while
+ * the build still passed.
  */
 export function assertTintsSyncedWithCss(css: string): void {
   const expand = (hex: string): string => {
@@ -76,6 +84,18 @@ export function assertTintsSyncedWithCss(css: string): void {
     return h.length === 3
       ? h.split('').map((c) => c + c).join('')
       : h;
+  };
+
+  // Perceived luminance (0..1) of a hex bg → the scheme it should carry.
+  // sRGB-weighted average; the 6 tints split cleanly (light bgs ≥ 0.5,
+  // dark bgs ≈ 0.01), so a 0.5 midpoint is a robust, non-borderline cut.
+  const schemeFromBg = (hex: string): 'light' | 'dark' => {
+    const h = expand(hex);
+    const r = parseInt(h.slice(0, 2), 16) / 255;
+    const g = parseInt(h.slice(2, 4), 16) / 255;
+    const b = parseInt(h.slice(4, 6), 16) / 255;
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luminance >= 0.5 ? 'light' : 'dark';
   };
 
   // :root block → dmg
@@ -101,6 +121,13 @@ export function assertTintsSyncedWithCss(css: string): void {
     if (expand(fromCss) !== expand(tint.bg)) {
       throw new Error(
         `[tints] bg drift for "${tint.id}": registry ${tint.bg} vs CSS ${fromCss}`
+      );
+    }
+    const expectedScheme = schemeFromBg(fromCss);
+    if (tint.scheme !== expectedScheme) {
+      throw new Error(
+        `[tints] scheme drift for "${tint.id}": registry "${tint.scheme}" ` +
+          `but CSS bg ${fromCss} is ${expectedScheme}`
       );
     }
   }
