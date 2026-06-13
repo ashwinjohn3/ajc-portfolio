@@ -79,9 +79,19 @@ const { fill = false } = Astro.props;
            object-cover and is framed on the face (it sits in the upper-middle of
            the source frame). A uniform grayscale+contrast (.profile-duotone)
            harmonizes the photo with the strict-duotone tints — NEVER inverted on
-           any tint, so it always reads as a normal (non-negative) photo. -->
+           any tint, so it always reads as a normal (non-negative) photo.
+
+           GOLDEN-RATIO SIZING (desktop ≥640px): the plate diameter is tied to
+           the rendered width of the hero name by φ. Measured at 1280px the name
+           "Ashwin John Chempolil" renders ~477px wide; the plate is sized to
+           477 / φ ≈ 296px (18.5rem) so name_width ≈ 1.618 × diameter — the name
+           stays wider than the circle (dominant) while the circle reads large and
+           deliberate. Below sm the plate steps down to 13rem so it never crowds a
+           375px viewport (where the name wraps); the φ relationship is the
+           desktop target. -->
+
       <div
-        class="profile-avatar flex h-28 w-28 items-center justify-center rounded-full border border-border bg-surface p-2"
+        class="profile-avatar flex h-52 w-52 sm:h-[296px] sm:w-[296px] items-center justify-center rounded-full border border-border bg-surface p-2"
       >
         <img
           src="/headshot.jpg"
@@ -97,7 +107,10 @@ const { fill = false } = Astro.props;
 
       <!-- Intro block — name, status badge, labels row. -->
       <div class="flex flex-col items-center gap-y-4">
-        <!-- NAME — serif display, φ-scaled. -->
+        <!-- NAME — display heading, kept at its standard prominent size
+             (text-4xl / 44px). It is the φ anchor: the avatar plate above is
+             sized to name_width / φ, so this name stays the dominant, wider
+             element while the circle scales up to meet it in golden proportion. -->
         <h1 class="font-display text-4xl leading-tight text-primary">
           Ashwin John Chempolil
         </h1>
