@@ -1,0 +1,71 @@
+---
+/**
+ * Chip — a small, square-ish duotone label chip (NOT a pill).
+ *
+ * The one net-new primitive adopted from the inspiration template, re-skinned to
+ * the 6-tint duotone system: surface bg + border, Fragment Mono label in ink,
+ * tight `rounded-[3px]` radius (anti-AI-slop — deliberately not rounded-full),
+ * and a border-brighten hover (no scale/lift, no third hue). Reusable for tech
+ * tags, skills, and the /tools icon-grid cells.
+ *
+ * Colors resolve from the tint engine via the existing utility names, so the
+ * chip retints automatically across every theme. Styles are SCOPED to this
+ * component — global.css is owned elsewhere and never touched here.
+ *
+ * Props:
+ *   label  — chip text (Fragment Mono, text-primary)
+ *   href   — if set, the chip becomes an <a> (external-link safe)
+ *   class  — forwarded to the outer element for overrides
+ *
+ * Slots:
+ *   icon   — optional leading glyph (e.g. an inline currentColor SVG or a
+ *            BrandIcon); sits left of the label. Decorative by convention —
+ *            the label carries the meaning, so the slot content should be
+ *            aria-hidden at the call site.
+ */
+interface Props {
+  label: string;
+  href?: string;
+  class?: string;
+}
+
+const { label, href, class: className } = Astro.props;
+
+const Tag = href ? 'a' : 'span';
+const linkProps = href
+  ? { href, target: '_blank', rel: 'noopener noreferrer' }
+  : {};
+---
+
+<Tag
+  {...linkProps}
+  class:list={[
+    'chip',
+    // Square-ish, de-pilled — tight 3px radius, never rounded-full.
+    'inline-flex items-center gap-1.5 rounded-[3px]',
+    'px-2 py-1 leading-none',
+    'bg-surface border border-border',
+    'font-mono text-xs text-primary',
+    // Hover — border brightens toward ink (duotone-safe, no hue, no motion).
+    'transition-colors duration-200',
+    href && 'hover:border-primary/40 cursor-pointer',
+    className,
+  ]}
+>
+  {Astro.slots.has('icon') && (
+    <span class="chip__icon shrink-0 inline-flex items-center justify-center">
+      <slot name="icon" />
+    </span>
+  )}
+  <span class="chip__label">{label}</span>
+</Tag>
+
+<style>
+  /* Constrain any slotted icon to the cap-height of the mono label so the chip
+     stays balanced regardless of the glyph's intrinsic size. Scoped here. */
+  .chip__icon :global(svg),
+  .chip__icon :global(img) {
+    width: 0.85em;
+    height: 0.85em;
+  }
+</style>

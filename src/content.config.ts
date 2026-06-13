@@ -83,6 +83,29 @@ const uses = defineCollection({
         description: z.string().optional(),
         /** Optional link to the tool's website */
         url: z.url().optional(),
+        /**
+         * Optional tool glyph — mirrors `work.logo`. Renders gracefully when
+         * absent (placeholder tools have no icon yet; that is fine). `kind`
+         * selects the render path:
+         *   brand → inline currentColor BrandIcon (themes natively)
+         *   svg   → raw simple-icons single-path string + viewBox, drawn in ink
+         *           via fill="currentColor" (no full-color hue enters the duotone)
+         */
+        icon: z
+          .discriminatedUnion('kind', [
+            z.object({
+              kind: z.literal('brand'),
+              name: z.enum(['github', 'linkedin', 'aws']),
+            }),
+            z.object({
+              kind: z.literal('svg'),
+              /** Single-path `d` string (simple-icons style). */
+              path: z.string(),
+              /** Defaults to "0 0 24 24" (simple-icons convention). */
+              viewBox: z.string().optional(),
+            }),
+          ])
+          .optional(),
       })
     ),
   }),
