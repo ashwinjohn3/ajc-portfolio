@@ -15,6 +15,7 @@ export const SITE_NAME = 'Ashwin John Chempolil';
 export const FEATURE_FLAGS = {
   projects: import.meta.env.PUBLIC_SHOW_PROJECTS === 'true',
   photography: import.meta.env.PUBLIC_SHOW_PHOTOGRAPHY === 'true',
+  tools: import.meta.env.PUBLIC_SHOW_TOOLS === 'true',
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;
@@ -26,7 +27,7 @@ export type NavLink = { label: string; href: string; flag?: FeatureFlag };
 
 export const NAV_LINKS: NavLink[] = [
   { label: 'work', href: '/work' },
-  { label: 'tools', href: '/tools' },
+  { label: 'tools', href: '/tools', flag: 'tools' },
   { label: 'resume', href: '/resume' },
   { label: 'projects', href: '/projects', flag: 'projects' },
   { label: 'photography', href: '/photography', flag: 'photography' },
