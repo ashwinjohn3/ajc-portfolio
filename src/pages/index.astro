@@ -4,8 +4,9 @@
  * Lean home — hero only, NO work timeline (the timeline lives at /work).
  *
  * Layout: full-bleed Hero stretched to fill the viewport between nav and
- * footer (fillViewport + Hero fill), with a "see my work" bridge link to
- * /work. Absorbs the former variant-b composition; variant-b.astro is gone.
+ * footer (fillViewport + Hero fill). The top nav already links /work, so the
+ * home carries no separate bridge link. Absorbs the former variant-b
+ * composition; variant-b.astro is gone.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
@@ -24,28 +25,4 @@ import { BIO, createPageTitle } from '../data/site';
     ctaLabel="Get in touch"
     fill
   />
-
-  <!-- "See my work" bridge link — monochrome ink, Fragment Mono, leads to /work -->
-  <div class="w-full max-w-[60rem] mx-auto px-6 sm:px-10 pb-10 text-center">
-    <a
-      href="/work"
-      class="inline-flex items-center gap-1.5 font-mono text-sm text-primary border-b border-border hover:border-primary transition-colors duration-200"
-    >
-      [see my work]
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
-  </div>
 </BaseLayout>
