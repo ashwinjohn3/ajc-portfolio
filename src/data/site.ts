@@ -50,7 +50,8 @@ export const SOCIAL_LINKS = {
 // Home page bio — verbatim from app/page.tsx
 // ---------------------------------------------------------------------------
 export const BIO = {
-  tagline: "I'm a software engineer based in Washington, DC.",
+  intro: "Hi, I'm Ashwin.",
+  tagline: "I'm a software engineer based in Washington, DC 🌸.",
 } as const;
 
 // ---------------------------------------------------------------------------

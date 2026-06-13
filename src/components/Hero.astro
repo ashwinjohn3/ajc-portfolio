@@ -1,80 +1,65 @@
 ---
 /**
- * Hero.astro — "POWER-ON", now Motion-driven (motion.dev vanilla).
+ * Hero.astro — faithful mainline hero with a CRT power-on.
  *
- * One coherent power-on/boot composition, orchestrated as ONE spring timeline
- * (not two halves glued together), driven by the Motion library in a bundled
- * Astro <script>:
+ * Reproduces the mainline (app/page.tsx) hero VERBATIM — two left-aligned
+ * lines, nothing else:
  *
- *   1. A spotlit hairline grid fades/scales in
- *        (Aceternity Grid background + radial-fade Spotlight, ported from
- *         ballot Treatment 1 — the spotlight drifts in toward the name).
- *   2. The terminal boot intro stagger-types in
- *        (his real lines, Fragment Mono — ballot T1 boot log).
- *   3. The oversized name powers on like a CRT coming to life
- *        (φ-scale "Ashwin" bleeding off the left frame edge, phosphor bloom,
- *         spring scaleY snap + ONE scanline sweep — ballot Treatment 3).
- *   4. Surname (Instrument Serif italic) is the subordinate tail; the strap
- *        ("Making cloud shareable") + [github]/[linkedin] coordinates resolve last.
+ *   1. "Hi, I'm Ashwin."                                  (semibold, ~1.5rem, primary ink)
+ *   2. "I'm a software engineer based in Washington, DC 🌸." (muted ink, max-width ~520px)
+ *
+ * The only re-skin is the CRT POWER-ON: on load the hero "powers on" — the two
+ * real lines resolve with a phosphor-bloom + scaleY snap while a single scanline
+ * sweeps once across the field. ONE sequence, then it's done. The field itself
+ * is the plain tint background (no grid, no spotlight, no terminal chrome).
  *
  * MOTION (motion.dev, vanilla — no React, no island, no hydration): the entrance
- * is one declarative animate([...]) sequence with real spring physics + stagger,
- * fired on load AND re-fired on `astro:after-swap` so it survives ClientRouter
- * (View Transitions) navigations. inView() reveals the strap/links coordinates.
+ * is one declarative animate() pass, fired on load AND re-fired on
+ * `astro:after-swap` so it survives ClientRouter (View Transitions) navigations.
  *
  * PROGRESSIVE ENHANCEMENT / NO-FOUC: every element's CSS default IS its resolved
  * end-state (full opacity, no transform). With JS off, reduced-motion on, or the
- * bundle failing to load, the hero is fully visible — never a blank hero. Motion
- * animates *from* a hidden keyframe (opacity:[0,1]) only when motion is allowed,
- * dipping the element to hidden the instant it begins. The scanline + spotlight
- * (decorative) start hidden and are revealed/animated by JS.
+ * bundle failing to load, the hero is fully visible — never blank. Motion animates
+ * *from* a hidden keyframe only when motion is allowed. The scanline (decorative,
+ * aria-hidden) starts hidden and is swept once by JS.
  *
  * STRICT DUOTONE — every visual reads only the tint tokens (--color-bg /
- * surface / border / primary / secondary / accent), so all 6 analog tints work
- * by swapping [data-theme]. No third hue, no peach, no colored ping, no emoji.
+ * --color-primary / --color-secondary), so all 6 analog tints resolve via
+ * [data-theme] alone. No hardcoded hues.
  *
- * φ TYPE SCALE (base 1rem, ratio 1.618): "Ashwin" dominant (φ4, ~6.854rem
- * ceiling, clamps oversized to bleed) over "John Chempolil" subordinate (φ2/φ3).
- *
- * Props mirror the prior Hero so callers (index.astro) keep working:
- *   tagline   — kept for API parity (the boot/strap use the real sourced copy)
- *   ctaHref / ctaLabel — kept for API parity (links below use the social coords)
- *   badgeText — kept for API parity
- *   fill      — stretch to fill remaining viewport height (lean home page)
+ * Props mirror the prior Hero so callers (index.astro) keep working.
  */
 
-import { SOCIAL_LINKS } from '../data/site';
-import TerminalChrome from './TerminalChrome.astro';
+import { BIO } from '../data/site';
 
 interface Props {
   tagline?: string;
+  /** Kept for API parity with the prior Hero so callers (index.astro) keep working. */
   ctaHref?: string;
   ctaLabel?: string;
   badgeText?: string;
   /**
    * When true the hero stretches to fill the remaining viewport height
    * (flex-1 inside a column <main>) and vertically centers its content, so
-   * the composition fills the body between nav and footer with no unfilled bg.
+   * the composition fills the body between nav and footer — keeping the
+   * footer pinned to the bottom with no unfilled background.
    */
   fill?: boolean;
 }
 
 const {
-  tagline = "I'm a software engineer based in Washington, DC.",
-  ctaHref = '/contact',
-  ctaLabel = 'Get in touch',
-  badgeText = 'Open to opportunities',
+  tagline = BIO.tagline,
   fill = false,
 } = Astro.props;
 ---
 
 <!-- ============================================================
-     Hero — POWER-ON. The <section> is the FULL-BLEED field: it
-     breaks out of the parent max-w-[60rem] (.hero-power below) so
-     every background layer spans the whole viewport edge-to-edge,
-     filling the space between nav and footer (no centered square).
-     The inner .hero-col re-establishes the 60rem reading column so
-     the text stays aligned to the work-card grid edge.
+     Hero — POWER-ON over a PLAIN field. The <section> breaks out
+     of the parent max-w-[60rem] (.hero-power below) so the plain
+     tint background fills the viewport edge-to-edge between nav and
+     footer (keeping the footer pinned via the fill chain). The inner
+     .hero-col restores the 60rem reading column so the two lines
+     align to the same grid edge as the other pages/cards.
      ============================================================ -->
 <section
   id="hero"
@@ -86,206 +71,80 @@ const {
   ]}
   aria-label="Introduction"
 >
-  <!-- Full-bleed background layers — span the entire hero viewport -->
-  <!-- Layer 0 — spotlit hairline grid (Aceternity grid + radial-fade) -->
-  <div class="hero-grid" aria-hidden="true"></div>
-  <!-- Layer 1 — drifting spotlight, anchored toward the name resolve point -->
-  <div class="hero-spot" aria-hidden="true"></div>
-  <!-- Layer 2 — single scanline sweep that fires once on power-on -->
+  <!-- Single scanline sweep — fires once on power-on, decorative -->
   <div class="hero-scan" aria-hidden="true"></div>
-  <!-- Layer 3 — Kubrick corner ticks the oversized name bleeds against -->
-  <div class="hero-ticks" aria-hidden="true"></div>
-  <div class="hero-ticks hero-ticks--alt" aria-hidden="true"></div>
 
   <!-- Reading column — restores the 60rem grid the text aligns to -->
-  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16 sm:py-20">
-
-    <!-- ONE terminal window: shared TerminalChrome top + bottom bars -->
-    <div class="hero-window">
-      <!-- Top title bar (reusable chrome) -->
-      <TerminalChrome variant="title" class="hero-chrome-top">
-        ashwin@portfolio:~
-      </TerminalChrome>
-
-      <!-- Stage — the window body, aligned to the work-card grid edge -->
-      <div class="hero-stage">
-
-        <!-- Boot log — his real lines stagger-type in (Fragment Mono) -->
-        <div class="hero-boot font-mono text-secondary" aria-hidden="true">
-          <span class="hero-ln">&gt; whoami</span>
-          <span class="hero-ln">Hi, I'm Ashwin.</span>
-          <span class="hero-ln hero-ln--cur">&gt; cat ./role &amp; ./status</span>
-        </div>
-
-        <!-- Oversized name — powers on like a CRT, bleeds off the left edge -->
-        <h1 class="hero-name" aria-label="Ashwin John Chempolil">
-          <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
-          <span class="hero-last block font-display italic font-normal text-primary">John&nbsp;Chempolil</span>
-        </h1>
-
-        <!-- Strap — his own one-liner (verbatim AWS RAM bullet) + role -->
-        <p class="hero-strap font-mono text-secondary" data-reveal>
-          <span class="hero-sq" aria-hidden="true"></span>
-          Making cloud shareable — SDE&nbsp;II, AWS
-        </p>
-
-        <!-- Coordinates — real location + social links (Fragment Mono) -->
-        <div class="hero-meta font-mono text-secondary" data-reveal>
-          <span>Software engineer · Washington, DC</span>
-          <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">[github]</a>
-          <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">[linkedin]</a>
-        </div>
-
-      </div>
-
-      <!-- Bottom status bar (SAME reusable chrome, shared sizing) -->
-      <TerminalChrome variant="status" class="hero-chrome-bottom">
-        status: online — Washington, DC · open to opportunities
-      </TerminalChrome>
-    </div>
-
+  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 pt-16 pb-12">
+    <p class="hero-intro font-body font-semibold text-primary">{BIO.intro}</p>
+    <p class="hero-sub text-secondary">{tagline}</p>
   </div>
 </section>
 
 <script>
   /* ============================================================
-     MOTION-DRIVEN HERO ENTRANCE (motion.dev, vanilla)
+     CRT POWER-ON (motion.dev, vanilla)
 
-     This is a BUNDLED module <script> (not is:inline): Vite tree-shakes
-     it, hoists it to <head> as type="module" (deferred, runs after parse).
-     It animates only transform/opacity (compositor-friendly, no CLS) and
-     never touches the tint custom props, so the no-flash inline tint script
-     and the duotone system are unaffected.
+     Bundled module <script>: Vite tree-shakes it, hoists it to <head>
+     as type="module" (deferred). It animates only transform/opacity/
+     filter (compositor-friendly, no CLS) and never touches the tint
+     custom props, so the no-flash inline tint script and the duotone
+     system are unaffected.
 
      PROGRESSIVE ENHANCEMENT: the markup's resolved end-state is the CSS
-     default. If this bundle never loads, or prefers-reduced-motion is set,
-     the hero is already fully visible. Motion animates FROM a hidden
-     keyframe (opacity:[0,1]) only when motion is allowed.
+     default. If this bundle never loads, or prefers-reduced-motion is
+     set, the hero is already fully visible. Motion animates FROM hidden
+     only when motion is allowed.
      ============================================================ */
-  import { animate, stagger, inView } from 'motion';
+  import { animate } from 'motion';
 
   function initHero() {
-    // SSR-safe: this only ever runs client-side inside a module <script>,
-    // but guard anyway in case of an unusual execution context.
     if (typeof window === 'undefined') return;
 
     const hero = document.getElementById('hero');
     if (!hero) return; // not on this page (e.g. after a ClientRouter swap)
 
-    // Idempotency: if a prior init already wired this node, skip. ClientRouter
-    // replaces <main>, so a freshly-swapped hero won't carry this flag.
+    // Idempotency: ClientRouter replaces <main>, so a freshly-swapped hero
+    // won't carry this flag.
     if (hero.dataset.heroInit === '1') return;
     hero.dataset.heroInit = '1';
 
     // --- prefers-reduced-motion gate (FIRST, before any animate call) ---
-    // Leave every element in its resolved CSS default (fully visible). Do
-    // nothing else — no perpetual motion, no blank hero.
+    // Leave every element in its resolved CSS default (fully visible). No
+    // power-on, no perpetual motion, no blank hero.
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return;
 
-    const q = <T extends Element>(sel: string) =>
-      Array.from(hero.querySelectorAll<T>(sel));
+    // -----------------------------------------------------------------
+    // CRT power-on: the two real lines resolve with a phosphor bloom +
+    // scaleY snap, in sync with ONE scanline sweep. transform-origin is
+    // set in CSS (top, about the bleed edge) so the lines snap open.
+    // -----------------------------------------------------------------
+    animate(
+      '.hero-intro',
+      {
+        opacity: [0, 1],
+        scaleY: [0.04, 1.03, 1],
+        filter: ['blur(3px) brightness(2)', 'blur(0px) brightness(1)'],
+      },
+      { type: 'spring', stiffness: 220, damping: 16, delay: 0.1 }
+    );
 
-    // -----------------------------------------------------------------
-    // 1. Background field powers up — grid + spotlight fade/scale in.
-    //    Decorative; kept on its own track so the timeline can lead with it.
-    // -----------------------------------------------------------------
-    const grid = hero.querySelector<HTMLElement>('.hero-grid');
-    const spot = hero.querySelector<HTMLElement>('.hero-spot');
-    if (grid) {
-      animate(
-        grid,
-        { opacity: [0, 0.9], scale: [1.04, 1] },
-        { duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }
-      );
-    }
-    if (spot) {
-      animate(
-        spot,
-        { opacity: [0, 1], transform: ['translate(-72%, -62%) scale(0.5)', 'translate(-28%, -30%) scale(1)'] },
-        { duration: 1.6, delay: 0.3, ease: 'easeOut' }
-      );
-    }
+    animate(
+      '.hero-sub',
+      { opacity: [0, 1], y: [8, 0], filter: ['blur(4px)', 'blur(0px)'] },
+      { type: 'spring', stiffness: 200, damping: 24, delay: 0.32 }
+    );
 
-    // -----------------------------------------------------------------
-    // 2. Boot log stagger-types in (real spring on each line).
-    // -----------------------------------------------------------------
-    const bootLines = q<HTMLElement>('.hero-ln');
-    if (bootLines.length) {
-      animate(
-        bootLines,
-        { opacity: [0, 1], y: [6, 0] },
-        { duration: 0.45, delay: stagger(0.28, { startDelay: 0.25 }), ease: 'easeOut' }
-      );
-    }
-
-    // -----------------------------------------------------------------
-    // 3 + 4. ONE orchestrated timeline with spring physics: the oversized
-    //    "Ashwin" CRT power-on (spring scaleY snap + bloom) synced with the
-    //    scanline sweep, then surname + strap + meta resolve last.
-    //    `at` offsets each step relative to the previous (negative = overlap).
-    // -----------------------------------------------------------------
-    const sequence: any[] = [];
-
-    // CRT power-on for "Ashwin": spring scaleY snap from a thin line, with a
-    // phosphor bloom (brightness) easing back to 1. transform-origin:left center
-    // is set in CSS so it snaps open about the bleed edge.
-    sequence.push([
-      '.hero-first',
-      { opacity: [0, 1], scaleY: [0.02, 1.04, 1], filter: ['blur(3px) brightness(2)', 'blur(0px) brightness(1)'] },
-      { type: 'spring', stiffness: 220, damping: 16, delay: 1.15 },
-    ]);
-
-    // Scanline sweep fires ONCE, in sync with the power-on (overlaps it).
+    // Scanline sweep fires ONCE, in sync with the power-on.
     const scan = hero.querySelector<HTMLElement>('.hero-scan');
     if (scan) {
-      sequence.push([
+      animate(
         '.hero-scan',
         { opacity: [0, 1, 1, 0], top: ['-16%', '100%'] },
-        { duration: 1.0, at: '<' },
-      ]);
+        { duration: 1.0, delay: 0.1 }
+      );
     }
-
-    // Surname (subordinate serif tail) resolves just after the snap.
-    sequence.push([
-      '.hero-last',
-      { opacity: [0, 1], y: [10, 0], filter: ['blur(6px)', 'blur(0px)'] },
-      { type: 'spring', stiffness: 200, damping: 22, at: '-0.35' },
-    ]);
-
-    // Strap + coordinates resolve LAST (these also carry [data-reveal], but the
-    // timeline owns the entrance; inView below only matters if they start
-    // below the fold on short viewports).
-    sequence.push([
-      '.hero-strap',
-      { opacity: [0, 1], y: [8, 0] },
-      { type: 'spring', stiffness: 200, damping: 24, at: '-0.45' },
-    ]);
-    sequence.push([
-      '.hero-meta',
-      { opacity: [0, 1], y: [8, 0] },
-      { type: 'spring', stiffness: 200, damping: 24, at: '-0.4' },
-    ]);
-
-    animate(sequence);
-
-    // -----------------------------------------------------------------
-    // Below-the-fold reveal — if the strap/links sit off-screen on a short
-    // viewport, reveal them on scroll. The timeline already animates them in
-    // the common case; this guards the short-viewport case and any future
-    // [data-reveal] sections. Guard so we never double-animate a node the
-    // timeline already handled while it's already in view.
-    // -----------------------------------------------------------------
-    inView(
-      '[data-reveal]',
-      (el) => {
-        const node = el as HTMLElement;
-        if (node.dataset.revealed === '1') return;
-        node.dataset.revealed = '1';
-        // No-op return keeps it revealed (don't re-hide on exit).
-      },
-      { amount: 0.3, margin: '0px 0px -10% 0px' }
-    );
   }
 
   initHero(); // initial full page load
@@ -294,88 +153,56 @@ const {
 
 <style>
   /* ==========================================================
-     POWER-ON HERO — fused ballot T1 (grid + spotlight + boot)
-     and T3 (CRT oversized name). All visuals are token-driven
-     duotone, so every tint resolves via [data-theme] alone.
+     FAITHFUL HERO + CRT POWER-ON.
 
-     MOTION-DRIVEN: the entrance is owned by the bundled <script>
-     (motion.dev), NOT CSS keyframes. Every element's CSS default
-     is its RESOLVED end-state (visible, no transform) so the hero
-     is fully visible with JS off / reduced-motion / bundle failure.
-     Motion animates FROM hidden via keyframe arrays at runtime.
-
-     φ type scale: base 1rem, ratio 1.618 →
-       φ1 1.618  φ2 2.618  φ3 4.236  φ4 6.854
+     All visuals are token-driven duotone, so every tint resolves
+     via [data-theme] alone. The entrance is owned by the bundled
+     <script> (motion.dev), NOT CSS keyframes — every element's CSS
+     default is its RESOLVED end-state (visible, no transform) so the
+     hero is fully visible with JS off / reduced-motion / bundle
+     failure. Motion animates FROM hidden via keyframe arrays.
      ========================================================== */
   .hero-power {
-    --phi2: 2.618rem;
-    --phi3: 4.236rem;
-    --phi4: 6.854rem;
     background: var(--color-bg);
     color: var(--color-primary);
 
     /* ---- FULL-BLEED BREAK-OUT ----
        The hero lives inside <main class="max-w-[60rem]">, which would clamp
-       the whole treatment to a 960px centered box (the "square"). Break out
-       so every background layer fills the viewport edge-to-edge; the inner
-       .hero-col restores the 60rem reading column for the text.
+       the plain field to a 960px centered box. Break out so the tint
+       background fills the viewport edge-to-edge; the inner .hero-col
+       restores the 60rem reading column for the text.
 
-       Negative inline margins (NOT width:100vw) stretch the section symmetric-
-       ally to both viewport edges relative to the parent's box, so it stays
-       centered and never forces horizontal page overflow from the scrollbar
-       gutter. body{overflow-x:clip} (global.css) absorbs any sub-pixel delta. */
+       Negative inline margins (NOT width:100vw) stretch the section
+       symmetrically to both viewport edges relative to the parent's box, so
+       it stays centered and never forces horizontal page overflow from the
+       scrollbar gutter. body{overflow-x:clip} (global.css) absorbs any
+       sub-pixel delta. */
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
   }
 
-  /* ---- Layer 0: Aceternity hairline grid with radial fade ----
-     Two linear-gradient rules at a 42px step, faded out at the
-     name's anchor (left-of-center) so the grid frames, not fights.
-     Resolved default = fully visible; Motion fades/scales it in. */
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-image:
-      linear-gradient(to right,  color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px);
-    background-size: 42px 42px;
-    /* radial fade — grid is solid toward the name, dissolves at edges */
-    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 28% 52%, black 5%, transparent 78%);
-            mask-image: radial-gradient(ellipse 75% 65% at 28% 52%, black 5%, transparent 78%);
-    opacity: 0.9;
+  /* ---- Intro line — "Hi, I'm Ashwin." (mainline: 1.5rem / 600 / primary ink).
+     Resolved default = fully resolved (opacity 1, no transform). Motion
+     powers it on with a phosphor-bloom + scaleY snap. ---- */
+  .hero-intro {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    /* phosphor bloom — pure ink glow, no hue */
+    text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 22%, transparent);
+    transform-origin: left top; /* CRT snaps open about the bleed edge */
   }
 
-  /* ---- Layer 1: Aceternity Spotlight — blurred radial ----
-     Resolved default = settled in place, fully visible. Motion animates it
-     in from the off-frame start; the slow infinite drift stays in CSS so the
-     spotlight lives on the static page (and is a pure transform, no CLS). */
-  .hero-spot {
-    position: absolute;
-    z-index: 1;
-    top: -20%;
-    left: -12%;
-    width: 80%;
-    height: 130%;
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--color-primary) 16%, transparent),
-      transparent 70%
-    );
-    filter: blur(46px);
-    opacity: 1;
-    transform: translate(-28%, -30%) scale(1);
-    animation: hero-drift 14s ease-in-out 2.4s infinite alternate;
-  }
-  @keyframes hero-drift {
-    from { transform: translate(-28%, -30%) scale(1); }
-    to   { transform: translate(-12%, -16%) scale(1.12); }
+  /* ---- Subline — muted ink, the body font, max-width ~520px (mainline). ---- */
+  .hero-sub {
+    max-width: 520px;
+    line-height: 1.55;
   }
 
-  /* ---- Layer 2: single scanline sweep — fired ONCE by Motion on power-on ----
+  /* ---- Single scanline sweep — fired ONCE by Motion on power-on.
      A soft refresh band. Resolved default = invisible & off-frame (it is the
      power-on flash, not standing décor — with JS off there is simply no sweep,
-     which is correct). Motion drives the one-shot top:-16%→100% sweep. */
+     which is correct). ---- */
   .hero-scan {
     position: absolute;
     z-index: 3;
@@ -393,167 +220,14 @@ const {
     );
   }
 
-  /* ---- Layer 3: Kubrick corner ticks — the symmetry the name bleeds against -- */
-  .hero-ticks {
-    position: absolute;
-    inset: 1.2rem;
-    z-index: 4;
-    pointer-events: none;
-  }
-  .hero-ticks::before,
-  .hero-ticks::after {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-  }
-  .hero-ticks::before {
-    top: 0;
-    left: 0;
-    border-top: 1.5px solid var(--color-secondary);
-    border-left: 1.5px solid var(--color-secondary);
-  }
-  .hero-ticks::after {
-    bottom: 0;
-    right: 0;
-    border-bottom: 1.5px solid var(--color-secondary);
-    border-right: 1.5px solid var(--color-secondary);
-  }
-  .hero-ticks--alt::before {
-    top: 0;
-    left: auto;
-    right: 0;
-    border-top: 1.5px solid var(--color-secondary);
-    border-right: 1.5px solid var(--color-secondary);
-    border-left: 0;
-  }
-  .hero-ticks--alt::after {
-    bottom: 0;
-    right: auto;
-    left: 0;
-    border-bottom: 1.5px solid var(--color-secondary);
-    border-left: 1.5px solid var(--color-secondary);
-    border-right: 0;
-  }
-
   /* ==========================================================
-     TERMINAL WINDOW — frames the stage between the shared
-     TerminalChrome title bar (top) and status bar (bottom).
-     ========================================================== */
-  .hero-window {
-    position: relative;
-    border: 1px solid var(--color-border);
-    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-    backdrop-filter: blur(2px);
-    /* clip so the chrome bars' edges sit flush with the window border */
-    overflow: hidden;
-  }
-
-  /* ==========================================================
-     STAGE CONTENT — the window body.
-     ========================================================== */
-  .hero-stage {
-    padding: 2.5rem 1.6rem 2.75rem;
-  }
-  @media (min-width: 640px) {
-    .hero-stage { padding: 3.25rem 2.4rem 3.5rem; }
-  }
-
-  /* ---- Boot log — Motion stagger-types each line in.
-     Resolved default = fully visible, normal wrap. (min-height reserves the
-     vertical box so the typed lines never shift the name → no CLS.) ---- */
-  .hero-boot {
-    font-size: 0.8rem;
-    line-height: 2;
-    margin-bottom: 1.6rem;
-    min-height: 4.8em;
-  }
-  .hero-ln {
-    display: block;
-  }
-  /* The cursor line keeps its blinking caret (pure CSS, decorative). */
-  .hero-ln--cur {
-    border-right: 0.5em solid var(--color-primary);
-    animation: hero-blink 1s step-end infinite;
-  }
-  @keyframes hero-blink { 50% { border-right-color: transparent; } }
-
-  /* ---- Oversized name — CRT power-on (Motion spring scaleY) + phosphor bloom.
-     φ scale: "Ashwin" dominant, oversized so it bleeds off the left edge.
-     Resolved default = fully resolved (opacity 1, no transform). ---- */
-  .hero-name {
-    line-height: 0.82;
-    margin-left: -0.06em;          /* bleed off the left frame edge */
-  }
-  .hero-first {
-    /* φ4 dominant — oversized, clamps up to ~6.854rem ceiling */
-    font-size: clamp(3.8rem, 16vw, var(--phi4));
-    letter-spacing: -0.04em;
-    line-height: 0.8;
-    text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 22%, transparent); /* phosphor bloom */
-    transform-origin: left center;  /* CRT snaps open about the bleed edge */
-  }
-  .hero-last {
-    /* φ2/φ3 subordinate serif tail — strictly smaller than "Ashwin" */
-    font-size: clamp(1.9rem, 6vw, var(--phi3));
-    letter-spacing: -0.01em;
-    line-height: 0.92;
-    margin-top: 0.06em;
-    margin-left: 0.08em;
-  }
-
-  /* ---- Strap — his own one-liner + monochrome ink square (no hue).
-     Resolved default = visible. Motion resolves it in last. ---- */
-  .hero-strap {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    margin-top: 1.6rem;
-    font-size: 0.82rem;
-    letter-spacing: 0.02em;
-    /* wrap the one-liner on narrow viewports so it never forces page overflow */
-    flex-wrap: wrap;
-  }
-  .hero-sq {
-    width: 7px;
-    height: 7px;
-    background: var(--color-primary);
-    display: inline-block;
-    animation: hero-sq-blink 1.2s step-end infinite;
-  }
-  @keyframes hero-sq-blink { 50% { opacity: 0; } }
-
-  /* ---- Coordinates — location + social links. Resolved default = visible. ---- */
-  .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4rem 1.4rem;
-    margin-top: 0.8rem;
-    font-size: 0.74rem;
-  }
-  .hero-meta a {
-    color: var(--color-primary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--color-border);
-    transition: border-color 0.2s ease;
-  }
-  .hero-meta a:hover {
-    border-color: var(--color-primary);
-  }
-
-  /* ==========================================================
-     REDUCED MOTION — kill the decorative CSS loops too.
-     The Motion entrance is already gated off in the <script>
-     (early return), leaving every element in its resolved CSS
-     default — a fully visible hero. Here we also stop the
-     standing CSS loops (spotlight drift, caret/square blink)
-     so there is zero perpetual motion.
+     REDUCED MOTION — full static hero, no effect, both lines
+     fully visible. The Motion entrance is already gated off in
+     the <script> (early return); here we also hide the decorative
+     scanline so there is zero perpetual or one-shot motion.
      ========================================================== */
   @media (prefers-reduced-motion: reduce) {
-    .hero-spot { animation: none; }
     .hero-scan { display: none; }
-    .hero-ln--cur { animation: none; border-right-color: transparent; }
-    .hero-sq { animation: none; }
+    .hero-intro { text-shadow: none; }
   }
 </style>
