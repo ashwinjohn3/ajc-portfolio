@@ -1123,3 +1123,60 @@ no peach / green / emoji / availability-badge in dist.
 
 **Handoff:** `.omc/handoffs/hero-fuse.md`. One atomic commit, not pushed.                                                       
 
+
+                                                                              
+  --------                                                                    
+                                                                              
+  ## HERO-GEOMETRY-FIX (2026-06-13)                                           
+                                                                              
+  ### Defect 1 — hero rendered as a centered square (FIXED)                   
+                                                                              
+  • Root cause: <section id="hero"> is a direct child of <main class="mx-auto 
+  w-full max-w-[60rem]"> (BaseLayout). The whole treatment was clamped to     
+  960px.                                                                      
+  • Fix: full-bleed break-out via negative inline margins calc(50% - 50vw) on 
+  .hero-power (deliberately NOT width:100vw, which counts the scrollbar gutter
+  and forces a horizontal-scroll sliver). Inner .hero-col (max-w-[60rem] mx-  
+  auto)                                                                       
+  restores the reading column for text. Did NOT touch BaseLayout's shared max-
+  w                                                                           
+  contract — broke out from inside the hero.                                  
+  • Decision: added body { overflow-x: clip } to global.css to absorb the     
+  scrollbar-gutter sub-pixel. Chose clip over hidden (no new scroll container,
+  doesn't break sticky/anchored elements). Scoped to body, not html, to avoid 
+  any                                                                         
+  interaction with html { scroll-behavior: smooth } anchor offsets.           
+                                                                              
+  ### Defect 2 — terminal chrome duplicated at different sizes (FIXED)        
+                                                                              
+  • The branch's Hero had NO window chrome at all; the user was reading the   
+  loose                                                                       
+  boot-log strip + meta strip as two mismatched "bars". Per brief, introduced 
+  ONE                                                                         
+  reusable TerminalChrome.astro used as the top title bar AND bottom status   
+  bar.                                                                        
+  • DRY guarantee: all sizing (--term-h, --term-pad-x, --term-dot, --term-fs) 
+  is defined ONCE on .term-bar. The variant prop only switches the border side
+  and the caret — it cannot change sizing. Verified in compiled CSS: a single 
+  --term-h/--term-pad-x declaration → the two bars are provably identical.    
+                                                                              
+  ### Tradeoffs / things to know                                              
+                                                                              
+  • The status-bar copy ("status: online — Washington, DC · open to           
+  opportunities")                                                             
+  is new authored furniture. Avoided a literal ● glyph (emoji/colored-dot     
+  risk) —                                                                     
+  the live-status cue is the duotone ink caret (.term-caret), matching the    
+  strap sq.                                                                   
+  • Headless-Chrome caveat for future QA: --window-size=375 renders a ~500px  
+  CSS                                                                         
+  viewport, so 375px screenshots LOOK clipped but aren't. Verify real overflow
+  with                                                                        
+  CDP document.documentElement.scrollWidth - clientWidth (was 0 on /work; the 
+  index's residual ~8px is the clipped scrollbar gutter, no visible scrollbar).
+  • Motion pass handoff: entrance timeline untouched; hero-chrome-top /       
+  hero-chrome-bottom class hooks exposed on the two TerminalChrome instances  
+  for                                                                         
+  the follow-on animation work. The .hero-window is a clean single wrap to    
+  animate.                                                                    
+

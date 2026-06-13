@@ -37,6 +37,7 @@
  */
 
 import { SOCIAL_LINKS } from '../data/site';
+import TerminalChrome from './TerminalChrome.astro';
 
 interface Props {
   tagline?: string;
@@ -61,20 +62,24 @@ const {
 ---
 
 <!-- ============================================================
-     Hero — POWER-ON. The outer <section> owns the responsive
-     padding (project rule) and the full-bleed clip; the inner
-     stage aligns the name to the px-6/sm:px-10 grid edge.
+     Hero — POWER-ON. The <section> is the FULL-BLEED field: it
+     breaks out of the parent max-w-[60rem] (.hero-power below) so
+     every background layer spans the whole viewport edge-to-edge,
+     filling the space between nav and footer (no centered square).
+     The inner .hero-col re-establishes the 60rem reading column so
+     the text stays aligned to the work-card grid edge.
      ============================================================ -->
 <section
   id="hero"
   class:list={[
-    'hero-power relative w-full overflow-hidden',
+    'hero-power relative overflow-hidden',
     fill
       ? 'flex-1 flex flex-col justify-center'
       : 'min-h-[78vh] flex flex-col justify-center',
   ]}
   aria-label="Introduction"
 >
+  <!-- Full-bleed background layers — span the entire hero viewport -->
   <!-- Layer 0 — spotlit hairline grid (Aceternity grid + radial-fade) -->
   <div class="hero-grid" aria-hidden="true"></div>
   <!-- Layer 1 — drifting spotlight, anchored toward the name resolve point -->
@@ -85,33 +90,51 @@ const {
   <div class="hero-ticks" aria-hidden="true"></div>
   <div class="hero-ticks hero-ticks--alt" aria-hidden="true"></div>
 
-  <!-- Stage — aligned to the work-card grid edge -->
-  <div class="hero-stage relative z-10 w-full px-6 sm:px-10 py-16 sm:py-20">
+  <!-- Reading column — restores the 60rem grid the text aligns to -->
+  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16 sm:py-20">
 
-    <!-- Boot log — his real lines type in (Fragment Mono) -->
-    <div class="hero-boot font-mono text-secondary" aria-hidden="true">
-      <span class="hero-ln">&gt; whoami</span>
-      <span class="hero-ln">Hi, I'm Ashwin.</span>
-      <span class="hero-ln hero-ln--cur">&gt; cat ./role &amp; ./status</span>
-    </div>
+    <!-- ONE terminal window: shared TerminalChrome top + bottom bars -->
+    <div class="hero-window">
+      <!-- Top title bar (reusable chrome) -->
+      <TerminalChrome variant="title" class="hero-chrome-top">
+        ashwin@portfolio:~
+      </TerminalChrome>
 
-    <!-- Oversized name — powers on like a CRT, bleeds off the left edge -->
-    <h1 class="hero-name" aria-label="Ashwin John Chempolil">
-      <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
-      <span class="hero-last block font-display italic font-normal text-primary">John&nbsp;Chempolil</span>
-    </h1>
+      <!-- Stage — the window body, aligned to the work-card grid edge -->
+      <div class="hero-stage">
 
-    <!-- Strap — his own one-liner (verbatim AWS RAM bullet) + role -->
-    <p class="hero-strap font-mono text-secondary">
-      <span class="hero-sq" aria-hidden="true"></span>
-      Making cloud shareable — SDE&nbsp;II, AWS
-    </p>
+        <!-- Boot log — his real lines type in (Fragment Mono) -->
+        <div class="hero-boot font-mono text-secondary" aria-hidden="true">
+          <span class="hero-ln">&gt; whoami</span>
+          <span class="hero-ln">Hi, I'm Ashwin.</span>
+          <span class="hero-ln hero-ln--cur">&gt; cat ./role &amp; ./status</span>
+        </div>
 
-    <!-- Coordinates — real location + social links (Fragment Mono) -->
-    <div class="hero-meta font-mono text-secondary">
-      <span>Software engineer · Washington, DC</span>
-      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">[github]</a>
-      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">[linkedin]</a>
+        <!-- Oversized name — powers on like a CRT, bleeds off the left edge -->
+        <h1 class="hero-name" aria-label="Ashwin John Chempolil">
+          <span class="hero-first block font-body font-bold text-primary">Ashwin</span>
+          <span class="hero-last block font-display italic font-normal text-primary">John&nbsp;Chempolil</span>
+        </h1>
+
+        <!-- Strap — his own one-liner (verbatim AWS RAM bullet) + role -->
+        <p class="hero-strap font-mono text-secondary">
+          <span class="hero-sq" aria-hidden="true"></span>
+          Making cloud shareable — SDE&nbsp;II, AWS
+        </p>
+
+        <!-- Coordinates — real location + social links (Fragment Mono) -->
+        <div class="hero-meta font-mono text-secondary">
+          <span>Software engineer · Washington, DC</span>
+          <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">[github]</a>
+          <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">[linkedin]</a>
+        </div>
+
+      </div>
+
+      <!-- Bottom status bar (SAME reusable chrome, shared sizing) -->
+      <TerminalChrome variant="status" class="hero-chrome-bottom">
+        status: online — Washington, DC · open to opportunities
+      </TerminalChrome>
     </div>
 
   </div>
@@ -132,6 +155,19 @@ const {
     --phi4: 6.854rem;
     background: var(--color-bg);
     color: var(--color-primary);
+
+    /* ---- FULL-BLEED BREAK-OUT ----
+       The hero lives inside <main class="max-w-[60rem]">, which would clamp
+       the whole treatment to a 960px centered box (the "square"). Break out
+       so every background layer fills the viewport edge-to-edge; the inner
+       .hero-col restores the 60rem reading column for the text.
+
+       Negative inline margins (NOT width:100vw) stretch the section symmetric-
+       ally to both viewport edges relative to the parent's box, so it stays
+       centered and never forces horizontal page overflow from the scrollbar
+       gutter. body{overflow-x:clip} (global.css) absorbs any sub-pixel delta. */
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
   }
 
   /* ---- Layer 0: Aceternity hairline grid with radial fade ----
@@ -251,8 +287,30 @@ const {
   }
 
   /* ==========================================================
-     STAGE CONTENT
+     TERMINAL WINDOW — frames the stage between the shared
+     TerminalChrome title bar (top) and status bar (bottom).
+     The frame is what makes the two bars read as ONE window;
+     both bars get their sizing from TerminalChrome, so they are
+     identical height/padding regardless of which end they sit at.
      ========================================================== */
+  .hero-window {
+    position: relative;
+    border: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+    backdrop-filter: blur(2px);
+    /* clip so the chrome bars' edges sit flush with the window border */
+    overflow: hidden;
+  }
+
+  /* ==========================================================
+     STAGE CONTENT — the window body.
+     ========================================================== */
+  .hero-stage {
+    padding: 2.5rem 1.6rem 2.75rem;
+  }
+  @media (min-width: 640px) {
+    .hero-stage { padding: 3.25rem 2.4rem 3.5rem; }
+  }
 
   /* ---- Boot log — typed lines (T1). Each line types in on a delay. ---- */
   .hero-boot {
@@ -321,11 +379,13 @@ const {
   /* ---- Strap — his own one-liner + monochrome ink square (no hue) ---- */
   .hero-strap {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.6rem;
     margin-top: 1.6rem;
     font-size: 0.82rem;
     letter-spacing: 0.02em;
+    /* wrap the one-liner on narrow viewports so it never forces page overflow */
+    flex-wrap: wrap;
     opacity: 0;
     animation: hero-resolve 0.9s ease 3.4s forwards;
   }
