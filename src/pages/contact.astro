@@ -5,7 +5,7 @@
  *
  * Displays ObfuscatedEmail (zero plaintext email in built HTML) + GitHub + LinkedIn.
  * Social links from src/data/site.ts — no hardcoded URLs here.
- * SECURITY: grep dist/ for "ashwinjohn3" or "@gmail" must return zero.
+ * SECURITY: grep dist/ for "ashwinchempolil" or "@gmail" must return zero.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
@@ -25,8 +25,8 @@ import { SOCIAL_LINKS, createPageTitle } from '../data/site';
 
     <!-- Contact links row: email + socials -->
     <div class="flex flex-wrap gap-6 items-center">
-      <!-- Email: decoded client-side only — no plaintext in HTML -->
-      <ObfuscatedEmail label="[email]" />
+      <!-- Email: envelope icon, mailto decoded client-side only — no plaintext in HTML -->
+      <ObfuscatedEmail label="Email Ashwin" />
 
       <!-- GitHub -->
       <a

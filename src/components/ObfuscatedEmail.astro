@@ -1,19 +1,25 @@
 ---
 /**
- * ObfuscatedEmail — renders a clickable email link with ZERO plaintext email
+ * ObfuscatedEmail — renders a clickable envelope ICON with ZERO plaintext email
  * in server-emitted HTML. The address is stored as a char-code array and
  * decoded client-side by an is:inline script.
  *
  * Security model:
  *   - The <a> href starts as "#" (inert).
  *   - An is:inline script (runs once on DOMContentLoaded) decodes the char-code
- *     array and sets href="mailto:..." + textContent on the anchor.
+ *     array and sets ONLY href="mailto:..." on the anchor. It never writes the
+ *     address into textContent, so the readable email never enters the DOM.
  *   - Because is:inline emits the script verbatim into the HTML, a grep of
- *     dist/ for "ashwinjohn3" or "@gmail" must return zero results.
- *   - The char-code array below encodes: ashwinjohn3@gmail.com
+ *     dist/ for "ashwinchempolil" or "@gmail" must return zero results.
+ *   - The char-code array below encodes: ashwinchempolil@gmail.com
+ *
+ * Presentation:
+ *   - The clickable element is an inline Lucide "mail" envelope SVG that inherits
+ *     currentColor (stroke). No readable email text is rendered — the icon IS
+ *     the affordance. aria-label labels the link; the svg is aria-hidden.
  *
  * Props:
- *   label    — visible link text before JS decodes it (default: "[email]")
+ *   label    — accessible link label (default: "Email Ashwin")
  *   class    — forwarded to the <a> tag
  *
  * How to regenerate codes if the address changes:
@@ -25,23 +31,36 @@ interface Props {
   class?: string;
 }
 
-const { label = '[email]', class: className } = Astro.props;
+const { label = 'Email Ashwin', class: className } = Astro.props;
 
-// ashwinjohn3@gmail.com encoded as char codes — never plaintext in this file
+// ashwinchempolil@gmail.com encoded as char codes — never plaintext in this file
 // prettier-ignore
-const CODES = [97,115,104,119,105,110,106,111,104,110,51,64,103,109,97,105,108,46,99,111,109];
+const CODES = [97,115,104,119,105,110,99,104,101,109,112,111,108,105,108,64,103,109,97,105,108,46,99,111,109];
 ---
 
 <a
   id="obfuscated-email"
   href="#"
   class:list={[
-    'font-mono text-accent hover:text-accent-hover transition-colors duration-200 underline underline-offset-4',
+    'inline-flex items-center text-accent hover:text-accent-hover transition-colors duration-200',
     className,
   ]}
-  aria-label="Send email"
+  aria-label={label}
 >
-  {label}
+  {/* Lucide "mail" — envelope, inherits currentColor via stroke */}
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="w-5 h-5"
+    aria-hidden="true"
+  >
+    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+  </svg>
 </a>
 
 <script is:inline define:vars={{ CODES }}>
@@ -51,8 +70,6 @@ const CODES = [97,115,104,119,105,110,106,111,104,110,51,64,103,109,97,105,108,4
       if (!el) return;
       var addr = CODES.map(function (c) { return String.fromCharCode(c); }).join('');
       el.href = 'mailto:' + addr;
-      el.textContent = addr;
-      el.removeAttribute('aria-label');
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', decode);
