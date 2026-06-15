@@ -33,8 +33,10 @@
  * (items-center) centres the profile card. `fill` keeps the footer pinned.
  */
 
+import { Image } from 'astro:assets';
 import { SOCIAL_LINKS } from '../data/site';
 import BrandIcon from './BrandIcon.astro';
+import headshot from '../assets/headshot.jpg';
 
 interface Props {
   /**
@@ -94,12 +96,12 @@ const { fill = false } = Astro.props;
       <div
         class="profile-avatar flex h-52 w-52 sm:h-[280px] sm:w-[280px] items-center justify-center rounded-full border border-border bg-surface p-2"
       >
-        <img
-          src="/headshot.jpg"
+        <Image
+          src={headshot}
           alt="Ashwin John Chempolil"
-          width="900"
-          height="729"
+          width={560}
           loading="eager"
+          fetchpriority="high"
           decoding="async"
           class="profile-duotone h-full w-full rounded-full object-cover"
           style="object-position: 50% 28%;"
