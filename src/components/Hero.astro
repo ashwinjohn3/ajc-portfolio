@@ -44,11 +44,19 @@ import headshot from '../assets/headshot.jpg';
 import avatarBw from '../assets/pixel/avatar-bw-cut.png';
 import avatarFlat from '../assets/pixel/avatar-flat.png';
 import avatarArt from '../assets/pixel/avatar-art-cut.png';
+// 'gba' = COLOUR portrait, white-knocked-out + given a Game Boy Advance
+// reflective-LCD colour grade (muted/posterized + GBA gamma) at build time
+// (see avatar-color-cut.png). Unlike bw/flat/art it is NOT duotone-blended to
+// ink — the GBA was a COLOUR handheld, so the figure keeps its colour and the
+// "screen" signature (LCD pixel-grid + scanline) is added in scoped CSS below.
+import avatarGba from '../assets/pixel/avatar-color-cut.png';
 
 /** Avatar variants. 'headshot' is the production default (the real `/`). The
  *  'bw' | 'flat' | 'art' variants swap in Ashwin's pixel-art portraits for the
- *  comparison pages and are duotone-blended into the active tint. */
-type Avatar = 'headshot' | 'bw' | 'flat' | 'art';
+ *  comparison pages and are duotone-blended into the active tint. 'gba' is a
+ *  COLOUR variant given a Game Boy Advance LCD treatment (kept colour, never
+ *  inverted, with a faint LCD pixel-grid/scanline overlay). */
+type Avatar = 'headshot' | 'bw' | 'flat' | 'art' | 'gba';
 
 interface Props {
   /**
@@ -85,10 +93,14 @@ const AVATAR_SRC = {
   bw: avatarBw,
   flat: avatarFlat,
   art: avatarArt,
+  gba: avatarGba,
 } as const;
 
 const avatarSrc = AVATAR_SRC[avatar];
 const isHeadshot = avatar === 'headshot';
+// The GBA variant keeps its COLOUR (no duotone ink-blend) and gets the LCD
+// screen overlay, so it branches separately from the bw/flat/art duotone path.
+const isGba = avatar === 'gba';
 ---
 
 <!-- ============================================================
@@ -142,6 +154,26 @@ const isHeadshot = avatar === 'headshot';
             class="profile-duotone h-full w-full rounded-full object-cover"
             style="object-position: 50% 28%;"
           />
+        ) : isGba ? (
+          /* GBA VARIANT — COLOUR portrait on the surface plate, given a Game Boy
+             Advance reflective-LCD look. The colour grade is baked into the PNG
+             (muted/posterized + GBA gamma); the recognizable "screen" signature
+             — a faint LCD pixel-grid + scanline — is the .gba-screen overlay
+             pseudo-element on this wrapper. The image stays CRISP (pixelated) and
+             POSITIVE on every tint (never inverted); a theme-aware brightness
+             nudge keeps it legible on the dark p1 phosphor plate. */
+          <span class="gba-screen relative block h-full w-full overflow-hidden rounded-full">
+            <Image
+              src={avatarSrc}
+              alt="Ashwin John Chempolil — Game Boy Advance pixel-art portrait"
+              width={560}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              data-avatar="gba"
+              class="gba-img h-full w-full rounded-full object-cover"
+            />
+          </span>
         ) : (
           /* PIXEL-ART VARIANT — same circular plate, but the portrait is
              duotone-blended into the active tint and rendered CRISP (pixelated).
@@ -331,6 +363,99 @@ const isHeadshot = avatar === 'headshot';
   :global([data-theme='p1']) .pixel-duotone[data-avatar='flat'] {
     filter: grayscale(1) contrast(1.15) brightness(1.05);
     mix-blend-mode: screen;
+  }
+
+  /* ==========================================================
+     GBA SCREEN TREATMENT (comparison page only) — COLOUR, NEVER INVERTED
+     ----------------------------------------------------------
+     The Game Boy Advance was a COLOUR handheld, so this variant keeps the
+     portrait's colour (the muted/posterized + GBA-gamma grade is baked into
+     avatar-color-cut.png at build time). Here we add only the recognizable GBA
+     "screen" signature and keep it legible on every tint:
+
+       • .gba-img — the colour portrait, rendered CRISP (image-rendering:
+         pixelated) so the pixel grid stays sharp when scaled into the plate.
+         A hair of saturation/contrast gives it the reflective-LCD pop.
+         POSITIVE on every tint: NO invert() anywhere.
+
+       • .gba-screen::after — the faint LCD PIXEL-GRID + SCANLINE overlay.
+         Two thin repeating-linear-gradients draw the vertical + horizontal
+         cell gridlines of an LCD matrix (~4px cells); a third, softer
+         horizontal band adds a subtle scanline cast. mix-blend-mode:multiply
+         lets the grid darken the portrait beneath without hiding it. Very low
+         opacity so it reads as "screen", not noise. pointer-events:none.
+
+     DARK TINT (p1): a small brightness/contrast lift on the image so the colour
+     portrait stays clearly legible on the near-black phosphor plate — still a
+     POSITIVE colour image, never a negative. The grid overlay is lightened a
+     touch so it doesn't crush the darker mids.
+     ========================================================== */
+  .gba-img {
+    image-rendering: pixelated;
+    /* Reflective-LCD pop: gentle saturation + contrast on top of the baked grade. */
+    filter: saturate(1.06) contrast(1.04) brightness(1.0);
+  }
+
+  .gba-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    pointer-events: none;
+    /* LCD pixel-grid (vertical + horizontal cell lines) + soft scanline cast.
+       ~4px cells read as a screen matrix without dominating the portrait. */
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.16) 0,
+        rgba(0, 0, 0, 0.16) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.16) 0,
+        rgba(0, 0, 0, 0.16) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.05) 0,
+        rgba(0, 0, 0, 0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+
+  /* DARK tint (p1) — keep the colour portrait bright + legible on the near-black
+     plate (positive, no invert), and soften the grid so it doesn't crush mids. */
+  :global([data-theme='p1']) .gba-img {
+    filter: saturate(1.1) contrast(1.04) brightness(1.16);
+  }
+  :global([data-theme='p1']) .gba-screen::after {
+    /* On a dark plate a darkening grid is nearly invisible and would muddy the
+       figure — switch to a faint LIGHT grid via screen so the LCD matrix still
+       reads as a subtle screen texture. Still no invert of the portrait. */
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.1) 0,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.1) 0,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    mix-blend-mode: screen;
+    opacity: 0.45;
   }
 
   /* ---- Status dot pulse — the ONE animation (user request) ----

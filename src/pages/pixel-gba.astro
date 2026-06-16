@@ -1,0 +1,22 @@
+---
+/**
+ * pixel-gba.astro — COMPARISON PAGE (not linked from nav).
+ * Same home profile card, but the headshot is swapped for the COLOUR pixel-art
+ * portrait given a Game Boy Advance reflective-LCD treatment (avatar-color-cut
+ * .png, white-knocked-out + GBA colour grade) with a faint LCD pixel-grid /
+ * scanline overlay. The GBA was a COLOUR handheld, so the figure keeps its
+ * colour and is NEVER inverted — positive and legible on every tint, incl. the
+ * dark p1 phosphor plate. The real `/` is unchanged. Pending Ashwin's pick.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { createPageTitle } from '../data/site';
+---
+
+<BaseLayout
+  title={createPageTitle('Pixel GBA')}
+  description="Avatar comparison page — Game Boy Advance colour LCD variant."
+  fillViewport
+>
+  <Hero fill avatar="gba" caption="variant: gba" />
+</BaseLayout>
