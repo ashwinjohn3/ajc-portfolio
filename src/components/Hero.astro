@@ -37,9 +37,13 @@ import { Image } from 'astro:assets';
 import { SOCIAL_LINKS } from '../data/site';
 import BrandIcon from './BrandIcon.astro';
 import headshot from '../assets/headshot.jpg';
-import avatarBw from '../assets/pixel/avatar-bw.png';
+// bw + art ship with OPAQUE WHITE backgrounds. We use white-knocked-out copies
+// (avatar-*-cut.png, transparent bg) so the figure sits directly on the circular
+// bg-surface plate and can be duotone-blended POSITIVELY (never inverted) on any
+// tint. flat ships on a solid blue square and is handled by its own blend below.
+import avatarBw from '../assets/pixel/avatar-bw-cut.png';
 import avatarFlat from '../assets/pixel/avatar-flat.png';
-import avatarArt from '../assets/pixel/avatar-art.png';
+import avatarArt from '../assets/pixel/avatar-art-cut.png';
 
 /** Avatar variants. 'headshot' is the production default (the real `/`). The
  *  'bw' | 'flat' | 'art' variants swap in Ashwin's pixel-art portraits for the
@@ -255,34 +259,42 @@ const isHeadshot = avatar === 'headshot';
   }
 
   /* ==========================================================
-     PIXEL-ART DUOTONE BLEND (comparison pages only)
+     PIXEL-ART DUOTONE BLEND (comparison pages only) — POSITIVE, NEVER INVERTED
      ----------------------------------------------------------
-     The three pixel portraits are full-colour and OPAQUE (no alpha). Verified
-     backgrounds: bw + art sit on WHITE (~#fefefe), flat sits on a solid BLUE
-     square (~#2d5b8e). To make each read as PART of the strict-duotone screen —
-     and retint when the theme changes — we reuse the codebase's proven duotone
-     recipe (ExperienceTimeline `.neu-duotone`):
+     HARD RULE: no `invert()` on ANY tint. The portrait must always read as a
+     POSITIVE image (face lighter-than-or-equal-to its real tonal order), never a
+     photo-negative. On the dark p1 phosphor tint the figure is tinted toward the
+     light green ink and stays legible WITHOUT flipping the face.
 
+     SOURCES (after the white-knockout step):
+       • bw  → avatar-bw-cut.png   (grayscale figure on a TRANSPARENT bg)
+       • art → avatar-art-cut.png  (colour figure on a TRANSPARENT bg)
+       • flat→ avatar-flat.png     (colour figure on an OPAQUE blue square)
+     Because bw/art now have a transparent background, the figure sits directly on
+     the circular `bg-surface` plate — the blend only has to retint the FIGURE,
+     not erase a background.
+
+     HOW THE DUOTONE WORKS (mix-blend-mode against the solid surface plate):
        • LIGHT tints (dmg / pocket, :root + [pocket]):
-         grayscale(1) strips all hue (kills the blue cast on 'flat'), contrast
-         shapes the figure toward ink, and mix-blend-mode:multiply lets the
-         SURFACE tint show through. WHITE is multiply's identity, so the white
-         bg of bw/art DISSOLVES completely into the plate; only the figure's
-         darker pixels print in the theme ink. flat's blue greyscales to a
-         mid-tone, so we lift its brightness (below) to fade the square toward
-         the plate while the figure stays readable.
+         grayscale(1) strips hue; mix-blend-mode:multiply darkens the plate by the
+         figure's luminance → dark figure pixels print as theme INK on the light
+         plate, light pixels (skin/teeth) let the plate show. A normal, positive
+         portrait. Transparent bg contributes nothing → bare plate.
 
-       • DARK tint (p1, green phosphor on near-black):
-         multiply would crush the figure to black, so invert + screen instead —
-         white bg → black after invert, and BLACK is screen's identity, so the
-         bg dissolves into the dark panel; the figure reads as light green ink.
+       • DARK tint (p1, bright phosphor green on near-black plate):
+         grayscale(1) then mix-blend-mode:SCREEN (NOT invert). Screen LIGHTENS the
+         near-black plate by the figure's luminance and PRESERVES tonal order
+         (brighter source → brighter result), so the lit parts of the face glow as
+         phosphor-green ink and the shadows settle into the dark plate — a positive
+         portrait, not a negative. A brightness/contrast lift raises mid-tones so
+         the figure is clearly visible against #0a160a. No `invert()` anywhere.
 
      CRISPNESS: image-rendering: pixelated keeps the pixel grid sharp when the
      source is scaled up into the 280px circle (no smoothing/blur).
      ========================================================== */
   .pixel-duotone {
     image-rendering: pixelated;
-    /* Light-tint default (dmg / pocket): hue-strip + tint via multiply. */
+    /* Light-tint default (dmg / pocket): hue-strip + ink-print via multiply. */
     filter: grayscale(1) contrast(1.12) brightness(1.02);
     mix-blend-mode: multiply;
     opacity: 0.95;
@@ -297,31 +309,27 @@ const isHeadshot = avatar === 'headshot';
     filter: grayscale(1) contrast(1.18) brightness(1.35);
   }
 
-  /* 'bw' is already grayscale on a WHITE bg — lightest touch. Under multiply the
-     white bg dissolves into the surface plate (white is multiply's identity) and
-     only the figure's ink prints, so no per-variant override beyond a gentle
-     contrast is needed. */
+  /* 'bw' is already grayscale on a now-TRANSPARENT bg — lightest touch. Under
+     multiply only the figure's ink prints onto the plate; the transparent bg
+     contributes nothing. No per-variant override beyond a gentle contrast. */
   .pixel-duotone[data-avatar='bw'] {
     filter: grayscale(1) contrast(1.1) brightness(1);
   }
 
-  /* DARK tint (p1): invert + screen so the portrait is light ink on the dark
-     panel instead of a crushed black blob. Targets [data-theme] (the .dark
-     class is retired in this codebase). */
+  /* DARK tint (p1): SCREEN, no invert. Screen preserves tonal order so the face
+     stays POSITIVE; the brightness lift maps the figure's luminance up into the
+     phosphor-green ink range so it is clearly visible on the near-black plate.
+     Transparent bg (bw/art) contributes nothing → bare dark plate behind. */
   :global([data-theme='p1']) .pixel-duotone {
-    filter: grayscale(1) contrast(1.05) brightness(1.6) invert(1);
+    filter: grayscale(1) contrast(1.1) brightness(1.45);
     mix-blend-mode: screen;
-    opacity: 0.9;
+    opacity: 0.95;
   }
-  /* On the 'flat' square under p1 we must NOT invert. Unlike bw/art (a WHITE bg
-     where the figure is the DARK element, so invert flips white→black and the
-     figure→bright), flat's blue bg greyscales DARKER than the skin — inverting
-     would make the bg glow and the face sink. Instead use screen WITHOUT invert:
-     it preserves tonal order, lifting the light figure pixels (skin/teeth) up to
-     bright green ink while the neutralized-blue bg settles as a muted dark-green
-     square behind the portrait. The earlier invert rule is overridden here. */
+  /* 'flat' under p1 — opaque neutralized-blue square. Screen (no invert) lifts the
+     light figure pixels (skin/teeth) toward bright green ink while the neutralized
+     blue settles as a muted dark-green square behind the portrait. Positive. */
   :global([data-theme='p1']) .pixel-duotone[data-avatar='flat'] {
-    filter: grayscale(1) contrast(1.15) brightness(1);
+    filter: grayscale(1) contrast(1.15) brightness(1.05);
     mix-blend-mode: screen;
   }
 
