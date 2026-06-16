@@ -44,7 +44,7 @@ export function visibleNavLinks(): NavLink[] {
 // ---------------------------------------------------------------------------
 export const SOCIAL_LINKS = {
   github: 'https://github.com/ashwinjohn3',
-  linkedin: 'https://linkedin.com/in/ashwinjohn3',
+  linkedin: 'https://linkedin.com/in/ashwinjohnchempolil',
 } as const;
 
 // ---------------------------------------------------------------------------
