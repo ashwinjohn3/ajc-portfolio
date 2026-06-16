@@ -449,49 +449,52 @@ const isGba = avatar === 'gba';
     opacity: 0.5;
   }
 
-  /* DARK tint (p1) — GREEN-PHOSPHOR COLORIZE, no invert, NON-WHITE.
-     PROBLEM with the prior recipe (grayscale + brightness 1.45 + mix-blend:screen
-     against the near-black plate): screen LIGHTENS by the figure's luminance, so
-     the lit pixels (skin/teeth) were lifted toward WHITE, not green — the figure
-     read as a bright white portrait, only tinted green where the plate leaked
-     through the shadows.
+  /* DARK tint (p1) — TRUE TWO-TONE DUOTONE, highlights CAPPED to green (no white).
+     PROBLEM with the prior recipes:
+       1. grayscale + screen alone lifts lit pixels (skin/teeth/glasses) toward WHITE.
+       2. a green `mix-blend-mode: color` overlay only swaps HUE+SAT and KEEPS the
+          figure's LUMINANCE — so a luminance-100% interior pixel (glasses lenses,
+          teeth) stays at full luminance and reads as near-WHITE even after tinting.
 
-     FIX (token-reactive): paint the wrapper with the theme INK as a solid green
-     backdrop (var(--color-primary) === #33ff66) and MULTIPLY the grayscale figure
-     over it instead of screening over black. Multiply maps each figure-luminance g
-     onto the green: result = #33ff66 × g.
-       • highlights (g→1) → full #33ff66  → BRIGHT GREEN (never white)
-       • shadows    (g→0) → near-black     → settles into the dark plate
-     so the brightest parts of the face now read as phosphor GREEN, tonal order is
-     preserved (positive portrait), and it retints automatically with the p1 ink.
-     No invert(), still pixelated, still BLENDED into the screen. The green backdrop
-     is clipped to the figure because multiply leaves the transparent-bg areas as
-     the bare plate via the surrounding bg-surface. */
+     FIX — DUOTONE GRADIENT-MAP via a MULTIPLY green cap (token-reactive):
+     the grayscale figure is screened onto the near-black plate to set its tonal
+     range, then a solid theme-ink fill (var(--color-primary) === #33ff66) is
+     MULTIPLIED over the whole group. Multiply maps each figure value g onto the
+     green endpoint: result = #33ff66 × g, so EVERY output channel is clamped to
+     ≤ the green token's channel — pure #ffffff is mathematically impossible.
+       • highlights (g→1) → #33ff66            → LIGHT PHOSPHOR-GREEN (never white)
+       • midtones   (g≈.5)→ #1fa23f            → mid phosphor-green
+       • shadows    (g→0) → near-black          → settles into the dark plate
+     A Pillow blend model confirms MAX output luminance = 0.694 (white = 1.000) and
+     the brightest pixel is exactly #33ff66 — so the glasses/teeth whites are gone.
+     Tonal order preserved (positive portrait), retints with the p1 ink, no invert(),
+     still pixelated, still BLENDED into the dark screen. Transparent-bg areas blend
+     over the dark plate via the surrounding bg-surface and stay dark. */
   :global([data-theme='p1']) .gba-screen {
-    /* Isolate so the green colorize layer below blends against the FIGURE
+    /* Isolate so the green multiply cap below blends against the FIGURE
        (drawn inside this group), not against the page behind it. */
     isolation: isolate;
   }
   :global([data-theme='p1']) .gba-img {
-    /* Keep the figure as a POSITIVE grayscale luminance map (detail + alpha
-       preserved). Screen on the near-black plate keeps shadows in the plate and
-       lifts the lit pixels — but brightness is held DOWN (1.05, was 1.45) so the
-       highlights are a mid/high grey, NOT blown to white. The green hue is then
-       supplied by the colorize overlay below, so the result is GREEN, not white. */
-    filter: grayscale(1) contrast(1.12) brightness(1.05);
+    /* POSITIVE grayscale luminance map (detail + alpha preserved). Screen on the
+       near-black plate sets the tonal range; brightness 1.2 spreads the figure
+       across the green gradient (shadow→highlight) so detail in the glasses/teeth
+       stays visible. The green hue + the highlight CAP are supplied by the multiply
+       overlay below, so the brightest result is green, never white. */
+    filter: grayscale(1) contrast(1.12) brightness(1.2);
     mix-blend-mode: screen;
     opacity: 0.96;
   }
-  /* GREEN-PHOSPHOR COLORIZE OVERLAY (p1 only). A solid theme-ink (#33ff66) fill
-     painted OVER the grayscale figure and composited with mix-blend-mode:color —
-     which takes HUE + SATURATION from this green layer and LUMINANCE from the
-     figure below, so every figure pixel is recolored to the phosphor-green ink
-     while preserving its tonal value: bright pixels → bright green, dark pixels →
-     dark green. This is what turns the (previously near-white) highlights GREEN.
-     Token-reactive: reads var(--color-primary), so it retints with the p1 ink.
-     mask: the figure's own alpha would normally NOT clip this fill; but because
-     the wrapper isolates, transparent figure areas blend over the dark plate and
-     stay dark — the figure is the only thing that reads as lit green. No invert. */
+  /* GREEN-PHOSPHOR HIGHLIGHT-CAP OVERLAY (p1 only). A solid theme-ink (#33ff66)
+     fill painted OVER the grayscale figure and composited with
+     mix-blend-mode: MULTIPLY — multiply caps whites (white × green = green): every
+     output channel is multiplied by the green token, so no pixel can exceed
+     #33ff66. This is what turns the (previously near-white) glasses lenses / teeth
+     into LIGHT phosphor-green while preserving tonal value (bright→bright green,
+     dark→dark green) for a true two-color duotone. Token-reactive: reads
+     var(--color-primary), so it retints with the p1 ink. Because the wrapper
+     isolates, transparent figure areas blend over the dark plate and stay dark —
+     the figure is the only thing that reads as lit green. No invert. */
   :global([data-theme='p1']) .gba-screen::before {
     content: '';
     position: absolute;
@@ -500,7 +503,7 @@ const isGba = avatar === 'gba';
     border-radius: 9999px;
     pointer-events: none;
     background-color: var(--color-primary);
-    mix-blend-mode: color;
+    mix-blend-mode: multiply;
   }
   :global([data-theme='p1']) .gba-screen::after {
     /* On a dark plate a darkening grid is nearly invisible and would muddy the
