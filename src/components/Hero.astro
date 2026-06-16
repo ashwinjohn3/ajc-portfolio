@@ -20,9 +20,10 @@
  *
  * STRICT DUOTONE — every visual reads only the tint tokens (surface/border/
  * primary/secondary/accent), so all active tints (dmg/pocket/p1) resolve via
- * [data-theme] alone. No hardcoded hues; the colour photo is forced toward ink
- * via the scoped `.profile-duotone` filter (same recipe as ExperienceTimeline's
- * `.neu-duotone`, replicated + scoped here) so it harmonizes with the tints.
+ * [data-theme] alone. No hardcoded hues; the GBA pixel-art portrait is grayscaled
+ * and duotone-blended toward ink via the scoped `.gba-img` filter + mix-blend
+ * (same family as ExperienceTimeline's `.neu-duotone`) so it harmonizes with the
+ * tints. On p1 a green multiply-cap clamps highlights to phosphor green.
  *
  * The ONE animation: a subtle pulse on the status dot (the user's request).
  * It is a scoped @keyframes; prefers-reduced-motion turns it OFF (static dot).
@@ -36,27 +37,14 @@
 import { Image } from 'astro:assets';
 import { SOCIAL_LINKS } from '../data/site';
 import BrandIcon from './BrandIcon.astro';
-import headshot from '../assets/headshot.jpg';
-// bw + art ship with OPAQUE WHITE backgrounds. We use white-knocked-out copies
-// (avatar-*-cut.png, transparent bg) so the figure sits directly on the circular
-// bg-surface plate and can be duotone-blended POSITIVELY (never inverted) on any
-// tint. flat ships on a solid blue square and is handled by its own blend below.
-import avatarBw from '../assets/pixel/avatar-bw-cut.png';
-import avatarFlat from '../assets/pixel/avatar-flat.png';
-import avatarArt from '../assets/pixel/avatar-art-cut.png';
 // 'gba' = COLOUR portrait, white-knocked-out + given a Game Boy Advance
 // reflective-LCD colour grade (muted/posterized + GBA gamma) at build time
-// (see avatar-color-cut.png). Unlike bw/flat/art it is NOT duotone-blended to
-// ink — the GBA was a COLOUR handheld, so the figure keeps its colour and the
+// (see avatar-color-cut.png). It is the production avatar: grayscaled and
+// DUOTONE-BLENDED onto the active theme's bg-surface plate via mix-blend-mode so
+// its dominant tone retints with the theme (olive on dmg, gray on pocket, green
+// phosphor on p1 — highlights capped to green, never white, never inverted). The
 // "screen" signature (LCD pixel-grid + scanline) is added in scoped CSS below.
 import avatarGba from '../assets/pixel/avatar-color-cut.png';
-
-/** Avatar variants. 'headshot' is the production default (the real `/`). The
- *  'bw' | 'flat' | 'art' variants swap in Ashwin's pixel-art portraits for the
- *  comparison pages and are duotone-blended into the active tint. 'gba' is a
- *  COLOUR variant given a Game Boy Advance LCD treatment (kept colour, never
- *  inverted, with a faint LCD pixel-grid/scanline overlay). */
-type Avatar = 'headshot' | 'bw' | 'flat' | 'art' | 'gba';
 
 interface Props {
   /**
@@ -67,14 +55,14 @@ interface Props {
    */
   fill?: boolean;
   /**
-   * Which portrait to show in the profile plate. Defaults to 'headshot' so the
-   * production home page is unchanged; the pixel comparison pages pass
-   * 'bw' | 'flat' | 'art' to swap in a pixel-art avatar (duotone-blended).
+   * Which portrait to show in the profile plate. Only the Game Boy Advance
+   * pixel-art avatar ('gba') exists — it is the production avatar — so this is
+   * kept as a single-value prop for call-site clarity and future parity.
    */
-  avatar?: Avatar;
+  avatar?: 'gba';
   /**
-   * Optional mono caption rendered under the labels row (e.g. "variant: bw") so
-   * a reviewer can tell the comparison pages apart. Omitted on the real home.
+   * Optional mono caption rendered under the labels row. Unused on the home
+   * page; kept for API parity.
    */
   caption?: string;
   /** Kept for API parity with the prior Hero so callers stay drop-in. */
@@ -84,23 +72,7 @@ interface Props {
   badgeText?: string;
 }
 
-const { fill = false, avatar = 'headshot', caption } = Astro.props;
-
-/** Map the variant to its source image. Pixel sources render CRISP (no
- *  smoothing) via the scoped `[data-avatar]` CSS below. */
-const AVATAR_SRC = {
-  headshot,
-  bw: avatarBw,
-  flat: avatarFlat,
-  art: avatarArt,
-  gba: avatarGba,
-} as const;
-
-const avatarSrc = AVATAR_SRC[avatar];
-const isHeadshot = avatar === 'headshot';
-// The GBA variant keeps its COLOUR (no duotone ink-blend) and gets the LCD
-// screen overlay, so it branches separately from the bw/flat/art duotone path.
-const isGba = avatar === 'gba';
+const { fill = false, caption } = Astro.props;
 ---
 
 <!-- ============================================================
@@ -123,12 +95,12 @@ const isGba = avatar === 'gba';
   <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16">
     <!-- Centered vertical stack: photo → (name → status → labels). -->
     <div class="flex flex-col items-center gap-y-7 text-center">
-      <!-- AVATAR — Ashwin's headshot on a duotone surface plate. The circular
-           plate + hairline border are preserved; the photo fills the ring via
-           object-cover and is framed on the face (it sits in the upper-middle of
-           the source frame). A uniform grayscale+contrast (.profile-duotone)
-           harmonizes the photo with the strict-duotone tints — NEVER inverted on
-           any tint, so it always reads as a normal (non-negative) photo.
+      <!-- AVATAR — Ashwin's Game Boy Advance pixel-art portrait on a duotone
+           surface plate. The circular plate + hairline border are preserved; the
+           portrait fills the ring via object-cover. It is grayscaled and
+           DUOTONE-BLENDED onto the active tint's bg-surface plate (mix-blend) so
+           it harmonizes with the strict-duotone screen — NEVER inverted on any
+           tint, highlights capped to green on p1 (no white pixels).
 
            GOLDEN-RATIO SIZING (desktop ≥640px): the plate diameter is tied to
            the rendered width of the hero name by φ. Measured at 1280px the name
@@ -143,52 +115,25 @@ const isGba = avatar === 'gba';
       <div
         class="profile-avatar flex h-52 w-52 sm:h-[280px] sm:w-[280px] items-center justify-center rounded-full border border-border bg-surface p-2"
       >
-        {isHeadshot ? (
+        {/* GBA AVATAR — COLOUR portrait on the surface plate, given a Game Boy
+            Advance reflective-LCD look. The colour grade is baked into the PNG
+            (muted/posterized + GBA gamma); the recognizable "screen" signature
+            — a faint LCD pixel-grid + scanline — is the .gba-screen overlay
+            pseudo-element on this wrapper. The image stays CRISP (pixelated) and
+            POSITIVE on every tint (never inverted); on the dark p1 plate a green
+            multiply-cap clamps highlights to phosphor green (no white pixels). */}
+        <span class="gba-screen relative block h-full w-full overflow-hidden rounded-full">
           <Image
-            src={avatarSrc}
-            alt="Ashwin John Chempolil"
+            src={avatarGba}
+            alt="Ashwin John Chempolil — Game Boy Advance pixel-art portrait"
             width={560}
             loading="eager"
             fetchpriority="high"
             decoding="async"
-            class="profile-duotone h-full w-full rounded-full object-cover"
-            style="object-position: 50% 28%;"
+            data-avatar="gba"
+            class="gba-img h-full w-full rounded-full object-cover"
           />
-        ) : isGba ? (
-          /* GBA VARIANT — COLOUR portrait on the surface plate, given a Game Boy
-             Advance reflective-LCD look. The colour grade is baked into the PNG
-             (muted/posterized + GBA gamma); the recognizable "screen" signature
-             — a faint LCD pixel-grid + scanline — is the .gba-screen overlay
-             pseudo-element on this wrapper. The image stays CRISP (pixelated) and
-             POSITIVE on every tint (never inverted); a theme-aware brightness
-             nudge keeps it legible on the dark p1 phosphor plate. */
-          <span class="gba-screen relative block h-full w-full overflow-hidden rounded-full">
-            <Image
-              src={avatarSrc}
-              alt="Ashwin John Chempolil — Game Boy Advance pixel-art portrait"
-              width={560}
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-              data-avatar="gba"
-              class="gba-img h-full w-full rounded-full object-cover"
-            />
-          </span>
-        ) : (
-          /* PIXEL-ART VARIANT — same circular plate, but the portrait is
-             duotone-blended into the active tint and rendered CRISP (pixelated).
-             `data-avatar` selects the per-variant treatment in the scoped CSS. */
-          <Image
-            src={avatarSrc}
-            alt="Ashwin John Chempolil — pixel-art portrait"
-            width={560}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            data-avatar={avatar}
-            class="pixel-duotone h-full w-full rounded-full object-cover"
-          />
-        )}
+        </span>
       </div>
 
       <!-- Intro block — name, status badge, labels row. -->
@@ -277,103 +222,15 @@ const isGba = avatar === 'gba';
     margin-right: calc(50% - 50vw);
   }
 
-  /* ---- Profile photo duotone treatment ----
-     A colour headshot would break the strict-duotone screen, so force it toward
-     ink: grayscale removes the hue, contrast/brightness shape it. Recipe mirrors
-     ExperienceTimeline's `.neu-duotone`, scoped here.
-
-     UNIFORM across ALL tints (dmg/pocket/p1) — there is deliberately NO per-theme
-     invert. The photo must NEVER render as a negative/inverted image on the dark
-     (p1) tint; a normal grayscale headshot reads correctly on every tint and fits
-     the monochrome aesthetic. */
-  .profile-duotone {
-    filter: grayscale(1) contrast(1.05) brightness(0.95);
-  }
-
   /* ==========================================================
-     PIXEL-ART DUOTONE BLEND (comparison pages only) — POSITIVE, NEVER INVERTED
-     ----------------------------------------------------------
-     HARD RULE: no `invert()` on ANY tint. The portrait must always read as a
-     POSITIVE image (face lighter-than-or-equal-to its real tonal order), never a
-     photo-negative. On the dark p1 phosphor tint the figure is tinted toward the
-     light green ink and stays legible WITHOUT flipping the face.
-
-     SOURCES (after the white-knockout step):
-       • bw  → avatar-bw-cut.png   (grayscale figure on a TRANSPARENT bg)
-       • art → avatar-art-cut.png  (colour figure on a TRANSPARENT bg)
-       • flat→ avatar-flat.png     (colour figure on an OPAQUE blue square)
-     Because bw/art now have a transparent background, the figure sits directly on
-     the circular `bg-surface` plate — the blend only has to retint the FIGURE,
-     not erase a background.
-
-     HOW THE DUOTONE WORKS (mix-blend-mode against the solid surface plate):
-       • LIGHT tints (dmg / pocket, :root + [pocket]):
-         grayscale(1) strips hue; mix-blend-mode:multiply darkens the plate by the
-         figure's luminance → dark figure pixels print as theme INK on the light
-         plate, light pixels (skin/teeth) let the plate show. A normal, positive
-         portrait. Transparent bg contributes nothing → bare plate.
-
-       • DARK tint (p1, bright phosphor green on near-black plate):
-         grayscale(1) then mix-blend-mode:SCREEN (NOT invert). Screen LIGHTENS the
-         near-black plate by the figure's luminance and PRESERVES tonal order
-         (brighter source → brighter result), so the lit parts of the face glow as
-         phosphor-green ink and the shadows settle into the dark plate — a positive
-         portrait, not a negative. A brightness/contrast lift raises mid-tones so
-         the figure is clearly visible against #0a160a. No `invert()` anywhere.
-
-     CRISPNESS: image-rendering: pixelated keeps the pixel grid sharp when the
-     source is scaled up into the 280px circle (no smoothing/blur).
-     ========================================================== */
-  .pixel-duotone {
-    image-rendering: pixelated;
-    /* Light-tint default (dmg / pocket): hue-strip + ink-print via multiply. */
-    filter: grayscale(1) contrast(1.12) brightness(1.02);
-    mix-blend-mode: multiply;
-    opacity: 0.95;
-  }
-
-  /* 'flat' = colour portrait on a solid BLUE square (~#2d5b8e). grayscale
-     neutralizes the blue to a ~33% mid-grey; under multiply that would print as
-     a dark square. Lift brightness hard so the neutralized blue fades up toward
-     the surface plate (the square dissolves), while contrast holds the figure's
-     darks so the portrait still reads as ink. */
-  .pixel-duotone[data-avatar='flat'] {
-    filter: grayscale(1) contrast(1.18) brightness(1.35);
-  }
-
-  /* 'bw' is already grayscale on a now-TRANSPARENT bg — lightest touch. Under
-     multiply only the figure's ink prints onto the plate; the transparent bg
-     contributes nothing. No per-variant override beyond a gentle contrast. */
-  .pixel-duotone[data-avatar='bw'] {
-    filter: grayscale(1) contrast(1.1) brightness(1);
-  }
-
-  /* DARK tint (p1): SCREEN, no invert. Screen preserves tonal order so the face
-     stays POSITIVE; the brightness lift maps the figure's luminance up into the
-     phosphor-green ink range so it is clearly visible on the near-black plate.
-     Transparent bg (bw/art) contributes nothing → bare dark plate behind. */
-  :global([data-theme='p1']) .pixel-duotone {
-    filter: grayscale(1) contrast(1.1) brightness(1.45);
-    mix-blend-mode: screen;
-    opacity: 0.95;
-  }
-  /* 'flat' under p1 — opaque neutralized-blue square. Screen (no invert) lifts the
-     light figure pixels (skin/teeth) toward bright green ink while the neutralized
-     blue settles as a muted dark-green square behind the portrait. Positive. */
-  :global([data-theme='p1']) .pixel-duotone[data-avatar='flat'] {
-    filter: grayscale(1) contrast(1.15) brightness(1.05);
-    mix-blend-mode: screen;
-  }
-
-  /* ==========================================================
-     GBA SCREEN TREATMENT (comparison page only) — TOKEN-REACTIVE TINT, BLENDED
+     GBA SCREEN TREATMENT (production avatar) — TOKEN-REACTIVE TINT, BLENDED
      ----------------------------------------------------------
      GOAL (user's repeated ask): the avatar must BLEND with the website
      background, not pop as a full-colour cutout. So the GBA portrait is NO
      LONGER rendered in natural colour. Instead it is grayscaled and DUOTONE-
      BLENDED onto the active theme's solid `bg-surface` plate via mix-blend-mode
-     — exactly the proven token-reactive mechanism used by `.pixel-duotone`
-     above. Its dominant tone therefore RETINTS with the theme:
+     — a proven token-reactive duotone mechanism. Its dominant tone therefore
+     RETINTS with the theme:
        • dmg   → olive-toned (figure prints in olive ink #0f380f on #9bbc0f)
        • pocket→ gray-toned  (figure prints in neutral ink #1b1f18 on #c6cbb6)
        • p1    → green-phosphor-toned (figure glows #33ff66 on near-black plate)
