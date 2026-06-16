@@ -366,17 +366,36 @@ const isGba = avatar === 'gba';
   }
 
   /* ==========================================================
-     GBA SCREEN TREATMENT (comparison page only) — COLOUR, NEVER INVERTED
+     GBA SCREEN TREATMENT (comparison page only) — TOKEN-REACTIVE TINT, BLENDED
      ----------------------------------------------------------
-     The Game Boy Advance was a COLOUR handheld, so this variant keeps the
-     portrait's colour (the muted/posterized + GBA-gamma grade is baked into
-     avatar-color-cut.png at build time). Here we add only the recognizable GBA
-     "screen" signature and keep it legible on every tint:
+     GOAL (user's repeated ask): the avatar must BLEND with the website
+     background, not pop as a full-colour cutout. So the GBA portrait is NO
+     LONGER rendered in natural colour. Instead it is grayscaled and DUOTONE-
+     BLENDED onto the active theme's solid `bg-surface` plate via mix-blend-mode
+     — exactly the proven token-reactive mechanism used by `.pixel-duotone`
+     above. Its dominant tone therefore RETINTS with the theme:
+       • dmg   → olive-toned (figure prints in olive ink #0f380f on #9bbc0f)
+       • pocket→ gray-toned  (figure prints in neutral ink #1b1f18 on #c6cbb6)
+       • p1    → green-phosphor-toned (figure glows #33ff66 on near-black plate)
+     so it reads as part of the colored screen and blends into each background.
 
-       • .gba-img — the colour portrait, rendered CRISP (image-rendering:
-         pixelated) so the pixel grid stays sharp when scaled into the plate.
-         A hair of saturation/contrast gives it the reflective-LCD pop.
-         POSITIVE on every tint: NO invert() anywhere.
+     The Game Boy ADVANCE LCD signature is KEPT — `image-rendering: pixelated`
+     for crisp pixels and the `.gba-screen::after` pixel-grid + scanline overlay
+     — so it is still a GBA-screen portrait, just rendered THROUGH the theme
+     palette instead of in raw colour.
+
+     HOW THE DUOTONE WORKS (mix-blend against the solid `bg-surface` plate that
+     wraps this image):
+       • LIGHT tints (dmg / pocket): grayscale(1) strips the natural colour;
+         mix-blend-mode:multiply darkens the plate by the figure's luminance →
+         dark pixels print as theme INK on the light plate, light pixels (skin/
+         teeth) let the plate show. Positive, blended, theme-toned.
+       • DARK tint (p1): grayscale(1) then mix-blend-mode:SCREEN (NOT invert).
+         Screen LIGHTENS the near-black plate by the figure's luminance and
+         PRESERVES tonal order, so the lit face glows phosphor-green and shadows
+         settle into the dark plate — a positive portrait, never a negative.
+
+     HARD RULE: NO invert() on ANY tint.
 
        • .gba-screen::after — the faint LCD PIXEL-GRID + SCANLINE overlay.
          Two thin repeating-linear-gradients draw the vertical + horizontal
@@ -384,16 +403,16 @@ const isGba = avatar === 'gba';
          horizontal band adds a subtle scanline cast. mix-blend-mode:multiply
          lets the grid darken the portrait beneath without hiding it. Very low
          opacity so it reads as "screen", not noise. pointer-events:none.
-
-     DARK TINT (p1): a small brightness/contrast lift on the image so the colour
-     portrait stays clearly legible on the near-black phosphor plate — still a
-     POSITIVE colour image, never a negative. The grid overlay is lightened a
-     touch so it doesn't crush the darker mids.
      ========================================================== */
   .gba-img {
     image-rendering: pixelated;
-    /* Reflective-LCD pop: gentle saturation + contrast on top of the baked grade. */
-    filter: saturate(1.06) contrast(1.04) brightness(1.0);
+    /* Light-tint default (dmg / pocket): strip natural colour, then duotone-
+       print onto the themed plate via multiply so the figure tone === theme ink.
+       This is what makes the avatar BLEND with the active background instead of
+       popping in full colour. */
+    filter: grayscale(1) contrast(1.12) brightness(1.04);
+    mix-blend-mode: multiply;
+    opacity: 0.96;
   }
 
   .gba-screen::after {
@@ -430,10 +449,14 @@ const isGba = avatar === 'gba';
     opacity: 0.5;
   }
 
-  /* DARK tint (p1) — keep the colour portrait bright + legible on the near-black
-     plate (positive, no invert), and soften the grid so it doesn't crush mids. */
+  /* DARK tint (p1) — SCREEN, no invert. Screen preserves tonal order so the
+     figure stays POSITIVE; the brightness lift maps the figure's luminance up
+     into the phosphor-green ink range so it glows on the near-black plate and
+     BLENDS into the dark screen rather than popping in colour. */
   :global([data-theme='p1']) .gba-img {
-    filter: saturate(1.1) contrast(1.04) brightness(1.16);
+    filter: grayscale(1) contrast(1.1) brightness(1.45);
+    mix-blend-mode: screen;
+    opacity: 0.96;
   }
   :global([data-theme='p1']) .gba-screen::after {
     /* On a dark plate a darkening grid is nearly invisible and would muddy the
