@@ -1,0 +1,19 @@
+---
+/**
+ * pixel-bw.astro — COMPARISON PAGE (not linked from nav).
+ * Same home profile card, but the headshot is swapped for the grayscale
+ * pixel-art portrait (avatar-bw.png), duotone-blended into the active tint.
+ * The real `/` is unchanged. Pending Ashwin's pick of variant.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { createPageTitle } from '../data/site';
+---
+
+<BaseLayout
+  title={createPageTitle('Pixel BW')}
+  description="Avatar comparison page — grayscale pixel-art variant."
+  fillViewport
+>
+  <Hero fill avatar="bw" caption="variant: bw" />
+</BaseLayout>

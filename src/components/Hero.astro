@@ -37,6 +37,14 @@ import { Image } from 'astro:assets';
 import { SOCIAL_LINKS } from '../data/site';
 import BrandIcon from './BrandIcon.astro';
 import headshot from '../assets/headshot.jpg';
+import avatarBw from '../assets/pixel/avatar-bw.png';
+import avatarFlat from '../assets/pixel/avatar-flat.png';
+import avatarArt from '../assets/pixel/avatar-art.png';
+
+/** Avatar variants. 'headshot' is the production default (the real `/`). The
+ *  'bw' | 'flat' | 'art' variants swap in Ashwin's pixel-art portraits for the
+ *  comparison pages and are duotone-blended into the active tint. */
+type Avatar = 'headshot' | 'bw' | 'flat' | 'art';
 
 interface Props {
   /**
@@ -46,6 +54,17 @@ interface Props {
    * footer pinned to the bottom with no unfilled background.
    */
   fill?: boolean;
+  /**
+   * Which portrait to show in the profile plate. Defaults to 'headshot' so the
+   * production home page is unchanged; the pixel comparison pages pass
+   * 'bw' | 'flat' | 'art' to swap in a pixel-art avatar (duotone-blended).
+   */
+  avatar?: Avatar;
+  /**
+   * Optional mono caption rendered under the labels row (e.g. "variant: bw") so
+   * a reviewer can tell the comparison pages apart. Omitted on the real home.
+   */
+  caption?: string;
   /** Kept for API parity with the prior Hero so callers stay drop-in. */
   tagline?: string;
   ctaHref?: string;
@@ -53,7 +72,19 @@ interface Props {
   badgeText?: string;
 }
 
-const { fill = false } = Astro.props;
+const { fill = false, avatar = 'headshot', caption } = Astro.props;
+
+/** Map the variant to its source image. Pixel sources render CRISP (no
+ *  smoothing) via the scoped `[data-avatar]` CSS below. */
+const AVATAR_SRC = {
+  headshot,
+  bw: avatarBw,
+  flat: avatarFlat,
+  art: avatarArt,
+} as const;
+
+const avatarSrc = AVATAR_SRC[avatar];
+const isHeadshot = avatar === 'headshot';
 ---
 
 <!-- ============================================================
@@ -96,16 +127,32 @@ const { fill = false } = Astro.props;
       <div
         class="profile-avatar flex h-52 w-52 sm:h-[280px] sm:w-[280px] items-center justify-center rounded-full border border-border bg-surface p-2"
       >
-        <Image
-          src={headshot}
-          alt="Ashwin John Chempolil"
-          width={560}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="profile-duotone h-full w-full rounded-full object-cover"
-          style="object-position: 50% 28%;"
-        />
+        {isHeadshot ? (
+          <Image
+            src={avatarSrc}
+            alt="Ashwin John Chempolil"
+            width={560}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="profile-duotone h-full w-full rounded-full object-cover"
+            style="object-position: 50% 28%;"
+          />
+        ) : (
+          /* PIXEL-ART VARIANT — same circular plate, but the portrait is
+             duotone-blended into the active tint and rendered CRISP (pixelated).
+             `data-avatar` selects the per-variant treatment in the scoped CSS. */
+          <Image
+            src={avatarSrc}
+            alt="Ashwin John Chempolil — pixel-art portrait"
+            width={560}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            data-avatar={avatar}
+            class="pixel-duotone h-full w-full rounded-full object-cover"
+          />
+        )}
       </div>
 
       <!-- Intro block — name, status badge, labels row. -->
@@ -160,6 +207,13 @@ const { fill = false } = Astro.props;
             <span>Connect on LinkedIn</span>
           </a>
         </div>
+
+        {/* Optional variant caption — mono, dimmed, only on comparison pages. */}
+        {caption && (
+          <p class="font-mono text-xs uppercase tracking-[0.18em] text-secondary opacity-70">
+            {caption}
+          </p>
+        )}
       </div>
     </div>
   </div>
@@ -198,6 +252,77 @@ const { fill = false } = Astro.props;
      the monochrome aesthetic. */
   .profile-duotone {
     filter: grayscale(1) contrast(1.05) brightness(0.95);
+  }
+
+  /* ==========================================================
+     PIXEL-ART DUOTONE BLEND (comparison pages only)
+     ----------------------------------------------------------
+     The three pixel portraits are full-colour and OPAQUE (no alpha). Verified
+     backgrounds: bw + art sit on WHITE (~#fefefe), flat sits on a solid BLUE
+     square (~#2d5b8e). To make each read as PART of the strict-duotone screen —
+     and retint when the theme changes — we reuse the codebase's proven duotone
+     recipe (ExperienceTimeline `.neu-duotone`):
+
+       • LIGHT tints (dmg / pocket, :root + [pocket]):
+         grayscale(1) strips all hue (kills the blue cast on 'flat'), contrast
+         shapes the figure toward ink, and mix-blend-mode:multiply lets the
+         SURFACE tint show through. WHITE is multiply's identity, so the white
+         bg of bw/art DISSOLVES completely into the plate; only the figure's
+         darker pixels print in the theme ink. flat's blue greyscales to a
+         mid-tone, so we lift its brightness (below) to fade the square toward
+         the plate while the figure stays readable.
+
+       • DARK tint (p1, green phosphor on near-black):
+         multiply would crush the figure to black, so invert + screen instead —
+         white bg → black after invert, and BLACK is screen's identity, so the
+         bg dissolves into the dark panel; the figure reads as light green ink.
+
+     CRISPNESS: image-rendering: pixelated keeps the pixel grid sharp when the
+     source is scaled up into the 280px circle (no smoothing/blur).
+     ========================================================== */
+  .pixel-duotone {
+    image-rendering: pixelated;
+    /* Light-tint default (dmg / pocket): hue-strip + tint via multiply. */
+    filter: grayscale(1) contrast(1.12) brightness(1.02);
+    mix-blend-mode: multiply;
+    opacity: 0.95;
+  }
+
+  /* 'flat' = colour portrait on a solid BLUE square (~#2d5b8e). grayscale
+     neutralizes the blue to a ~33% mid-grey; under multiply that would print as
+     a dark square. Lift brightness hard so the neutralized blue fades up toward
+     the surface plate (the square dissolves), while contrast holds the figure's
+     darks so the portrait still reads as ink. */
+  .pixel-duotone[data-avatar='flat'] {
+    filter: grayscale(1) contrast(1.18) brightness(1.35);
+  }
+
+  /* 'bw' is already grayscale on a WHITE bg — lightest touch. Under multiply the
+     white bg dissolves into the surface plate (white is multiply's identity) and
+     only the figure's ink prints, so no per-variant override beyond a gentle
+     contrast is needed. */
+  .pixel-duotone[data-avatar='bw'] {
+    filter: grayscale(1) contrast(1.1) brightness(1);
+  }
+
+  /* DARK tint (p1): invert + screen so the portrait is light ink on the dark
+     panel instead of a crushed black blob. Targets [data-theme] (the .dark
+     class is retired in this codebase). */
+  :global([data-theme='p1']) .pixel-duotone {
+    filter: grayscale(1) contrast(1.05) brightness(1.6) invert(1);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+  /* On the 'flat' square under p1 we must NOT invert. Unlike bw/art (a WHITE bg
+     where the figure is the DARK element, so invert flips white→black and the
+     figure→bright), flat's blue bg greyscales DARKER than the skin — inverting
+     would make the bg glow and the face sink. Instead use screen WITHOUT invert:
+     it preserves tonal order, lifting the light figure pixels (skin/teeth) up to
+     bright green ink while the neutralized-blue bg settles as a muted dark-green
+     square behind the portrait. The earlier invert rule is overridden here. */
+  :global([data-theme='p1']) .pixel-duotone[data-avatar='flat'] {
+    filter: grayscale(1) contrast(1.15) brightness(1);
+    mix-blend-mode: screen;
   }
 
   /* ---- Status dot pulse — the ONE animation (user request) ----
