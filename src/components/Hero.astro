@@ -449,14 +449,58 @@ const isGba = avatar === 'gba';
     opacity: 0.5;
   }
 
-  /* DARK tint (p1) — SCREEN, no invert. Screen preserves tonal order so the
-     figure stays POSITIVE; the brightness lift maps the figure's luminance up
-     into the phosphor-green ink range so it glows on the near-black plate and
-     BLENDS into the dark screen rather than popping in colour. */
+  /* DARK tint (p1) — GREEN-PHOSPHOR COLORIZE, no invert, NON-WHITE.
+     PROBLEM with the prior recipe (grayscale + brightness 1.45 + mix-blend:screen
+     against the near-black plate): screen LIGHTENS by the figure's luminance, so
+     the lit pixels (skin/teeth) were lifted toward WHITE, not green — the figure
+     read as a bright white portrait, only tinted green where the plate leaked
+     through the shadows.
+
+     FIX (token-reactive): paint the wrapper with the theme INK as a solid green
+     backdrop (var(--color-primary) === #33ff66) and MULTIPLY the grayscale figure
+     over it instead of screening over black. Multiply maps each figure-luminance g
+     onto the green: result = #33ff66 × g.
+       • highlights (g→1) → full #33ff66  → BRIGHT GREEN (never white)
+       • shadows    (g→0) → near-black     → settles into the dark plate
+     so the brightest parts of the face now read as phosphor GREEN, tonal order is
+     preserved (positive portrait), and it retints automatically with the p1 ink.
+     No invert(), still pixelated, still BLENDED into the screen. The green backdrop
+     is clipped to the figure because multiply leaves the transparent-bg areas as
+     the bare plate via the surrounding bg-surface. */
+  :global([data-theme='p1']) .gba-screen {
+    /* Isolate so the green colorize layer below blends against the FIGURE
+       (drawn inside this group), not against the page behind it. */
+    isolation: isolate;
+  }
   :global([data-theme='p1']) .gba-img {
-    filter: grayscale(1) contrast(1.1) brightness(1.45);
+    /* Keep the figure as a POSITIVE grayscale luminance map (detail + alpha
+       preserved). Screen on the near-black plate keeps shadows in the plate and
+       lifts the lit pixels — but brightness is held DOWN (1.05, was 1.45) so the
+       highlights are a mid/high grey, NOT blown to white. The green hue is then
+       supplied by the colorize overlay below, so the result is GREEN, not white. */
+    filter: grayscale(1) contrast(1.12) brightness(1.05);
     mix-blend-mode: screen;
     opacity: 0.96;
+  }
+  /* GREEN-PHOSPHOR COLORIZE OVERLAY (p1 only). A solid theme-ink (#33ff66) fill
+     painted OVER the grayscale figure and composited with mix-blend-mode:color —
+     which takes HUE + SATURATION from this green layer and LUMINANCE from the
+     figure below, so every figure pixel is recolored to the phosphor-green ink
+     while preserving its tonal value: bright pixels → bright green, dark pixels →
+     dark green. This is what turns the (previously near-white) highlights GREEN.
+     Token-reactive: reads var(--color-primary), so it retints with the p1 ink.
+     mask: the figure's own alpha would normally NOT clip this fill; but because
+     the wrapper isolates, transparent figure areas blend over the dark plate and
+     stay dark — the figure is the only thing that reads as lit green. No invert. */
+  :global([data-theme='p1']) .gba-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 9999px;
+    pointer-events: none;
+    background-color: var(--color-primary);
+    mix-blend-mode: color;
   }
   :global([data-theme='p1']) .gba-screen::after {
     /* On a dark plate a darkening grid is nearly invisible and would muddy the
