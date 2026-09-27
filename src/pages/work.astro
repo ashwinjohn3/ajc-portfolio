@@ -1,0 +1,29 @@
+---
+/**
+ * work.astro
+ * U10 — Dedicated work/experience page
+ *
+ * Uses the shared PageHeader (Spline Sans Mono kicker) like every other page
+ * (tools/contact/resume), then the full ExperienceTimeline. The timeline's own
+ * Section runs with an empty label (its former "experience" label is now the
+ * PageHeader kicker, so it appears exactly once). Reached from the top nav
+ * [work] link.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ExperienceTimeline from '../components/ExperienceTimeline.astro';
+import { createPageTitle } from '../data/site';
+---
+
+<BaseLayout
+  title={createPageTitle('Work')}
+  description="Work experience — software engineering roles at Amazon Web Services, Northeastern University, and Active.ai."
+>
+  <!-- Shared page header: Spline Sans Mono kicker, matching tools/contact/resume
+       (the site's pages use a kicker label, not a large title). -->
+  <PageHeader label="experience" pb="pb-2" />
+
+  <!-- Full experience timeline — self-contained, renders Section id="experience"
+       with an empty label (kicker lives in the PageHeader above). -->
+  <ExperienceTimeline />
+</BaseLayout>

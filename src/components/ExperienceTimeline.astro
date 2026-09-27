@@ -1,0 +1,154 @@
+---
+/**
+ * ExperienceTimeline — work collection rendered as a stacked card timeline,
+ * sorted by `order` (0 = most recent). Composition A "DMG" re-skin.
+ *
+ * ──────────────────────────────────────────────────────────
+ * • No vertical spine / node dots — pure card stacking.
+ * • Company logos sit in a PROMINENT 54×54 chip (φ-stepped up from the old
+ *   40px), inline-left of each card heading. The logo identity + company link
+ *   live in the work collection frontmatter (companyHref + logo descriptor),
+ *   so a new employer needs ZERO edits here. All logos are monochrome-safe:
+ *     - kind:brand (github / linkedin / aws) → inline currentColor BrandIcon
+ *     - kind:img (e.g. Northeastern)         → full-color SVG forced to duotone
+ *       via a CSS grayscale+contrast filter (`.neu-duotone`) so no full-color
+ *       element breaks the duotone discipline.
+ *     - kind:word (e.g. Active.ai)           → typographic wordmark, pure ink.
+ * • Duotone: company names + team tags read in text-primary (in duotone the
+ *   "accent" is the ink step, not a hue) — no terracotta anywhere.
+ * • Cards are <div>; company links render as inline <a> within the body
+ *   (avoids nested <a> when bullets also link).
+ *
+ * Usage: <ExperienceTimeline /> — self-contained, renders Section id="experience".
+ */
+
+import { getCollection } from 'astro:content';
+import Section from './Section.astro';
+import Card from './Card.astro';
+import BrandIcon from './BrandIcon.astro';
+// Company link + logo identity now live in each role's frontmatter
+// (companyHref + logo descriptor) — see src/content.config.ts. NEU's kind:img
+// brand-red SVG is forced to duotone via the .neu-duotone CSS filter below.
+
+// Sort ascending: order 0 = most recent role, rendered first.
+const entries = (await getCollection('work')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Section id="experience" label="">
+  <div class="flex flex-col gap-y-4">
+    {entries.map((entry) => {
+      const href = entry.data.companyHref;
+      const logo = entry.data.logo;
+      const bullets = entry.data.bullets ?? [];
+
+      return (
+        <Card
+          heading={entry.data.title}
+          meta={entry.data.period}
+        >
+          <!-- Logo chip — PROMINENT 54×54, surface + border, tight 4px radius.
+               Shared chrome so logos line up uniformly down the timeline. -->
+          {logo && (
+            <span
+              slot="logo"
+              class="inline-flex items-center justify-center w-[54px] h-[54px] rounded-[4px] bg-surface border border-border overflow-hidden select-none"
+            >
+              {logo.kind === 'brand' && (
+                <BrandIcon name={logo.icon} title={entry.data.company} class="w-8 h-8 text-primary" />
+              )}
+              {logo.kind === 'img' && (
+                <img
+                  src={logo.src}
+                  alt={`${entry.data.company} logo`}
+                  width="54"
+                  height="54"
+                  loading="lazy"
+                  decoding="async"
+                  class="neu-duotone w-11 h-auto"
+                />
+              )}
+              {logo.kind === 'word' && (
+                <span aria-hidden="true" class="font-display text-[0.875rem] font-semibold leading-none tracking-tight text-primary text-center px-1">
+                  {logo.primary}{logo.accent}
+                </span>
+              )}
+            </span>
+          )}
+
+          <!-- Company name — inline link (ink, mono, ink underline on hover). -->
+          {href ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-mono text-sm text-primary border-b border-border hover:border-primary transition-colors duration-150"
+            >
+              {entry.data.company}
+            </a>
+          ) : (
+            <p class="font-mono text-sm text-primary">{entry.data.company}</p>
+          )}
+
+          <!-- Bullet body — only when bullets exist -->
+          {bullets.length > 0 && (
+            <ul class="list-none mt-2.5 flex flex-col gap-1.5">
+              {bullets.map((bullet) => (
+                <li class="flex gap-2 leading-snug">
+                  {bullet.team && (
+                    <span class="font-mono text-xs text-primary shrink-0 opacity-85">
+                      [{bullet.team}]
+                    </span>
+                  )}
+                  {bullet.href ? (
+                    <a
+                      href={bullet.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="underline decoration-border underline-offset-2 hover:decoration-primary transition-colors duration-150"
+                    >
+                      {bullet.text}
+                    </a>
+                  ) : (
+                    <span>{bullet.text}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <!-- Optional subtitle (e.g. course name for teaching roles) -->
+          {entry.data.subtitle && (
+            <p class="mt-2 font-mono text-xs text-secondary italic">
+              {entry.data.subtitle}
+            </p>
+          )}
+        </Card>
+      );
+    })}
+  </div>
+</Section>
+
+<style>
+  /* ------------------------------------------------------------------
+     Northeastern wordmark is a brand-red (#c8102e) full-color SVG. Force
+     it to the duotone ink step so it never breaks the monochrome screen:
+     grayscale removes the hue, contrast/brightness shape it toward ink,
+     and a low opacity lets it read as a tinted mark rather than pure black.
+     Scoped here (component <style>) — does not touch sibling global.css.
+     ------------------------------------------------------------------ */
+  .neu-duotone {
+    filter: grayscale(1) contrast(1.15) brightness(0.55);
+    opacity: 0.92;
+    mix-blend-mode: multiply;
+  }
+  /* Under the DARK tint (p1) the multiply blend would crush the mark;
+     invert+screen so the wordmark reads as light ink on the dark panel
+     instead. Targets the [data-theme] attr (the .dark class is retired). */
+  :global([data-theme="p1"]) .neu-duotone {
+    filter: grayscale(1) contrast(1.1) brightness(1.8) invert(1);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+</style>

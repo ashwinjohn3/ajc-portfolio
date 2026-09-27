@@ -1,0 +1,27 @@
+---
+/**
+ * index.astro
+ * Lean home — hero only, NO work timeline (the timeline lives at /work).
+ *
+ * Layout: full-bleed Hero stretched to fill the viewport between nav and
+ * footer (fillViewport + Hero fill). The top nav already links /work, so the
+ * home carries no separate bridge link. Absorbs the former variant-b
+ * composition; variant-b.astro is gone.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { createPageTitle } from '../data/site';
+---
+
+<BaseLayout
+  title={createPageTitle('Home')}
+  description="Software engineer based in Washington, DC. Building distributed systems and cloud infrastructure at AWS."
+  fillViewport
+>
+  <!-- Hero — centered profile card, full-bleed, fills remaining viewport height.
+       Profile pic is the Game Boy Advance pixel-art avatar (avatar-color-cut.png
+       given the GBA reflective-LCD treatment: token-reactive duotone blend per
+       tint, p1 green highlight-cap, LCD grid/scanline, pixelated, golden-ratio
+       circle). The headshot was retired; this is now the production avatar. -->
+  <Hero fill avatar="gba" />
+</BaseLayout>

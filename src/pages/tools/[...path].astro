@@ -1,0 +1,42 @@
+---
+/**
+ * tools/[...path].astro
+ * Tools & Setup page (feature-flag gated)
+ *
+ * STATIC-MODE FLAG GATING (Astro `output: 'static'`):
+ * A flat, non-dynamic page (tools.astro) ALWAYS emits an HTML file in dist/,
+ * even when its frontmatter returns `new Response(null, {status: 404})` — that
+ * Response is rendered to a static 404-bodied HTML file, so the route still
+ * ships. The only reliable way to suppress a page from the static build is a
+ * dynamic route whose getStaticPaths() returns an empty array: Astro then emits
+ * zero HTML for it.
+ *
+ * When PUBLIC_SHOW_TOOLS is not "true" (the default):
+ *   getStaticPaths() returns [] → no /tools/* HTML in dist/.
+ * When enabled:
+ *   returns a single { params: { path: undefined } } → emits /tools/index.html
+ *   at the bare /tools URL.
+ *
+ * Nav link is also hidden by Nav.astro when the flag is off.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import UsesSection from '../../components/UsesSection.astro';
+import { isEnabled } from '../../lib/flags';
+import { createPageTitle } from '../../data/site';
+
+export function getStaticPaths() {
+  // isEnabled reads FEATURE_FLAGS (import.meta.env.PUBLIC_*), resolved at build time.
+  return isEnabled('tools') ? [{ params: { path: undefined } }] : [];
+}
+---
+
+<BaseLayout
+  title={createPageTitle('Tools')}
+  description="Tools, hardware, and software setup — the gear and software Ashwin uses daily."
+>
+  <PageHeader label="tools & setup" pb="pb-2" />
+
+  <!-- Full tools section — self-contained, reads from uses content collection -->
+  <UsesSection />
+</BaseLayout>

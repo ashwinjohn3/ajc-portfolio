@@ -1,0 +1,114 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Analytics from '../components/Analytics.astro';
+import { TINT_IDS, TINT_BG, TINT_DARK, assertTintsSyncedWithCss } from '../lib/tints';
+// Raw CSS source for the build-time sync guard (Vite ?raw — string at build).
+import globalCssSource from '../styles/global.css?raw';
+
+// Build-time assertion: the tint registry's bg values must match --brand-bg in
+// global.css. Throws (failing the build) on any drift, so the no-flash fallback
+// can never silently diverge from the CSS token authority.
+assertTintsSyncedWithCss(globalCssSource);
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  /**
+   * When true, <main> grows to fill all space between nav and footer and
+   * lays its slot out as a column so a full-bleed hero can stretch to the
+   * remaining viewport height. Used by the lean home page.
+   */
+  fillViewport?: boolean;
+}
+
+const {
+  title = 'Ashwin Chempolil — Software Engineer',
+  description = 'Software engineer with a focus on distributed systems and cloud infrastructure.',
+  ogImage = '/favicon.svg',
+  fillViewport = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- No-flash tint engine: runs synchronously before paint.
+         Cycle order + per-tint bg + dark-set are injected from the single-source
+         registry (src/lib/tints.ts) at BUILD time via define:vars — no runtime
+         import, so the script stays literal-fast and pre-paint. -->
+    <script is:inline define:vars={{ TINTS: TINT_IDS, BG: TINT_BG, DARK: TINT_DARK }}>
+      (function () {
+        function applyTint() {
+          var stored = localStorage.getItem('tint') || '';
+          var tint = TINTS.indexOf(stored) !== -1 ? stored : 'dmg';
+          var html = document.documentElement;
+          if (tint === 'dmg') {
+            html.removeAttribute('data-theme'); // :root is DMG default
+          } else {
+            html.setAttribute('data-theme', tint);
+          }
+          // Paint-fallbacks so dark tints never flash white before CSS loads.
+          html.style.backgroundColor = BG[tint];
+          html.style.colorScheme = DARK.indexOf(tint) !== -1 ? 'dark' : 'light';
+          localStorage.setItem('tint', tint);
+        }
+        applyTint();
+        // Re-apply after ClientRouter navigations so the tint survives transitions.
+        document.addEventListener('astro:after-swap', applyTint);
+      })();
+    </script>
+
+    <!-- Fonts — Pairing 05: Syne (display) + Onest (body) + Spline Sans Mono (mono) -->
+    <Font cssVariable="--font-syne" preload />
+    <Font cssVariable="--font-onest" preload />
+    <Font cssVariable="--font-spline-mono" preload />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Client-side navigation (view transitions) -->
+    <ClientRouter />
+    <Analytics />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <Nav />
+    <main
+      class:list={[
+        'mx-auto w-full max-w-[60rem] flex-1',
+        fillViewport && 'flex flex-col',
+      ]}
+    >
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

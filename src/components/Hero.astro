@@ -1,0 +1,414 @@
+---
+/**
+ * Hero.astro — centered profile-card homepage hero.
+ *
+ * Composition adopted faithfully from the inspiration template's landing hero
+ * (srleom/astro-theme-resume index.astro hero) — a CENTERED VERTICAL STACK —
+ * and re-skinned to this site's strict-duotone token system:
+ *
+ *   (profile photo — circle on a duotone surface plate)
+ *        Ashwin John Chempolil                        ← serif display heading
+ *      • Open to opportunities                         ← status badge, pulsing dot
+ *   📍 Washington DC   ·   Connect on LinkedIn          ← centered wrapping labels
+ *
+ * Re-skin rules applied (KEEP the template layout, SWAP the skin):
+ *   - Template's peach plate (#FFBE98, a third hue) → border-border + bg-surface.
+ *   - Template's rounded-3xl pill → rounded-[3px] badge (Ashwin's radius rule).
+ *   - Template's green pulsing dot (green = third hue) → bg-accent (the ink), so
+ *     the composition stays strictly two-color in every tint.
+ *   - Template's soft shadows dropped (anti-slop; a hairline border carries it).
+ *
+ * STRICT DUOTONE — every visual reads only the tint tokens (surface/border/
+ * primary/secondary/accent), so all active tints (dmg/pocket/p1) resolve via
+ * [data-theme] alone. No hardcoded hues; the GBA pixel-art portrait is grayscaled
+ * and duotone-blended toward ink via the scoped `.gba-img` filter + mix-blend
+ * (same family as ExperienceTimeline's `.neu-duotone`) so it harmonizes with the
+ * tints. On p1 a green multiply-cap clamps highlights to phosphor green.
+ *
+ * The ONE animation: a subtle pulse on the status dot (the user's request).
+ * It is a scoped @keyframes; prefers-reduced-motion turns it OFF (static dot).
+ * The dot is aria-hidden — the real "Open to opportunities" text carries meaning.
+ *
+ * Full-bleed: the <section> breaks out of the parent max-w-[60rem] so the tint
+ * field fills the viewport edge-to-edge between nav and footer; the inner column
+ * (items-center) centres the profile card. `fill` keeps the footer pinned.
+ */
+
+import { Image } from 'astro:assets';
+import { SOCIAL_LINKS } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
+// 'gba' = COLOUR portrait, white-knocked-out + given a Game Boy Advance
+// reflective-LCD colour grade (muted/posterized + GBA gamma) at build time
+// (see avatar-color-cut.png). It is the production avatar: grayscaled and
+// DUOTONE-BLENDED onto the active theme's bg-surface plate via mix-blend-mode so
+// its dominant tone retints with the theme (olive on dmg, gray on pocket, green
+// phosphor on p1 — highlights capped to green, never white, never inverted). The
+// "screen" signature (LCD pixel-grid + scanline) is added in scoped CSS below.
+import avatarGba from '../assets/pixel/avatar-color-cut.png';
+
+interface Props {
+  /**
+   * When true the hero stretches to fill the remaining viewport height
+   * (flex-1 inside the column <main>) and vertically centres the profile card,
+   * so the composition fills the body between nav and footer — keeping the
+   * footer pinned to the bottom with no unfilled background.
+   */
+  fill?: boolean;
+  /**
+   * Which portrait to show in the profile plate. Only the Game Boy Advance
+   * pixel-art avatar ('gba') exists — it is the production avatar — so this is
+   * kept as a single-value prop for call-site clarity and future parity.
+   */
+  avatar?: 'gba';
+  /**
+   * Optional mono caption rendered under the labels row. Unused on the home
+   * page; kept for API parity.
+   */
+  caption?: string;
+  /** Kept for API parity with the prior Hero so callers stay drop-in. */
+  tagline?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+  badgeText?: string;
+}
+
+const { fill = false, caption } = Astro.props;
+---
+
+<!-- ============================================================
+     Hero — centered profile card over the site's tint field. The <section>
+     breaks out of the parent max-w-[60rem] (.hero-power below) so the
+     transparent field fills the viewport edge-to-edge between nav and footer
+     (footer pinned via the fill chain). The inner .hero-col restores the
+     reading column and centres the card.
+     ============================================================ -->
+<section
+  id="hero"
+  class:list={[
+    'hero-power relative',
+    fill
+      ? 'flex-1 flex flex-col justify-center'
+      : 'min-h-[78vh] flex flex-col justify-center',
+  ]}
+  aria-label="Introduction"
+>
+  <div class="hero-col relative z-10 w-full max-w-[60rem] mx-auto px-6 sm:px-10 py-16">
+    <!-- Centered vertical stack: photo → (name → status → labels). -->
+    <div class="flex flex-col items-center gap-y-7 text-center">
+      <!-- AVATAR — Ashwin's Game Boy Advance pixel-art portrait on a duotone
+           surface plate. The circular plate + hairline border are preserved; the
+           portrait fills the ring via object-cover. It is grayscaled and
+           DUOTONE-BLENDED onto the active tint's bg-surface plate (mix-blend) so
+           it harmonizes with the strict-duotone screen — NEVER inverted on any
+           tint, highlights capped to green on p1 (no white pixels).
+
+           GOLDEN-RATIO SIZING (desktop ≥640px): the plate diameter is tied to
+           the rendered width of the hero name by φ. Measured at 1280px the name
+           "Ashwin John Chempolil" renders ~453px wide IN SYNE (the display font —
+           narrower than the earlier Onest mis-measurement of 477px); the plate is
+           sized to 453 / φ ≈ 280px so name_width ≈ 1.618 × diameter — the name
+           stays wider than the circle (dominant) while the circle reads large and
+           deliberate. Below sm the plate steps down to 13rem so it never crowds a
+           375px viewport (where the name wraps); the φ relationship is the
+           desktop target. -->
+
+      <div
+        class="profile-avatar flex h-52 w-52 sm:h-[280px] sm:w-[280px] items-center justify-center rounded-full border border-border bg-surface p-2"
+      >
+        {/* GBA AVATAR — COLOUR portrait on the surface plate, given a Game Boy
+            Advance reflective-LCD look. The colour grade is baked into the PNG
+            (muted/posterized + GBA gamma); the recognizable "screen" signature
+            — a faint LCD pixel-grid + scanline — is the .gba-screen overlay
+            pseudo-element on this wrapper. The image stays CRISP (pixelated) and
+            POSITIVE on every tint (never inverted); on the dark p1 plate a green
+            multiply-cap clamps highlights to phosphor green (no white pixels). */}
+        <span class="gba-screen relative block h-full w-full overflow-hidden rounded-full">
+          <Image
+            src={avatarGba}
+            alt="Ashwin John Chempolil — Game Boy Advance pixel-art portrait"
+            width={560}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            data-avatar="gba"
+            class="gba-img h-full w-full rounded-full object-cover"
+          />
+        </span>
+      </div>
+
+      <!-- Intro block — name, status badge, labels row. -->
+      <div class="flex flex-col items-center gap-y-4">
+        <!-- NAME — display heading, kept at its standard prominent size
+             (text-4xl / 44px). It is the φ anchor: the avatar plate above is
+             sized to name_width / φ, so this name stays the dominant, wider
+             element while the circle scales up to meet it in golden proportion. -->
+        <h1 class="font-display text-4xl leading-tight text-primary">
+          Ashwin John Chempolil
+        </h1>
+
+        <!-- STATUS BADGE — rounded-[3px] (not a pill), duotone surface, pulsing
+             ink dot. The dot is decorative (aria-hidden); the text is the label. -->
+        <span
+          class="status-badge flex flex-row items-center gap-x-3 rounded-[3px] border border-border bg-surface px-4 py-2"
+        >
+          <span class="status-dot-wrap relative flex h-2 w-2 items-center justify-center" aria-hidden="true">
+            <span class="status-pulse absolute inline-flex h-2 w-2 rounded-full bg-accent"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+          </span>
+          <span class="font-mono text-sm font-medium text-primary">Open to opportunities</span>
+        </span>
+
+        <!-- LABELS ROW — centered, wrapping: location + LinkedIn. -->
+        <div class="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 font-mono text-sm text-secondary">
+          <span class="flex flex-row items-center gap-x-2">
+            <!-- Location pin — inline svg, forced to ink (text-primary). -->
+            <svg
+              class="h-5 w-5 text-primary"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>Washington DC</span>
+          </span>
+
+          <a
+            href={SOCIAL_LINKS.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex flex-row items-center gap-x-2 text-accent transition-colors hover:text-accent-hover"
+          >
+            <BrandIcon name="linkedin" class="h-5 w-5" />
+            <span>Connect on LinkedIn</span>
+          </a>
+        </div>
+
+        {/* Optional variant caption — mono, dimmed, only on comparison pages. */}
+        {caption && (
+          <p class="font-mono text-xs uppercase tracking-[0.18em] text-secondary opacity-70">
+            {caption}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ==========================================================
+     Centered profile-card hero — token-driven duotone. Every tint resolves
+     via [data-theme] alone; no hardcoded hues.
+     ========================================================== */
+  .hero-power {
+    /* Transparent so the base tint background (painted on <body>) shows
+       through the full-bleed hero. */
+    background: transparent;
+    color: var(--color-primary);
+
+    /* ---- FULL-BLEED BREAK-OUT ----
+       The hero lives inside <main class="max-w-[60rem]">, which would clamp
+       it to a 960px centred box. Negative inline margins (NOT width:100vw)
+       stretch the section symmetrically to both viewport edges relative to the
+       parent's box, so it stays centred and never forces horizontal page
+       overflow from the scrollbar gutter. html{overflow-x:clip} (global.css)
+       absorbs any sub-pixel delta. */
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  /* ==========================================================
+     GBA SCREEN TREATMENT (production avatar) — TOKEN-REACTIVE TINT, BLENDED
+     ----------------------------------------------------------
+     GOAL (user's repeated ask): the avatar must BLEND with the website
+     background, not pop as a full-colour cutout. So the GBA portrait is NO
+     LONGER rendered in natural colour. Instead it is grayscaled and DUOTONE-
+     BLENDED onto the active theme's solid `bg-surface` plate via mix-blend-mode
+     — a proven token-reactive duotone mechanism. Its dominant tone therefore
+     RETINTS with the theme:
+       • dmg   → olive-toned (figure prints in olive ink #0f380f on #9bbc0f)
+       • pocket→ gray-toned  (figure prints in neutral ink #1b1f18 on #c6cbb6)
+       • p1    → green-phosphor-toned (figure glows #33ff66 on near-black plate)
+     so it reads as part of the colored screen and blends into each background.
+
+     The Game Boy ADVANCE LCD signature is KEPT — `image-rendering: pixelated`
+     for crisp pixels and the `.gba-screen::after` pixel-grid + scanline overlay
+     — so it is still a GBA-screen portrait, just rendered THROUGH the theme
+     palette instead of in raw colour.
+
+     HOW THE DUOTONE WORKS (mix-blend against the solid `bg-surface` plate that
+     wraps this image):
+       • LIGHT tints (dmg / pocket): grayscale(1) strips the natural colour;
+         mix-blend-mode:multiply darkens the plate by the figure's luminance →
+         dark pixels print as theme INK on the light plate, light pixels (skin/
+         teeth) let the plate show. Positive, blended, theme-toned.
+       • DARK tint (p1): grayscale(1) then mix-blend-mode:SCREEN (NOT invert).
+         Screen LIGHTENS the near-black plate by the figure's luminance and
+         PRESERVES tonal order, so the lit face glows phosphor-green and shadows
+         settle into the dark plate — a positive portrait, never a negative.
+
+     HARD RULE: NO invert() on ANY tint.
+
+       • .gba-screen::after — the faint LCD PIXEL-GRID + SCANLINE overlay.
+         Two thin repeating-linear-gradients draw the vertical + horizontal
+         cell gridlines of an LCD matrix (~4px cells); a third, softer
+         horizontal band adds a subtle scanline cast. mix-blend-mode:multiply
+         lets the grid darken the portrait beneath without hiding it. Very low
+         opacity so it reads as "screen", not noise. pointer-events:none.
+     ========================================================== */
+  .gba-img {
+    image-rendering: pixelated;
+    /* Light-tint default (dmg / pocket): strip natural colour, then duotone-
+       print onto the themed plate via multiply so the figure tone === theme ink.
+       This is what makes the avatar BLEND with the active background instead of
+       popping in full colour. */
+    filter: grayscale(1) contrast(1.12) brightness(1.04);
+    mix-blend-mode: multiply;
+    opacity: 0.96;
+  }
+
+  .gba-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    pointer-events: none;
+    /* LCD pixel-grid (vertical + horizontal cell lines) + soft scanline cast.
+       ~4px cells read as a screen matrix without dominating the portrait. */
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.16) 0,
+        rgba(0, 0, 0, 0.16) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.16) 0,
+        rgba(0, 0, 0, 0.16) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.05) 0,
+        rgba(0, 0, 0, 0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+
+  /* DARK tint (p1) — TRUE TWO-TONE DUOTONE, highlights CAPPED to green (no white).
+     PROBLEM with the prior recipes:
+       1. grayscale + screen alone lifts lit pixels (skin/teeth/glasses) toward WHITE.
+       2. a green `mix-blend-mode: color` overlay only swaps HUE+SAT and KEEPS the
+          figure's LUMINANCE — so a luminance-100% interior pixel (glasses lenses,
+          teeth) stays at full luminance and reads as near-WHITE even after tinting.
+
+     FIX — DUOTONE GRADIENT-MAP via a MULTIPLY green cap (token-reactive):
+     the grayscale figure is screened onto the near-black plate to set its tonal
+     range, then a solid theme-ink fill (var(--color-primary) === #33ff66) is
+     MULTIPLIED over the whole group. Multiply maps each figure value g onto the
+     green endpoint: result = #33ff66 × g, so EVERY output channel is clamped to
+     ≤ the green token's channel — pure #ffffff is mathematically impossible.
+       • highlights (g→1) → #33ff66            → LIGHT PHOSPHOR-GREEN (never white)
+       • midtones   (g≈.5)→ #1fa23f            → mid phosphor-green
+       • shadows    (g→0) → near-black          → settles into the dark plate
+     A Pillow blend model confirms MAX output luminance = 0.694 (white = 1.000) and
+     the brightest pixel is exactly #33ff66 — so the glasses/teeth whites are gone.
+     Tonal order preserved (positive portrait), retints with the p1 ink, no invert(),
+     still pixelated, still BLENDED into the dark screen. Transparent-bg areas blend
+     over the dark plate via the surrounding bg-surface and stay dark. */
+  :global([data-theme='p1']) .gba-screen {
+    /* Isolate so the green multiply cap below blends against the FIGURE
+       (drawn inside this group), not against the page behind it. */
+    isolation: isolate;
+  }
+  :global([data-theme='p1']) .gba-img {
+    /* POSITIVE grayscale luminance map (detail + alpha preserved). Screen on the
+       near-black plate sets the tonal range; brightness 1.2 spreads the figure
+       across the green gradient (shadow→highlight) so detail in the glasses/teeth
+       stays visible. The green hue + the highlight CAP are supplied by the multiply
+       overlay below, so the brightest result is green, never white. */
+    filter: grayscale(1) contrast(1.12) brightness(1.2);
+    mix-blend-mode: screen;
+    opacity: 0.96;
+  }
+  /* GREEN-PHOSPHOR HIGHLIGHT-CAP OVERLAY (p1 only). A solid theme-ink (#33ff66)
+     fill painted OVER the grayscale figure and composited with
+     mix-blend-mode: MULTIPLY — multiply caps whites (white × green = green): every
+     output channel is multiplied by the green token, so no pixel can exceed
+     #33ff66. This is what turns the (previously near-white) glasses lenses / teeth
+     into LIGHT phosphor-green while preserving tonal value (bright→bright green,
+     dark→dark green) for a true two-color duotone. Token-reactive: reads
+     var(--color-primary), so it retints with the p1 ink. Because the wrapper
+     isolates, transparent figure areas blend over the dark plate and stay dark —
+     the figure is the only thing that reads as lit green. No invert. */
+  :global([data-theme='p1']) .gba-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 9999px;
+    pointer-events: none;
+    background-color: var(--color-primary);
+    mix-blend-mode: multiply;
+  }
+  :global([data-theme='p1']) .gba-screen::after {
+    /* On a dark plate a darkening grid is nearly invisible and would muddy the
+       figure — switch to a faint LIGHT grid via screen so the LCD matrix still
+       reads as a subtle screen texture. Still no invert of the portrait. */
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.1) 0,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.1) 0,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    mix-blend-mode: screen;
+    opacity: 0.45;
+  }
+
+  /* ---- Status dot pulse — the ONE animation (user request) ----
+     A subtle expanding/fading ring behind the solid ink dot. Tasteful, low
+     amplitude. The whole dot cluster is aria-hidden; the text carries meaning. */
+  .status-pulse {
+    transform-origin: center;
+    animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes status-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+
+  /* Reduced motion — pulse OFF, static ink dot only. */
+  @media (prefers-reduced-motion: reduce) {
+    .status-pulse {
+      animation: none;
+      opacity: 0;
+    }
+  }
+</style>

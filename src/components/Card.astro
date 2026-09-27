@@ -1,0 +1,71 @@
+---
+/**
+ * Card — duotone surface card with a prominent logo chip (Composition A "DMG").
+ *
+ * Chrome matches the tools grid: bg-surface + border-border, a tight 3px-radius
+ * (no gratuitous rounding — anti-AI-slop), border-brighten hover (no scale/lift).
+ * Colors resolve from the tint engine via the existing utility names; in duotone
+ * "accent" == ink, so headings/company read in text-primary, meta in secondary.
+ *
+ * Props:
+ *   heading      — primary heading (e.g. job title)
+ *   meta         — tertiary meta (e.g. date range) — Spline Sans Mono, secondary
+ *   href         — if set, the entire card becomes an <a> tag
+ *   class        — forwarded to the outer element for overrides
+ *
+ * Slots:
+ *   logo         — optional logo chip; sits inline-left of the heading block,
+ *                  φ-stepped bigger than the old 40px (now 54px) so the company
+ *                  mark reads as a prominent, deliberate element.
+ *   default      — card body content (bullet lists, descriptions, chips…)
+ */
+
+interface Props {
+  heading: string;
+  meta?: string;
+  href?: string;
+  class?: string;
+}
+
+const { heading, meta, href, class: className } = Astro.props;
+
+// Render as <a> when href is provided, otherwise <div>
+const Tag = href ? 'a' : 'div';
+const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<Tag
+  {...linkProps}
+  class:list={[
+    // Tight duotone card — small radius (no gratuitous rounding), crisp edge
+    'relative rounded-[3px] px-5 py-4',
+    'bg-surface border border-border',
+    // Hover — border brightens toward ink (duotone-safe, no hue)
+    'transition-colors duration-200',
+    href && 'hover:border-primary/40 cursor-pointer',
+    className,
+  ]}
+>
+  <!-- Card header: prominent logo chip inline with the heading block. -->
+  <div class="flex items-start gap-3.5">
+    {Astro.slots.has('logo') && (
+      <div class="shrink-0 flex items-center justify-center">
+        <slot name="logo" />
+      </div>
+    )}
+
+    <div class="flex flex-col gap-0.5 min-w-0">
+      {meta && (
+        <span class="font-mono text-xs text-secondary mb-1 tracking-wide">{meta}</span>
+      )}
+      <h3 class="text-base font-semibold text-primary leading-snug">{heading}</h3>
+    </div>
+  </div>
+
+  <!-- Default slot — body content -->
+  {Astro.slots.has('default') && (
+    <div class="mt-3 text-sm text-secondary leading-relaxed">
+      <slot />
+    </div>
+  )}
+</Tag>
