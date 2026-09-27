@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "ajc-portfolio-v2",
+  "account_id": "9bfc6bfa08167077ab3254959168b173",
+  "compatibility_date": "2026-09-27",
+  "build": {
+    "command": "npm run build"
+  },
+  "assets": {
+    "directory": "./dist"
+  }
+}
