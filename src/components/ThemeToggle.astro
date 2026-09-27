@@ -138,6 +138,7 @@ const dmgIconHtml = SVG_OPEN + ICON_PATHS[TINT_ICON.dmg] + '</svg>';
       var next = TINTS[(TINTS.indexOf(cur) + 1) % TINTS.length];
       applyTint(next);
       syncLabel();
+      document.dispatchEvent(new CustomEvent('portfolio:theme-changed', { detail: { theme: next } }));
     }
 
     function bindToggle() {

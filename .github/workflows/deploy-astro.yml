@@ -69,6 +69,8 @@ jobs:
           # No `path:` override needed — the action discovers the project at root.
           node-version: 20
         env:
+          PUBLIC_POSTHOG_KEY: ${{ vars.POSTHOG_KEY }}
+          PUBLIC_POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
           # Feature flags — projects and photography are hidden by default.
           # Flip to 'true' in a future unit when those pages are ready.
           PUBLIC_SHOW_PROJECTS: 'false'
